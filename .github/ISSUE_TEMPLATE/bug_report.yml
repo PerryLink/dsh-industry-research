@@ -1,0 +1,62 @@
+name: Bug report
+description: Report a bug in dsh-industry-research
+title: '[Bug] '
+labels: ['bug']
+body:
+  - type: input
+    id: plugin-version
+    attributes:
+      label: Plugin version
+      description: '`dsh-industry-research` version (see `npm list dsh-industry-research` or package.json).'
+      placeholder: e.g. 0.1.0
+    validations:
+      required: true
+  - type: input
+    id: harness-version
+    attributes:
+      label: Harness version
+      description: '`dsh --version` of the host that runs the plugin.'
+      placeholder: e.g. 0.1.0-rc.6
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: OS / Node version
+      description: Operating system, `node --version`, and pnpm version when the issue is about installing or mounting the plugin.
+      placeholder: e.g. Windows 11 / Node v22.22.3 / pnpm 11.7.0
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction steps
+      description: Minimal steps that reproduce the problem (tool call, config overrides, workspace layout, `offline` mode).
+      placeholder: '1. Run industry_map with industry "..." 2. Observe ...'
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What should have happened.
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: What actually happened (error text, missing/extra artifacts, report content).
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs (optional)
+      description: >-
+        Relevant session or harness output.
+        **⚠️ Redact before pasting: logs must never contain tokens, API keys,
+        passwords, authorization headers, or personal data.**
+      render: shell
+    validations:
+      required: false

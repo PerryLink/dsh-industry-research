@@ -1,0 +1,33 @@
+name: Feature request
+description: Suggest a feature for dsh-industry-research
+title: '[Feature] '
+labels: ['enhancement']
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem to solve
+      description: What you are trying to do with industry/company research that the plugin cannot do today.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What the feature should let you do (tool surface, configuration, or workspace artifacts).
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternative approaches (optional)
+      description: Anything you already tried, or other designs that could solve the same problem.
+    validations:
+      required: false
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context (optional)
+      description: Links, source types, or use cases that motivate the request.
+    validations:
+      required: false
