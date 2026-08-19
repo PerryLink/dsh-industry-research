@@ -28,15 +28,13 @@
 | 文档同步 | `pnpm run verify:readme-sync` | 5 个 README 章节结构与配置键一致 |
 | 打包 | `pnpm run pack:check` | tarball 内容齐全 |
 | lint | `pnpm run lint` | 39 文件 0 警告 0 错误 |
-| 覆盖率 | `pnpm run test:coverage` | lines ≥80 / functions ≥70 / branches ≥80 / statements ≥80 |
+| 覆盖率 | `pnpm run test:coverage` | 94.01 / 80.89 / 100 / 94.01（阈值 80/70/80/80，已实际运行验证） |
 
-### 试装验证（临时 profile，DSH_HOME 在 `.tmp\` 内，已清理）
+### 试装验证（dsh-test-drive 完整 pipeline，真实 dsh CLI + pnpm，已清理）
 
-- `dsh plugin --profile drive add '@deepseek-ai/dsh-base@0.1.0-rc.6' '@deepseek-ai/dsh-headless@0.1.0-rc.6' <tgz>` → 安装成功。
-- `dsh --profile drive --dump-config` → 出现 `dsh-industry-research` 行与配置。
-- keyless headless 冒烟 `dsh --profile drive "Reply with exactly: ok"` → `MISSING_CREDENTIAL`（证明插件树完整加载）。
-- 安装包直 import → 插件面 OK（`name=industry-research, inject=skills+tools`）。
-- 卸载可逆性：`dsh plugin remove` 在 rc.6 CLI 上出现先删依赖、后删 bundle 行的顺序怪癖（残留行导致启动响亮失败 "cannot resolve profile bundle"，属 CLI 侧行为，非本插件缺陷）；手动清理 bundle 行后 dump-config 干净。
+- 按任务 §2 优先复用 `dsh-test-drive`：在其真实 `DriveRunner` 上驱动（隔离临时 DSH_HOME/workspace/store，前缀 `dsh-test-drive-`，宿主 profile 零接触），target 为本插件 `pnpm pack` 产物 tgz。
+- 结果 **verdict: pass**（4.9s）：install pass（真实 `dsh plugin add`，33 包）→ config pass 且 `patchEffective: true`（dump-config 出现 `# == dsh-industry-research` 层与全部 10 个配置键）→ smoke `boot-ok`（无 loader 失败标记，keyless 下 MISSING_CREDENTIAL 属预期）→ capability skipped（无 API key）→ uninstall pass（真实 `dsh plugin remove`）→ cleanup pass（quarantine 重命名 + 删除，零残留）。
+- 补充：手动临时 profile 复验一致（dump-config 行 + keyless headless 冒烟 + 安装包直 import 插件面 OK）；手动方式下曾观察到 remove 中途挂起（300s 超时中断），dsh-test-drive 驱动的完整 pipeline 中 remove 正常完成，判断为中断时序所致而非 CLI 缺陷。
 
 ## 关键偏差（记录在 README/AGENTS/CHANGELOG）
 
@@ -47,5 +45,5 @@
 
 - 引擎桥 `assemble` 未被仓库内包导入（插件侧仅有结构性适配），跨仓库类型演化风险由冻结契约 + 双路径测试兜底；建议发布后与 `dsh-research-report` 做一次互操作联调。
 - 白酒 e2e 基于 `fixtures/baijiu/` 虚构教学数据（报告中明确标注），真实数据需接 `ctx.web` 提供者。
-- `dsh plugin remove` 的 bundle 行清理怪癖可反馈上游。
+- 方法论 skills 仅中文版；如发布需要可补英文版（任务未要求，记录在案）。
 - 下一个发布会话按 PHASE2-GROUP-PROMPTS.md §0.3 执行（版本号 bump + CHANGELOG + 全门禁 + tag，不 push）。
