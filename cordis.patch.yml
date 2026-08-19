@@ -1,0 +1,44 @@
+# dsh-industry-research bundle patch: mount the industry/company research pack.
+#
+# Every key below is a Config field (Schemastery schema); invalid values fail
+# the profile load loudly. See README.md "Configuration" for the full table.
+# The `skills` and `tools` services come from the profile's base bundle
+# (dsh-base composes dsh-skill + dsh-skill-filesystem + dsh-tools); the web
+# capability (ctx.web) and the report engine (ctx.researchReport) are optional
+# and looked up at execution time, never injected.
+- insert:
+    - id: dsh-industry-research
+      name: dsh-industry-research
+      config:
+        # Master switch. On by default; `false` mounts nothing at all.
+        enabled: true
+        # Root directory (relative to the session workspace, or absolute) that
+        # holds every industry artifact: <industryRoot>/<industry>/chain.json,
+        # timeline.jsonl, sources.json, reports/, plus shared company cards
+        # under <industryRoot>/companies/<name>/.
+        industryRoot: industry-research
+        # Per-request timeout (ms) applied to ctx.web search/fetch calls.
+        fetchTimeoutMs: 20000
+        # Maximum entries retained per industry timeline.jsonl (oldest dropped).
+        timelineMaxEntries: 500
+        # Host allowlist for tracked sources (empty = all hosts allowed).
+        sourceAllowlist: []
+        # Host blocklist for tracked sources (wins over the allowlist).
+        sourceBlocklist: []
+        # Offline mode: never touch ctx.web; only local workspace data is used.
+        offline: false
+        # Explicit skills root override; empty = the packaged skills/ edition.
+        # skillsDir: ''
+        # Public-source tracking bounds.
+        track:
+          # web_search maxResults per topic.
+          maxResultsPerTopic: 10
+          # Maximum snapshot fetches per industry_track call (rest stay
+          # citation-only entries without a snapshot hash).
+          maxFetchesPerCall: 10
+        # Company scan bounds.
+        scan:
+          # Maximum bytes read per user-supplied data file.
+          maxFileBytes: 1048576
+          # Maximum figure-candidate lines surfaced per company scan.
+          maxFigureCandidates: 100
