@@ -47,3 +47,11 @@
 - 白酒 e2e 基于 `fixtures/baijiu/` 虚构教学数据（报告中明确标注），真实数据需接 `ctx.web` 提供者。
 - 方法论 skills 仅中文版；如发布需要可补英文版（任务未要求，记录在案）。
 - 下一个发布会话按 PHASE2-GROUP-PROMPTS.md §0.3 执行（版本号 bump + CHANGELOG + 全门禁 + tag，不 push）。
+
+## 收尾链只读盘点（2026-08-20 匿名核验，详见 `RELEASE-HANDOFF.md`）
+
+- **步骤 0 社区反馈检查**：✅ 完成——0 issues / 0 PRs / 欢迎帖 0 回复，无任何待回复反馈。
+- **步骤 1 标准件 B**：本地项全部完成（P0 三件套 + SECURITY + 徽章 + Contributors + topics/About/homepage + Discussions 已开启 + 欢迎帖已发）；剩余 1 项 GitHub 侧待办：main 分支保护（匿名读取 401，无法核验，待认证 API 核验/设置，JSON 草稿见交接文档）。
+- **步骤 2 标准件 A**：`AdamPlatin123/awesome-dsh-plugins` 已自动收录 ✅；awesome-dsh-plugin（双语）、0xsline（双语）、bruc3van 自荐区、官方 Discussions showcase、OMDSH hub INTAKE 均未投——PR/发帖需 GitHub 写权限，属发布会话；条目草稿、showcase 帖草稿、各目标先读规则提醒均在 `RELEASE-HANDOFF.md`。
+- **步骤 3 标准件 C**：✅ 已完成——npm `0.1.0@latest` 已发布、`v0.1.0` tag 在远程、Release workflow success（provenance 路径已跑通）。
+- 本会话**未执行任何写操作**（push/PR/发帖/分支保护/npm publish）：任务红线（禁止 push、发 PR、npm publish、读取或使用发布令牌）+ 无 GitHub 写权限，如实记录，不伪造成功。
