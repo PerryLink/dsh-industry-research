@@ -166,7 +166,9 @@ pnpm run pack:check
 
 ## Contributors
 
-`dsh-industry-research` contributors.
+- 初始设计与实现：`dsh-industry-research` 开发会话（DeepSeek Harness）。
+
+欢迎外部贡献 —— 提交 issue 或 pull request。
 
 ## License
 

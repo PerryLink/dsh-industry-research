@@ -166,7 +166,9 @@ pnpm run pack:check
 
 ## Contributors
 
-`dsh-industry-research` contributors.
+- Initial design and implementation by the `dsh-industry-research` development session (DeepSeek Harness).
+
+External contributions are welcome — open an issue or a pull request.
 
 ## License
 
