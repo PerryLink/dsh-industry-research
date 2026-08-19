@@ -48,10 +48,16 @@
 - 方法论 skills 仅中文版；如发布需要可补英文版（任务未要求，记录在案）。
 - 下一个发布会话按 PHASE2-GROUP-PROMPTS.md §0.3 执行（版本号 bump + CHANGELOG + 全门禁 + tag，不 push）。
 
-## 收尾链只读盘点（2026-08-20 匿名核验，详见 `RELEASE-HANDOFF.md`）
+## 收尾链执行记录（2026-08-20，详见 `RELEASE-HANDOFF.md`）
 
-- **步骤 0 社区反馈检查**：✅ 完成——0 issues / 0 PRs / 欢迎帖 0 回复，无任何待回复反馈。
-- **步骤 1 标准件 B**：本地项全部完成（P0 三件套 + SECURITY + 徽章 + Contributors + topics/About/homepage + Discussions 已开启 + 欢迎帖已发）；剩余 1 项 GitHub 侧待办：main 分支保护（匿名读取 401，无法核验，待认证 API 核验/设置，JSON 草稿见交接文档）。
-- **步骤 2 标准件 A**：`AdamPlatin123/awesome-dsh-plugins` 已自动收录 ✅；awesome-dsh-plugin（双语）、0xsline（双语）、bruc3van 自荐区、官方 Discussions showcase、OMDSH hub INTAKE 均未投——PR/发帖需 GitHub 写权限，属发布会话；条目草稿、showcase 帖草稿、各目标先读规则提醒均在 `RELEASE-HANDOFF.md`。
-- **步骤 3 标准件 C**：✅ 已完成——npm `0.1.0@latest` 已发布、`v0.1.0` tag 在远程、Release workflow success（provenance 路径已跑通）。
-- 本会话**未执行任何写操作**（push/PR/发帖/分支保护/npm publish）：任务红线（禁止 push、发 PR、npm publish、读取或使用发布令牌）+ 无 GitHub 写权限，如实记录，不伪造成功。
+- **步骤 0 社区反馈检查**：✅ 0 issues / 0 PRs / 欢迎帖 0 回复，无待回复反馈。
+- **步骤 1 标准件 B**：✅ 本地项全齐；main 分支保护已设置且与 §0.3 一致（contexts=gates×6、enforce_admins=false、allow_force_pushes=true、无 PR review）；Discussions 分类齐全。
+- **步骤 2 标准件 A**：
+  - ✅ `0xsline/awesome-deepseek-harness` PR #423（双语 Domain & Specialist Skills 各一条，open/mergeable）。
+  - ✅ 官方 showcase 帖：deepseek-ai/deepseek-harness/discussions/3448（Show Your Plugins!）。
+  - ✅ `AdamPlatin123/awesome-dsh-plugins` 已自动收录。
+  - 🟡 `awesome-dsh-plugin/awesome-dsh-plugin`：fork 分支就绪（YAML + 生成的双语 README），PR 延后至仓库满 1 天（2026-08-20T14:20Z 后），命令在交接文档。
+  - 🟡 OMDSH：投稿 #80 preflight 通过；pending-review/审核 PR 被仓库侧 `npm run validate` inventory 一致性失败卡住（同错误出现在其他投稿 run，非本投稿缺陷）。
+  - ⛔ bruc3van 自荐：0 星 < 10 门槛，如实跳过，达标后重提。
+- **步骤 3 标准件 C**：✅ npm `0.1.0@latest` 已发布、`v0.1.0` tag 在远程、Release workflow success。
+- **修复**：OMDSH preflight 暴露 `dshWorkshop.capability.kind`（`research-domain-pack`）不在合法枚举 → 改 `tool`（commit `2eef621`），全门禁重跑绿（53/53），已 push。
