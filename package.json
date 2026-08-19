@@ -72,7 +72,7 @@
     },
     "capability": {
       "id": "industry-research",
-      "kind": "research-domain-pack",
+      "kind": "tool",
       "invocation": "mount the dsh-industry-research bundle row, then call industry_map / industry_track / company_scan / industry_report or load the industry-research-method / company-research-method skills",
       "expected": "ctx.tools gains the four research tools, ctx.skills lists the two methodology skills, artifacts land under the configured industryRoot, and reports carry the research-only disclaimer with a source-traceability appendix"
     },
