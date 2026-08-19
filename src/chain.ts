@@ -1,0 +1,132 @@
+/**
+ * The industry-chain structure model (`ChainMap`) and its validation. This is
+ * a pure data module: no I/O, no clock. A metric is either a sourced value
+ * (`value` + `sourceRef`, optionally `unit`/`asOf`) or an explicit gap slot
+ * (no `value`), so an unsourced number is a validation error by construction
+ * and a missing number is an honest, listable gap.
+ * @module dsh-industry-research/chain
+ */
+
+/** Chain tiers, upstream → downstream. */
+export const CHAIN_TIERS = ['upstream', 'midstream', 'downstream'] as const
+
+/** One chain tier. */
+export type ChainTier = (typeof CHAIN_TIERS)[number]
+
+/** One metric slot on a chain node. */
+export type ChainMetric = {
+  /** Metric name (e.g. `市场规模`, `毛利率`). */
+  key: string
+  /** The numeric value; absent means the slot is an explicit gap (待补). */
+  value?: number
+  /** Unit of the value (e.g. `亿元`, `%`). */
+  unit?: string
+  /** ISO-8601 date the value is current as of. */
+  asOf?: string
+  /** Source reference: a sources.json ref (`S1`), a URL, or a workspace path. Required whenever `value` is present. */
+  sourceRef?: string
+}
+
+/** One node in the industry chain. */
+export type ChainNode = {
+  /** Stable node id referenced by edges (unique within the map). */
+  id: string
+  /** Display name (e.g. `高粱种植`, `白酒酿造`). */
+  name: string
+  tier: ChainTier
+  /** Metric slots; each is a sourced value or an explicit gap. */
+  metrics: ChainMetric[]
+}
+
+/** One directed relation between two nodes. */
+export type ChainEdge = {
+  /** Source node id. */
+  from: string
+  /** Target node id. */
+  to: string
+  /** Optional relation note (e.g. `原料供应`). */
+  note?: string
+}
+
+/** The industry-chain map persisted as `<industryRoot>/<industry>/chain.json`. */
+export type ChainMap = {
+  /** Industry display name. */
+  industry: string
+  nodes: ChainNode[]
+  edges: ChainEdge[]
+}
+
+/**
+ * Validate a chain map. Pure: returns the list of problems (empty when the
+ * map is well-formed). Rules: unique node ids, legal tiers, edges reference
+ * existing nodes, and every metric carrying a `value` also carries a
+ * `sourceRef` (gap slots without a value are always legal).
+ * @param map - the candidate chain map.
+ * @returns human-readable validation problems, in encounter order.
+ */
+export function validateChainMap(map: ChainMap): string[] {
+  const problems: string[] = []
+  if (typeof map.industry !== 'string' || map.industry.trim().length === 0) {
+    problems.push('chain.industry must be a non-empty name')
+  }
+  const ids = new Set<string>()
+  for (const node of map.nodes) {
+    if (typeof node.id !== 'string' || node.id.trim().length === 0) {
+      problems.push(`node ${JSON.stringify(node.id)} has an empty id`)
+      continue
+    }
+    if (ids.has(node.id)) problems.push(`duplicate node id "${node.id}"`)
+    ids.add(node.id)
+    if (typeof node.name !== 'string' || node.name.trim().length === 0) {
+      problems.push(`node "${node.id}" has an empty name`)
+    }
+    if (!(CHAIN_TIERS as readonly string[]).includes(node.tier)) {
+      problems.push(`node "${node.id}" has an illegal tier ${JSON.stringify(node.tier)} (expected upstream|midstream|downstream)`)
+    }
+    for (const metric of node.metrics) {
+      if (typeof metric.key !== 'string' || metric.key.trim().length === 0) {
+        problems.push(`node "${node.id}" has a metric with an empty key`)
+        continue
+      }
+      if (metric.value !== undefined) {
+        if (typeof metric.value !== 'number' || !Number.isFinite(metric.value)) {
+          problems.push(`node "${node.id}" metric "${metric.key}" carries a non-finite value`)
+        }
+        if (typeof metric.sourceRef !== 'string' || metric.sourceRef.trim().length === 0) {
+          problems.push(`node "${node.id}" metric "${metric.key}" carries a value without a sourceRef — register the source or mark the slot 待补 (omit value)`)
+        }
+      }
+    }
+  }
+  for (const edge of map.edges) {
+    if (!ids.has(edge.from)) problems.push(`edge references unknown node "${edge.from}" (from)`)
+    if (!ids.has(edge.to)) problems.push(`edge references unknown node "${edge.to}" (to)`)
+  }
+  return problems
+}
+
+/**
+ * List the explicit gaps of a well-formed chain map: metric slots without a
+ * value, nodes without any metric slot, and tiers with no node at all.
+ * @param map - the chain map (already validated).
+ * @returns human-readable gap lines, in encounter order.
+ */
+export function chainGaps(map: ChainMap): string[] {
+  const gaps: string[] = []
+  const tiers = new Set<string>()
+  for (const node of map.nodes) {
+    tiers.add(node.tier)
+    if (node.metrics.length === 0) {
+      gaps.push(`节点「${node.name}」(${node.id}) 没有任何指标槽位`)
+    }
+    for (const metric of node.metrics) {
+      if (metric.value === undefined) {
+        gaps.push(`节点「${node.name}」(${node.id}) 的指标「${metric.key}」待补（无来源数值）`)
+      }
+    }
+  }
+  for (const tier of CHAIN_TIERS) {
+    if (!tiers.has(tier)) gaps.push(`产业链缺少 ${tier} 层节点`)
+  }
+  return gaps
+}
