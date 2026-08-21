@@ -5,6 +5,14 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.1] - 2026-08-21
+
+### Changed
+
+- Upgrade the `@deepseek-ai/dsh-*` dependency family from `0.1.0-rc.6` to `0.1.0-rc.8` (DeepSeek Harness rc8): the `dsh-tools` / `dsh-skill` / `dsh-skill-filesystem` peer dependencies now declare `>=0.1.0-rc.8 <0.2.0`, and the rc.8 dev peers (`dsh-agent`, `dsh-llm`, `dsh-session`, `dsh-skill`, `dsh-skill-filesystem`, `dsh-system-prompt`, `dsh-tools`, `dsh-web`) stay exact-pinned. `@deepseek-ai/cordis` and non-dsh dependencies are unchanged.
+- Five-language READMEs, `AGENTS.md`, and `THIRD_PARTY_NOTICES.md` state the rc.8 peer family; the session-event design note is restated for the rc.8 session envelope (the durable record is the workspace artifacts; model-visible tool results ride the durable `tool/result` session event; observability rides the typed Cordis events).
+- `compat.yml` profile smoke installs the CLI and `dsh-base` / `dsh-headless` at `0.1.0-rc.8`, and the workspace `minimumReleaseAgeExclude` pins the rc.8 peer family.
+
 ## [0.1.0] - 2026-08-19
 
 ### Added
