@@ -19,12 +19,12 @@ Standalone DeepSeek Harness plugin repository (`dsh-industry-research`). Develop
 - `skills/` — the two methodology SKILL.md bundles (Chinese edition).
 - `fixtures/baijiu/` — committed teaching fixtures for the keyless e2e suite (clearly fictional).
 - `scripts/` — `prepare.mjs` (build), `verify-self-contained.mjs`, `verify-artifacts.mjs`, `check-readme-sync.mjs` (five-language gate), `changelog-section.mjs`, `loader-runner.mjs` (real Loader composition runner).
-- `test/` — vitest; REAL `Context`/`SessionStore`/`Session`/`ToolRuntime`/`SkillRegistry`/`WebRuntime` from the 0.1.0-rc.6 peers. Only the pluggable edges (web providers, the optional report engine) are scripted, through the real registration mechanisms.
+- `test/` — vitest; REAL `Context`/`SessionStore`/`Session`/`ToolRuntime`/`SkillRegistry`/`WebRuntime` from the 0.1.0-rc.8 peers. Only the pluggable edges (web providers, the optional report engine) are scripted, through the real registration mechanisms.
 
 ## Hard rules applied here
 
 - **Optional capabilities are looked up, never injected.** `ctx.web` and `ctx.researchReport` are resolved with `ctx.get(...)` at execution time; without them `industry_track` fails loud with mount guidance and `industry_report` takes the honest builtin-fallback path. Writing them into `inject` would park the plugin in PENDING forever on deployments without those siblings.
-- **Cordis events, not session-log events.** The rc.6 `Session.append` signature has no `ignorable` marker (`...opts: []` for non-surface events) and there is no external event-registration surface, so appending custom `industry-research/*` session events would make the persistence coordinator refuse the log on restore. The durable record is the workspace artifacts; model-visible tool results ride the durable `tool/result` session event; observability rides the typed Cordis events.
+- **Cordis events, not session-log events.** `industry-research/*` events are typed Cordis observability events and are never appended to the session log: the durable record is the workspace artifacts, model-visible tool results ride the durable `tool/result` session event, and observability rides the typed Cordis events.
 - **No network outside `ctx.web`.** All retrieval goes through the official seam (provider selection, timeouts, and error taxonomy have one owner); `offline: true` disables it entirely.
 - **No invented data.** A metric value without a source is a validation error; a missing value is an explicit gap slot; reports list gaps instead of filling them. Fictitious fixture data is clearly marked as teaching material.
 - **Workspace containment.** Industry/company names are validated segments; data files are containment-checked against the session cwd (both sides `resolve()`d — Windows backslash trap).
@@ -36,7 +36,7 @@ Standalone DeepSeek Harness plugin repository (`dsh-industry-research`). Develop
 
 `pnpm run typecheck && pnpm run typecheck:ci && pnpm test && pnpm run build && pnpm run verify:self-contained && pnpm run verify:artifacts && pnpm run verify:readme-sync && pnpm run pack:check`
 
-- `typecheck` resolves `@deepseek-ai/*` through the installed 0.1.0-rc.6 peers; `typecheck:ci` clears `skipLibCheck` and enables `verbatimModuleSyntax` against the published types. Both must stay green.
+- `typecheck` resolves `@deepseek-ai/*` through the installed 0.1.0-rc.8 peers; `typecheck:ci` clears `skipLibCheck` and enables `verbatimModuleSyntax` against the published types. Both must stay green.
 
 ## Release
 

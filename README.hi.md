@@ -24,9 +24,9 @@
 
 ## Compatibility
 
-- DeepSeek Harness `0.1.0-rc.6` (peers `0.1.0-rc.6` पर पिन)।
+- DeepSeek Harness `0.1.0-rc.8` (peers `0.1.0-rc.8` पर पिन)।
 - Node `^22.19.0 || >=24.0.0`, केवल ESM (`"type": "module"`)।
-- Peer निर्भरताएँ: `@deepseek-ai/cordis ^4.0.1`, `@deepseek-ai/schemastery ^3.18.0`, और `0.1.0-rc.6` पर `@deepseek-ai/dsh-tools`, `@deepseek-ai/dsh-skill`, `@deepseek-ai/dsh-skill-filesystem` (सभी आधिकारिक `dsh-base` बंडल में समाहित)।
+- Peer निर्भरताएँ: `@deepseek-ai/cordis ^4.0.1`, `@deepseek-ai/schemastery ^3.18.0`, और `>=0.1.0-rc.8 <0.2.0` पर `@deepseek-ai/dsh-tools`, `@deepseek-ai/dsh-skill`, `@deepseek-ai/dsh-skill-filesystem` (सभी आधिकारिक `dsh-base` बंडल में समाहित)।
 - वैकल्पिक क्षमताएँ, निष्पादन समय पर खोजी जाती हैं (कभी इंजेक्ट नहीं): `ctx.web` (सार्वजनिक-स्रोत पुनर्प्राप्ति, `dsh-base` में समाहित) और `ctx.researchReport` (सहयोगी `dsh-research-report` प्लगइन का सीलिंग इंजन)।
 
 ## What you get
@@ -141,8 +141,8 @@ workspace डेटा फ़ाइलें (`.md/.txt/.csv/.tsv/.json`; v1 PDF
 
 ## Known limitations
 
-- **सेशन-लॉग इवेंट नहीं, Cordis इवेंट** — rc.6 की `Session.append` सिग्नेचर में बाहरी इवेंट प्रकारों के लिए `ignorable` मार्कर और बाहरी इवेंट-रजिस्ट्रेशन सतह नहीं है, इसलिए कस्टम `industry-research/*` सेशन इवेंट जोड़ने से पर्सिस्टेंस कोऑर्डिनेटर रीस्टोर पर लॉग अस्वीकार कर देगा। टिकाऊ रिकॉर्ड workspace आर्टिफ़ैक्ट हैं; ऑब्ज़र्वेबिलिटी टाइप किए Cordis इवेंट से चलती है; मॉडल-दृश्य टूल परिणाम टिकाऊ `tool/result` सेशन इवेंट से चलते हैं।
-- **`ctx.attachment` में लेखन नहीं** — rc.6 अटैचमेंट सीम केवल इमेज स्वीकार करती है (PNG/JPEG/WebP/GIF); Markdown रिपोर्ट इसलिए संस्करणित workspace फ़ाइलें रहती हैं, टूल परिणाम में निरपेक्ष पाथ से संदर्भित।
+- **सेशन-लॉग इवेंट नहीं, Cordis इवेंट** — `industry-research/*` इवेंट टाइप किए Cordis ऑब्ज़र्वेबिलिटी हैं और कभी भी सेशन लॉग में नहीं जोड़े जाते; टिकाऊ रिकॉर्ड workspace आर्टिफ़ैक्ट हैं; ऑब्ज़र्वेबिलिटी टाइप किए Cordis इवेंट से चलती है; मॉडल-दृश्य टूल परिणाम टिकाऊ `tool/result` सेशन इवेंट से चलते हैं।
+- **`ctx.attachment` में लेखन नहीं** — rc.8 अटैचमेंट सीम केवल इमेज स्वीकार करती है (PNG/JPEG/WebP/GIF); Markdown रिपोर्ट इसलिए संस्करणित workspace फ़ाइलें रहती हैं, टूल परिणाम में निरपेक्ष पाथ से संदर्भित।
 - **v1 केवल टेक्स्ट फ़ॉर्मैट पढ़ता है** — PDF पार्सिंग नहीं; उपयोगकर्ताओं से पहले PDF को टेक्स्ट/Markdown में बदलने को कहें।
 - **चीनी-संस्करण स्किल्स** — पैकेज्ड मेथडॉलॉजी स्किल्स चीनी में आती हैं; अंग्रेज़ी संस्करण भविष्य का काम।
 - **फ़ोरग्राउंड टूल्स** — `industry_track` `track.maxFetchesPerCall` व `fetchTimeoutMs` से सीमित होकर फ़ोरग्राउंड में चलती है; बैकग्राउंड-जॉब्स मोड भविष्य का काम।

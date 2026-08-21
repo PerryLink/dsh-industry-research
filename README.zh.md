@@ -24,9 +24,9 @@
 
 ## Compatibility
 
-- DeepSeek Harness `0.1.0-rc.6`（peer 钉版 `0.1.0-rc.6`）。
+- DeepSeek Harness `0.1.0-rc.8`（peer 钉版 `0.1.0-rc.8`）。
 - Node `^22.19.0 || >=24.0.0`，仅 ESM（`"type": "module"`）。
-- Peer 依赖：`@deepseek-ai/cordis ^4.0.1`、`@deepseek-ai/schemastery ^3.18.0`，以及 `0.1.0-rc.6` 的 `@deepseek-ai/dsh-tools`、`@deepseek-ai/dsh-skill`、`@deepseek-ai/dsh-skill-filesystem`（官方 `dsh-base` bundle 均已组合）。
+- Peer 依赖：`@deepseek-ai/cordis ^4.0.1`、`@deepseek-ai/schemastery ^3.18.0`，以及 `>=0.1.0-rc.8 <0.2.0` 的 `@deepseek-ai/dsh-tools`、`@deepseek-ai/dsh-skill`、`@deepseek-ai/dsh-skill-filesystem`（官方 `dsh-base` bundle 均已组合）。
 - 可选能力在执行时查找（绝不注入）：`ctx.web`（公开源检索，`dsh-base` 已组合）与 `ctx.researchReport`（兄弟插件 `dsh-research-report` 的封存引擎）。
 
 ## What you get
@@ -141,8 +141,8 @@ dsh plugin --profile demo remove dsh-industry-research    # 卸载
 
 ## Known limitations
 
-- **Cordis 事件而非会话日志事件**——rc.6 的 `Session.append` 签名没有 `ignorable` 标记（非 surface 事件 `...opts: []`），也没有外部事件注册面；追加自定义 `industry-research/*` 会话事件会导致持久化协调器在恢复时拒绝该日志。持久记录是工作区产物本身；可观测性走类型化 Cordis 事件；模型可见的工具结果走持久 `tool/result` 会话事件。
-- **不写 `ctx.attachment`**——rc.6 附件缝隙只接受图片（PNG/JPEG/WebP/GIF）；Markdown 报告因此保持为版本化工作区文件，工具结果中以绝对路径引用。
+- **Cordis 事件而非会话日志事件**——`industry-research/*` 事件是类型化 Cordis 可观测性事件，绝不追加进会话日志；持久记录是工作区产物本身；可观测性走类型化 Cordis 事件；模型可见的工具结果走持久 `tool/result` 会话事件。
+- **不写 `ctx.attachment`**——rc.8 附件缝隙只接受图片（PNG/JPEG/WebP/GIF）；Markdown 报告因此保持为版本化工作区文件，工具结果中以绝对路径引用。
 - **v1 只读文本格式**——不解析 PDF；请用户先把 PDF 转成文本/Markdown。
 - **中文版技能**——随包方法论技能为中文版；英文版为后续工作。
 - **前台工具**——`industry_track` 由 `track.maxFetchesPerCall` 与 `fetchTimeoutMs` 界定为前台任务；后台任务模式为后续工作。

@@ -1,12 +1,10 @@
 /**
  * Typed Cordis events emitted after a tool commits its artifacts. These are
  * live observability events (other plugins may listen); they are NOT appended
- * to the session log. The rc.6 `Session.append` signature has no `ignorable`
- * marker for out-of-repo event types and there is no external
- * event-registration surface, so appending `industry-research/*` session
- * events would make the persistence coordinator refuse the log on restore —
- * the durable record is the workspace artifacts themselves, and model-visible
- * tool results ride the durable `tool/result` session event.
+ * to the session log. The durable record is the workspace artifacts
+ * themselves, and model-visible tool results ride the durable `tool/result`
+ * session event; out-of-repo `industry-research/*` session events would only
+ * ever be skippable log noise, so none are appended.
  * @module dsh-industry-research/events
  */
 

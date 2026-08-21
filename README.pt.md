@@ -24,9 +24,9 @@
 
 ## Compatibility
 
-- DeepSeek Harness `0.1.0-rc.6` (peers fixados em `0.1.0-rc.6`).
+- DeepSeek Harness `0.1.0-rc.8` (peers fixados em `0.1.0-rc.8`).
 - Node `^22.19.0 || >=24.0.0`, apenas ESM (`"type": "module"`).
-- Dependências peer: `@deepseek-ai/cordis ^4.0.1`, `@deepseek-ai/schemastery ^3.18.0`, e `@deepseek-ai/dsh-tools`, `@deepseek-ai/dsh-skill`, `@deepseek-ai/dsh-skill-filesystem` em `0.1.0-rc.6` (todas compostas pelo bundle oficial `dsh-base`).
+- Dependências peer: `@deepseek-ai/cordis ^4.0.1`, `@deepseek-ai/schemastery ^3.18.0`, e `@deepseek-ai/dsh-tools`, `@deepseek-ai/dsh-skill`, `@deepseek-ai/dsh-skill-filesystem` em `>=0.1.0-rc.8 <0.2.0` (todas compostas pelo bundle oficial `dsh-base`).
 - Capacidades opcionais, resolvidas em tempo de execução (nunca injetadas): `ctx.web` (recuperação de fontes públicas, composta pelo `dsh-base`) e `ctx.researchReport` (o motor de selagem do plugin irmão `dsh-research-report`).
 
 ## What you get
@@ -141,8 +141,8 @@ Ambas carregam sob demanda pela ferramenta padrão `skill` (`加载 industry-res
 
 ## Known limitations
 
-- **Eventos Cordis, não eventos de log de sessão** — a assinatura `Session.append` do rc.6 não tem marcador `ignorable` para tipos de evento externos nem superfície de registro externa, portanto anexar eventos de sessão `industry-research/*` faria o coordenador de persistência recusar o log na restauração. O registro duradouro são os artefatos do workspace; a observabilidade viaja pelos eventos Cordis tipados; os resultados de ferramentas visíveis ao modelo viajam pelo evento duradouro `tool/result`.
-- **Sem escritas em `ctx.attachment`** — a costura de anexos do rc.6 só aceita imagens (PNG/JPEG/WebP/GIF); os relatórios Markdown permanecem como arquivos versionados do workspace, referenciados por caminho absoluto no resultado da ferramenta.
+- **Eventos Cordis, não eventos de log de sessão** — os eventos `industry-research/*` são observabilidade Cordis tipada e nunca são anexados ao log de sessão; o registro duradouro são os artefatos do workspace; a observabilidade viaja pelos eventos Cordis tipados; os resultados de ferramentas visíveis ao modelo viajam pelo evento duradouro `tool/result`.
+- **Sem escritas em `ctx.attachment`** — a costura de anexos do rc.8 só aceita imagens (PNG/JPEG/WebP/GIF); os relatórios Markdown permanecem como arquivos versionados do workspace, referenciados por caminho absoluto no resultado da ferramenta.
 - **v1 só lê formatos de texto** — sem análise de PDF; peça aos usuários para converter os PDFs em texto/Markdown primeiro.
 - **Skills em edição chinesa** — as skills de metodologia empacotadas são publicadas em chinês; uma edição em inglês é trabalho futuro.
 - **Ferramentas em primeiro plano** — `industry_track` é limitada por `track.maxFetchesPerCall` e `fetchTimeoutMs` e corre em primeiro plano; um modo com trabalhos em segundo plano é trabalho futuro.
