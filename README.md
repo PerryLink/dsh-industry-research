@@ -25,7 +25,7 @@
 
 ## Compatibility
 
-- DeepSeek Harness `0.1.0-rc.8` (peers pinned to `0.1.0-rc.8`).
+- DeepSeek Harness `0.1.1-rc.2` (peers pinned to `0.1.1-rc.2`).
 - Node `^22.19.0 || >=24.0.0`, ESM only (`"type": "module"`).
 - Peer dependencies: `@deepseek-ai/cordis ^4.0.1`, `@deepseek-ai/schemastery ^3.18.0`, and `@deepseek-ai/dsh-tools`, `@deepseek-ai/dsh-skill`, `@deepseek-ai/dsh-skill-filesystem` at `>=0.1.0-rc.8 <0.2.0` (all composed by the official `dsh-base` bundle).
 - Optional, looked up at execution time (never injected): `ctx.web` (public-source retrieval — composed by `dsh-base`) and `ctx.researchReport` (the sibling `dsh-research-report` sealing engine).
@@ -143,7 +143,7 @@ Both load on demand through the standard `skill` tool (`加载 industry-research
 ## Known limitations
 
 - **Cordis events, not session-log events** — `industry-research/*` events are typed Cordis observability events and are never appended to the session log; the durable record is the workspace artifacts themselves, and model-visible tool results ride the durable `tool/result` session event.
-- **No `ctx.attachment` writes** — the rc.8 attachment seam accepts images only (PNG/JPEG/WebP/GIF); Markdown reports therefore stay versioned workspace files, referenced by absolute path in the tool result.
+- **No `ctx.attachment` writes** — the rc2 attachment seam accepts images only (PNG/JPEG/WebP/GIF); Markdown reports therefore stay versioned workspace files, referenced by absolute path in the tool result.
 - **v1 reads text formats only** — no PDF parsing; ask users to convert PDFs to text/Markdown first.
 - **Chinese-edition skills** — the packaged methodology skills ship in Chinese; an English edition is future work.
 - **Foreground tools** — `industry_track` is bounded by `track.maxFetchesPerCall` and `fetchTimeoutMs` and runs in the foreground; a background-jobs mode is future work.

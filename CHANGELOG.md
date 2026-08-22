@@ -5,6 +5,14 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.2] - 2026-08-22
+
+### Changed
+
+- Upgrade the `@deepseek-ai/dsh-*` dependency family from `0.1.0-rc.8` to `0.1.1-rc.2` (DeepSeek Harness rc2): the eight dev peers (`dsh-agent`, `dsh-llm`, `dsh-session`, `dsh-skill`, `dsh-skill-filesystem`, `dsh-system-prompt`, `dsh-tools`, `dsh-web`) stay exact-pinned at `0.1.1-rc.2`; the `dsh-tools` / `dsh-skill` / `dsh-skill-filesystem` peer dependencies remain `>=0.1.0-rc.8 <0.2.0` (no rc2-only API is required). `@deepseek-ai/cordis` and non-dsh dependencies are unchanged.
+- `dshWorkshop.compatibility.dshVersions` now declares `0.1.1-rc.2`; the workspace `minimumReleaseAgeExclude` broadens to the whole `@deepseek-ai/*` scope so the freshly published rc2 family resolves.
+- Five-language READMEs, `AGENTS.md`, and `THIRD_PARTY_NOTICES.md` state the rc2 peer family; `compat.yml` installs the CLI and `dsh-base` / `dsh-headless` at `0.1.1-rc.2`.
+
 ## [0.1.1] - 2026-08-21
 
 ### Changed

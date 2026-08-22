@@ -24,7 +24,7 @@
 
 ## Compatibility
 
-- DeepSeek Harness `0.1.0-rc.8` (peers fijados en `0.1.0-rc.8`).
+- DeepSeek Harness `0.1.1-rc.2` (peers fijados en `0.1.1-rc.2`).
 - Node `^22.19.0 || >=24.0.0`, solo ESM (`"type": "module"`).
 - Dependencias peer: `@deepseek-ai/cordis ^4.0.1`, `@deepseek-ai/schemastery ^3.18.0`, y `@deepseek-ai/dsh-tools`, `@deepseek-ai/dsh-skill`, `@deepseek-ai/dsh-skill-filesystem` en `>=0.1.0-rc.8 <0.2.0` (todas compuestas por el bundle oficial `dsh-base`).
 - Capacidades opcionales, resueltas en tiempo de ejecución (nunca inyectadas): `ctx.web` (recuperación de fuentes públicas, compuesta por `dsh-base`) y `ctx.researchReport` (el motor de sellado del plugin hermano `dsh-research-report`).
@@ -142,7 +142,7 @@ Ambas se cargan bajo demanda con la herramienta estándar `skill` (`加载 indus
 ## Known limitations
 
 - **Eventos Cordis, no eventos de log de sesión** — los eventos `industry-research/*` son observabilidad Cordis tipada y nunca se anexan al log de sesión; el registro duradero son los artefactos del workspace; la observabilidad viaja por los eventos Cordis tipados; los resultados de herramientas visibles al modelo viajan por el evento duradero `tool/result`.
-- **Sin escrituras en `ctx.attachment`** — la costura de adjuntos de rc.8 solo acepta imágenes (PNG/JPEG/WebP/GIF); los informes Markdown permanecen como archivos versionados del workspace, referenciados por ruta absoluta en el resultado de la herramienta.
+- **Sin escrituras en `ctx.attachment`** — la costura de adjuntos de rc2 solo acepta imágenes (PNG/JPEG/WebP/GIF); los informes Markdown permanecen como archivos versionados del workspace, referenciados por ruta absoluta en el resultado de la herramienta.
 - **v1 solo lee formatos de texto** — sin análisis de PDF; pide a los usuarios convertir los PDF a texto/Markdown primero.
 - **Skills en edición china** — las skills de metodología empaquetadas se publican en chino; una edición en inglés es trabajo futuro.
 - **Herramientas en primer plano** — `industry_track` está acotada por `track.maxFetchesPerCall` y `fetchTimeoutMs` y corre en primer plano; un modo con trabajos en segundo plano es trabajo futuro.
