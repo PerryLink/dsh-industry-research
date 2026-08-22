@@ -1,6 +1,7 @@
 <div align="center">
 
 # 🏭 dsh-industry-research
+[![Gitee](https://img.shields.io/badge/Gitee-mirror-c71d23?logo=gitee)](https://gitee.com/perrylink/dsh-industry-research)
 
 **Industry and company research domain pack for DeepSeek Harness.**
 
