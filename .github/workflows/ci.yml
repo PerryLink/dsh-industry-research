@@ -44,6 +44,9 @@ jobs:
       - name: README sync (five languages)
         run: node scripts/check-readme-sync.mjs
 
+      - name: Skills manifest
+        run: pnpm run verify:skills
+
       - name: Build
         run: pnpm run build
 
