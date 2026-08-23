@@ -157,6 +157,7 @@ pnpm test
 pnpm run build
 pnpm run verify:self-contained && pnpm run verify:artifacts
 pnpm run verify:readme-sync
+pnpm run verify:skills
 pnpm run pack:check
 ```
 

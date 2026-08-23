@@ -5,6 +5,19 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- `verify:skills` gate (`scripts/check-skills.mjs` + `test/skills.spec.ts`): every packaged skill must carry `name`/`description` frontmatter and resolve its cited `references/*.md`; wired into the CI gates.
+- Tool triple-interface assertions (`test/tools.spec.ts`): schema + canonical value + content blocks asserted together for all four tools through the real registry.
+- Web degradation tests (`test/web.spec.ts` + `test/track.spec.ts`): per-request timeout signal firing, caller-cancel signal propagation, machine-routable web error codes, `requireWeb` fail-closed, and search-provider throw fail-closed.
+
+### Changed
+
+- Harden the illegal-config negatives: `track.maxResultsPerTopic` and `scan.maxFileBytes` / `scan.maxFigureCandidates` out-of-range now have unit and Loader-level regression cases.
+- Add a fiber-dispose assertion proving the four tools and both skills disappear from the authoritative registries after `dispose()` (HMR-safety), plus a direct `'default' in builtEntry === false` assertion on the shipped bundle.
+
 ## [0.1.2] - 2026-08-22
 
 ### Changed
