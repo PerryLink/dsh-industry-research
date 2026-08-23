@@ -84,6 +84,9 @@ describe('Loader composition (built entry)', () => {
       { lines: ["enabled: 'yes'"], reason: /expected boolean|enabled/u },
       { lines: ['fetchTimeoutMs: 0'], reason: /fetchTimeoutMs|positive/u },
       { lines: ['timelineMaxEntries: -3'], reason: /timelineMaxEntries|positive/u },
+      { lines: ['track:', '  maxResultsPerTopic: 0'], reason: /maxResultsPerTopic|positive/u },
+      { lines: ['scan:', '  maxFileBytes: 0'], reason: /maxFileBytes|positive/u },
+      { lines: ['scan:', '  maxFigureCandidates: -1'], reason: /maxFigureCandidates|positive/u },
     ]
     for (const entry of cases) {
       const configPath = join(temporaryRoot, 'invalid.yml')
@@ -107,6 +110,13 @@ describe('Loader composition (built entry)', () => {
     const evidence = runRunner(configPath)
     expect(evidence.status).not.toBe(0)
     expect(evidence.stderr, `failed for the wrong reason:\n${evidence.stderr}`).toMatch(/without inject/u)
+  })
+
+  it('exports no default on the real built entry (function-plugin contract)', async () => {
+    const mod = await import(pathToFileURL(builtEntry).href)
+    expect('default' in mod).toBe(false)
+    expect(typeof mod.apply).toBe('function')
+    expect(mod.name).toBe('industry-research')
   })
 })
 

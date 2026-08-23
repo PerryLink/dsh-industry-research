@@ -51,4 +51,21 @@ describe('apply', () => {
     cleanups.push(async () => { await unmountBase(base) })
     await expect(mountPlugin(base, { skillsDir: base.workspace })).rejects.toThrow(/skillsDir/u)
   })
+
+  it('removes every contribution when the fiber is disposed (HMR-safe)', async () => {
+    const base = await mountBase('index-dispose')
+    const fiber = await mountPlugin(base)
+    for (const tool of ['industry_map', 'industry_track', 'company_scan', 'industry_report']) {
+      expect(base.ctx.tools.get(tool), `${tool} should be registered before dispose`).toBeDefined()
+    }
+    expect((await base.ctx.skills.list()).map(skill => skill.name)).toContain('industry-research-method')
+
+    await fiber.dispose()
+
+    for (const tool of ['industry_map', 'industry_track', 'company_scan', 'industry_report']) {
+      expect(base.ctx.tools.get(tool), `${tool} should be gone after dispose`).toBeUndefined()
+    }
+    expect((await base.ctx.skills.list()).map(skill => skill.name)).not.toContain('industry-research-method')
+    await unmountBase(base)
+  })
 })
