@@ -87,6 +87,7 @@ describe('Loader composition (built entry)', () => {
       { lines: ['track:', '  maxResultsPerTopic: 0'], reason: /maxResultsPerTopic|positive/u },
       { lines: ['scan:', '  maxFileBytes: 0'], reason: /maxFileBytes|positive/u },
       { lines: ['scan:', '  maxFigureCandidates: -1'], reason: /maxFigureCandidates|positive/u },
+      { lines: ['scan:', "  strictTicker: 'yes'"], reason: /strictTicker|boolean/u },
     ]
     for (const entry of cases) {
       const configPath = join(temporaryRoot, 'invalid.yml')

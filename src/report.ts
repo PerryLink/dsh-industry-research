@@ -9,7 +9,9 @@
 
 import { writeFile, mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
+import { isIsoDate, validateStatus } from './chain.ts'
 import type { ChainMap } from './chain.ts'
+import { EVIDENCE_CATEGORIES, type EvidenceCategory } from './timeline.ts'
 import type { TimelineEntry } from './timeline.ts'
 import type { CompanyCard } from './company.ts'
 import { DISCLAIMER } from './company.ts'
@@ -103,6 +105,76 @@ export function validateDraft(draft: ReportDraft, evidenceIds: ReadonlySet<strin
   return problems
 }
 
+/** Placeholder tokens a finished report must never ship. */
+const PLACEHOLDER_RE = /\{\{|\}\}|TODO|FIXME|TBD/u
+
+/**
+ * Validate the deterministic delivery contract a report must satisfy before it
+ * is produced: every block is complete (title, section headings + paragraphs,
+ * claims with evidence), no placeholder residue remains in any text, every
+ * status assertion in the source artifacts carries a valid non-future
+ * `statusAsOf`, and every value assertion (card metric / chain metric) carries
+ * its source and, for cards, a valid non-future `asOf`. Any problem fails loud
+ * so a half-assembled report is never emitted.
+ * @param draft - the validated draft.
+ * @param artifacts - the loaded artifacts the report assembles from.
+ * @param evidenceIds - registered evidence ids.
+ * @returns delivery-contract problems (empty when the contract holds).
+ */
+export function validateDeliveryContract(draft: ReportDraft, artifacts: LoadedArtifacts, evidenceIds: ReadonlySet<string>): string[] {
+  const problems: string[] = []
+  if (typeof draft.title !== 'string' || draft.title.trim().length === 0) problems.push('delivery contract: draft.title is empty')
+  if (draft.sections.length === 0) problems.push('delivery contract: draft has no sections')
+  for (const [sectionIndex, section] of draft.sections.entries()) {
+    if (typeof section.heading !== 'string' || section.heading.trim().length === 0) {
+      problems.push(`delivery contract: section[${sectionIndex}] has an empty heading`)
+    }
+    if (section.paragraphs.length === 0) problems.push(`delivery contract: section "${section.heading}" has no paragraphs`)
+    for (const [paragraphIndex, paragraph] of section.paragraphs.entries()) {
+      if (typeof paragraph.text !== 'string' || paragraph.text.trim().length === 0) {
+        problems.push(`delivery contract: section "${section.heading}" paragraph[${paragraphIndex}] is empty`)
+      }
+    }
+  }
+  for (const claim of draft.claims) {
+    if (typeof claim.text !== 'string' || claim.text.trim().length === 0) problems.push(`delivery contract: claim "${claim.id}" has empty text`)
+    if (claim.evidenceIds.length === 0) problems.push(`delivery contract: claim "${claim.id}" has no evidence`)
+    for (const evidenceId of claim.evidenceIds) {
+      if (!evidenceIds.has(evidenceId)) problems.push(`delivery contract: claim "${claim.id}" references unknown evidence "${evidenceId}"`)
+    }
+  }
+  for (const text of [draft.title, ...draft.sections.flatMap(section => section.paragraphs.map(paragraph => paragraph.text)), ...draft.claims.map(claim => claim.text)]) {
+    if (PLACEHOLDER_RE.test(text)) problems.push(`delivery contract: placeholder residue in ${JSON.stringify(text.slice(0, 60))}`)
+  }
+  const now = new Date()
+  if (artifacts.chain !== undefined) {
+    for (const node of artifacts.chain.map.nodes) {
+      problems.push(...validateStatus(node.status, node.statusAsOf, `chain node "${node.id}"`, now))
+      for (const [metricIndex, metric] of node.metrics.entries()) {
+        if (metric.value !== undefined && (typeof metric.sourceRef !== 'string' || metric.sourceRef.trim().length === 0)) {
+          problems.push(`delivery contract: chain node "${node.id}" metric[${metricIndex}] carries a value without a sourceRef`)
+        }
+      }
+    }
+  }
+  for (const { card } of artifacts.cards) {
+    problems.push(...validateStatus(card.status, card.statusAsOf, `company card "${card.name}"`, now))
+    for (const [metricIndex, metric] of (card.metrics ?? []).entries()) {
+      if (typeof metric.source !== 'string' || metric.source.trim().length === 0) {
+        problems.push(`delivery contract: company card "${card.name}" metric[${metricIndex}] carries a value without a source`)
+      }
+      if (typeof metric.asOf !== 'string' || metric.asOf.trim().length === 0) {
+        problems.push(`delivery contract: company card "${card.name}" metric[${metricIndex}] carries a value without an asOf`)
+      } else if (!isIsoDate(metric.asOf)) {
+        problems.push(`delivery contract: company card "${card.name}" metric[${metricIndex}] asOf ${JSON.stringify(metric.asOf)} is not a valid ISO-8601 date`)
+      } else if (Date.parse(metric.asOf) > now.getTime()) {
+        problems.push(`delivery contract: company card "${card.name}" metric[${metricIndex}] asOf ${JSON.stringify(metric.asOf)} is in the future`)
+      }
+    }
+  }
+  return problems
+}
+
 /**
  * Build the mechanical draft when the model supplied none: sourced chain
  * metrics and recent timeline entries become claims bound to their artifact
@@ -146,11 +218,12 @@ export function autoDraft(industry: string, artifacts: LoadedArtifacts, sections
       const metricClaims: string[] = []
       for (const node of map.nodes) {
         node.metrics.forEach((metric, index) => {
-          if (metric.value === undefined || metric.sourceRef === undefined) return
+          // A reportable numeric claim needs a fully sourced value: source + asOf.
+          if (metric.value === undefined || metric.sourceRef === undefined || metric.asOf === undefined) return
           const id = `C-chain-${node.id}-${index}`
           claims.push({
             id,
-            text: `${node.name} 的 ${metric.key} 为 ${metric.value}${metric.unit ?? ''}${metric.asOf !== undefined ? `（截至 ${metric.asOf}，来源 ${metric.sourceRef}）` : `（来源 ${metric.sourceRef}）`}`,
+            text: `${node.name} 的 ${metric.key} 为 ${metric.value}${metric.unit ?? ''}（截至 ${metric.asOf}，来源 ${metric.sourceRef}）`,
             evidenceIds: ['E-chain'],
           })
           metricClaims.push(id)
@@ -171,10 +244,17 @@ export function autoDraft(industry: string, artifacts: LoadedArtifacts, sections
     const paragraphs: ReportSectionInput['paragraphs'] = []
     if (artifacts.timeline !== undefined && artifacts.timeline.entries.length > 0) {
       const recent = artifacts.timeline.entries.slice(-AUTO_TIMELINE_CLAIMS)
-      for (const [index, entry] of recent.entries()) {
-        const id = `C-timeline-${index}`
-        claims.push({ id, text: `${entry.date ?? '日期未知'}：${entry.title}（来源 ${entry.url}）`, evidenceIds: ['E-timeline'] })
-        paragraphs.push({ text: `${entry.date ?? '日期未知'} — ${entry.title}`, claimIds: [id] })
+      let claimIndex = 0
+      for (const category of [...EVIDENCE_CATEGORIES, null] as readonly (EvidenceCategory | null)[]) {
+        const group = recent.filter(entry => (entry.evidenceCategory ?? null) === category)
+        if (group.length === 0) continue
+        paragraphs.push({ text: `类别「${category === null ? '未分类' : category}」：` })
+        for (const entry of group) {
+          const id = `C-timeline-${claimIndex}`
+          claimIndex += 1
+          claims.push({ id, text: `${entry.date ?? '日期未知'}：${entry.title}（来源 ${entry.url}）`, evidenceIds: ['E-timeline'] })
+          paragraphs.push({ text: `${entry.date ?? '日期未知'} — ${entry.title}`, claimIds: [id] })
+        }
       }
       if (artifacts.timeline.entries.length > recent.length) {
         paragraphs.push({ text: `（时间线共 ${artifacts.timeline.entries.length} 条，此处仅列最近 ${recent.length} 条。）` })
@@ -219,9 +299,10 @@ export function autoDraft(industry: string, artifacts: LoadedArtifacts, sections
  * @param draft - the validated draft.
  * @param evidence - the registered evidence.
  * @param generatedAt - ISO-8601 generation time.
+ * @param machineCheck - deterministic adversarial-check findings (empty = clean).
  * @returns the Markdown text.
  */
-export function renderFallbackMarkdown(industry: string, draft: ReportDraft, evidence: readonly EvidenceInput[], generatedAt: string): string {
+export function renderFallbackMarkdown(industry: string, draft: ReportDraft, evidence: readonly EvidenceInput[], generatedAt: string, machineCheck: readonly string[] = []): string {
   const lines: string[] = [
     `# ${draft.title}`,
     '',
@@ -249,6 +330,12 @@ export function renderFallbackMarkdown(industry: string, draft: ReportDraft, evi
   } else {
     lines.push('无 claims。')
   }
+  lines.push('', '## 机器对抗检查', '')
+  if (machineCheck.length > 0) {
+    for (const finding of machineCheck) lines.push(`- ${finding}`)
+  } else {
+    lines.push('未发现可攻击点。')
+  }
   lines.push('')
   return lines.join('\n')
 }
@@ -263,6 +350,7 @@ export interface FallbackManifest {
   evidence: Array<{ id: string; title: string; origin: string; sha256: string; capturedAt: string; bytes: number }>
   claims: Array<ReportClaim & { status: 'unverified' }>
   gaps: string[]
+  machineCheck: string[]
 }
 
 /**
@@ -273,6 +361,7 @@ export interface FallbackManifest {
  * @param evidence - the registered evidence.
  * @param gaps - artifact-level gaps to record in the manifest.
  * @param generatedAt - ISO-8601 generation time.
+ * @param machineCheck - deterministic adversarial-check findings.
  * @returns the written file paths.
  */
 export async function writeFallbackReport(
@@ -282,6 +371,7 @@ export async function writeFallbackReport(
   evidence: readonly EvidenceInput[],
   gaps: readonly string[],
   generatedAt: string,
+  machineCheck: readonly string[] = [],
 ): Promise<{ reportPath: string; manifestPath: string }> {
   await mkdir(reportDir, { recursive: true })
   const reportPath = join(reportDir, 'report.md')
@@ -302,8 +392,9 @@ export async function writeFallbackReport(
     })),
     claims: draft.claims.map(claim => ({ ...claim, status: 'unverified' as const })),
     gaps: [...gaps],
+    machineCheck: [...machineCheck],
   }
-  await writeFile(reportPath, renderFallbackMarkdown(industry, draft, evidence, generatedAt), 'utf8')
+  await writeFile(reportPath, renderFallbackMarkdown(industry, draft, evidence, generatedAt, machineCheck), 'utf8')
   await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, 'utf8')
   return { reportPath, manifestPath }
 }

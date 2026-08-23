@@ -120,4 +120,40 @@ describe('industry_track over the real web seam', () => {
     const beyond = value.added.find(entry => entry.snapshotHash === null)
     expect(beyond?.note).toContain('超出本次抓取预算')
   })
+
+  it('stamps every appended entry with the requested evidence category', async () => {
+    const base = await setup()
+    await mountWeb(base, stubSearch([
+      { url: 'https://a.test/1', title: '一', publishedAt: '2026-08-01' },
+      { url: 'https://a.test/2', title: '二', publishedAt: '2026-08-02' },
+    ]), stubFetch({}))
+    const result = await callTool(base, 'industry_track', { industry: '示例', evidenceCategory: 'forum-buzz' })
+    const value = result.value as unknown as IndustryTrackValue
+    expect(value.added).toHaveLength(2)
+    expect(value.added.every(entry => entry.evidenceCategory === 'forum-buzz')).toBe(true)
+  })
+
+  it('quick depth deterministically reduces the per-topic source count', async () => {
+    const base = await setup()
+    await mountWeb(base, stubSearch([
+      { url: 'https://a.test/1', title: '一', publishedAt: '2026-08-01' },
+      { url: 'https://a.test/2', title: '二', publishedAt: '2026-08-02' },
+      { url: 'https://a.test/3', title: '三', publishedAt: '2026-08-03' },
+      { url: 'https://a.test/4', title: '四', publishedAt: '2026-08-04' },
+    ]), stubFetch({}))
+    const quick = await callTool(base, 'industry_track', { industry: '示例', depth: 'quick' })
+    const quickValue = quick.value as unknown as IndustryTrackValue
+    expect(quickValue.added).toHaveLength(3)
+
+    const standardBase = await setup()
+    await mountWeb(standardBase, stubSearch([
+      { url: 'https://a.test/1', title: '一', publishedAt: '2026-08-01' },
+      { url: 'https://a.test/2', title: '二', publishedAt: '2026-08-02' },
+      { url: 'https://a.test/3', title: '三', publishedAt: '2026-08-03' },
+      { url: 'https://a.test/4', title: '四', publishedAt: '2026-08-04' },
+    ]), stubFetch({}))
+    const standard = await callTool(standardBase, 'industry_track', { industry: '示例' })
+    const standardValue = standard.value as unknown as IndustryTrackValue
+    expect(standardValue.added).toHaveLength(4)
+  })
 })

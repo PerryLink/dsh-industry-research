@@ -8,7 +8,7 @@ import { mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
-import { mergeTimeline, normalizeUrl, readTimeline, sourceAllowed } from '../src/timeline.ts'
+import { mergeTimeline, normalizeUrl, readTimeline, sourceAllowed, validateEvidenceCategory } from '../src/timeline.ts'
 import type { TimelineEntry } from '../src/timeline.ts'
 
 const tempDirs: string[] = []
@@ -58,6 +58,26 @@ describe('sourceAllowed', () => {
     expect(sourceAllowed('https://example.com/x', ['gov.cn'], [])).toBe(false)
     expect(sourceAllowed('https://bad.gov.cn/x', ['gov.cn'], ['bad.gov.cn'])).toBe(false)
     expect(sourceAllowed('https://www.gov.cn/zhengce/1', ['https://www.gov.cn/zhengce/'], [])).toBe(true)
+  })
+})
+
+describe('evidenceCategory', () => {
+  it('accepts legal categories and absent ones', () => {
+    expect(validateEvidenceCategory(undefined)).toEqual([])
+    expect(validateEvidenceCategory('forum-buzz')).toEqual([])
+    expect(validateEvidenceCategory('background-noise')).toEqual([])
+  })
+
+  it('rejects an illegal category', () => {
+    expect(validateEvidenceCategory('made-up').some(problem => problem.includes('evidenceCategory'))).toBe(true)
+  })
+
+  it('mergeTimeline fails loud on an illegal category before any write', async () => {
+    const dir = await tempDir()
+    const file = path.join(dir, 'timeline.jsonl')
+    const bad = entry('https://a.test/1')
+    ;(bad as { evidenceCategory?: string }).evidenceCategory = 'made-up'
+    await expect(mergeTimeline(file, [bad], 500)).rejects.toThrow(/evidenceCategory/u)
   })
 })
 

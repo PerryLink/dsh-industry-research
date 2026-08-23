@@ -18,7 +18,7 @@ describe('resolveConfig', () => {
     expect(resolved.offline).toBe(false)
     expect(resolved.skillsDir).toBeUndefined()
     expect(resolved.track).toEqual({ maxResultsPerTopic: 10, maxFetchesPerCall: 10 })
-    expect(resolved.scan).toEqual({ maxFileBytes: 1_048_576, maxFigureCandidates: 100 })
+    expect(resolved.scan).toEqual({ maxFileBytes: 1_048_576, maxFigureCandidates: 100, strictTicker: true })
   })
 
   it('honors explicit overrides', () => {
@@ -27,13 +27,14 @@ describe('resolveConfig', () => {
       offline: true,
       sourceBlocklist: ['example.com'],
       track: { maxResultsPerTopic: 3, maxFetchesPerCall: 2 },
-      scan: { maxFileBytes: 1024, maxFigureCandidates: 5 },
+      scan: { maxFileBytes: 1024, maxFigureCandidates: 5, strictTicker: false },
     })
     expect(resolved.industryRoot).toBe('research')
     expect(resolved.offline).toBe(true)
     expect(resolved.sourceBlocklist).toEqual(['example.com'])
     expect(resolved.track.maxResultsPerTopic).toBe(3)
     expect(resolved.scan.maxFigureCandidates).toBe(5)
+    expect(resolved.scan.strictTicker).toBe(false)
   })
 
   it('fails loud on invalid bounds and entries', () => {

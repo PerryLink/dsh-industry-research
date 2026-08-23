@@ -15,12 +15,18 @@ import { defineTool } from '@deepseek-ai/dsh-tools'
 import type { ResolvedConfig } from '../config.ts'
 import { chainGaps, validateChainMap } from '../chain.ts'
 import type { ChainMap } from '../chain.ts'
+import { analyzeBottlenecks, renderChainSvg } from '../chain-svg.ts'
+import type { ChainBottleneck } from '../chain-svg.ts'
+import { DEPTH_PROFILES, resolveDepth } from '../depth.ts'
 import { loadSources, registerSource, saveSources } from '../sources.ts'
 import type { SourceEntry } from '../sources.ts'
 import { lookupWeb, requestSignal, webErrorMessage } from '../web.ts'
 import type { WebSource } from '../web.ts'
 import { resolveWorkspaceFile } from '../paths.ts'
-import { chainPathOf, industryDirOf, notesDirOf, sourcesPathOf, workspaceOf } from '../toolkit.ts'
+import { updateResearchState } from '../research-state.ts'
+import type { ResearchStateDelta } from '../research-state.ts'
+import { chainPathOf, chainSvgPathOf, industryDirOf, notesDirOf, researchStatePathOf, sourcesPathOf, versionsPathOf, workspaceOf } from '../toolkit.ts'
+import { recordVersion, rootRelative, verifyVersion } from '../versions.ts'
 import type { MapEventPayload } from '../events.ts'
 
 /** The canonical value returned by `industry_map`. */
@@ -44,6 +50,12 @@ export interface IndustryMapValue {
   webDigest: WebSource[] | null
   /** Why the web assist did not run; null when it ran or was not requested. */
   webNote: string | null
+  /** Bottleneck nodes of the current map (funnel/hub rules); empty when none. */
+  bottlenecks: ChainBottleneck[]
+  /** Absolute path of the rendered `chain.svg`; null when `renderSvg` was not requested or no map exists. */
+  svgPath: string | null
+  /** Incremental "vs last run" summary. */
+  delta: ResearchStateDelta
 }
 
 /** The ChainMap parameter schema (semantic checks live in {@link validateChainMap}). */
@@ -60,6 +72,9 @@ const CHAIN_PARAMETER = {
           id: { type: 'string', required: true, description: '节点 id（边引用用，如 upstream-1）' },
           name: { type: 'string', required: true, description: '节点显示名（如 高粱种植）' },
           tier: { type: 'string', enum: ['upstream', 'midstream', 'downstream'], required: true },
+          status: { type: 'string', enum: ['public', 'private', 'acquired', 'IPO'], description: '公司上市状态（若该节点指向上市公司）' },
+          statusAsOf: { type: 'string', description: 'status 的截止日期（ISO-8601）；有 status 必填' },
+          taxonomyCode: { type: 'string', description: '国民经济行业分类大类代码（如 15）；必须命中内置映射表' },
           metrics: {
             type: 'array',
             required: true,
@@ -114,6 +129,8 @@ export function buildIndustryMapTool(ctx: Context, config: ResolvedConfig) {
       seedFiles: { type: 'array', items: { type: 'string' }, description: '工作区内已有笔记/材料文件的相对路径列表，登记为来源' },
       web: { type: 'boolean', description: '是否做 web 辅助检索（默认 true；config.offline 时自动跳过）' },
       chain: CHAIN_PARAMETER,
+      renderSvg: { type: 'boolean', description: '是否同时渲染确定性的 chain.svg 网状图（默认 false）' },
+      depth: { type: 'string', enum: ['quick', 'standard', 'comprehensive'], description: '采集深度（quick=最小来源；standard=现行为；comprehensive=最大来源；默认 standard）' },
     },
     output: {
       schema: {
@@ -129,6 +146,9 @@ export function buildIndustryMapTool(ctx: Context, config: ResolvedConfig) {
           seedRefs: { type: 'array', items: { type: 'string' }, required: true },
           webDigest: { oneOf: [{ type: 'array', items: { type: 'json' } }, { type: 'null' }], required: true },
           webNote: { oneOf: [{ type: 'string' }, { type: 'null' }], required: true },
+          bottlenecks: { type: 'array', items: { type: 'json' }, required: true },
+          svgPath: { oneOf: [{ type: 'string' }, { type: 'null' }], required: true },
+          delta: { type: 'json', required: true },
         },
         additionalProperties: false,
       },
@@ -137,8 +157,13 @@ export function buildIndustryMapTool(ctx: Context, config: ResolvedConfig) {
         const lines = [
           `行业「${current.industry}」产业链图：${current.updated ? '已校验并写入' : '未更新（仅读取）'} ${current.chainPath}`,
           current.chain === null ? '当前无图：请撰写 chain 后再次调用。' : `节点 ${current.chain.nodes.length} / 边 ${current.chain.edges.length}；缺口 ${current.gaps.length} 项。`,
+          `与上次相比：新增源 ${current.delta.newSources.length}，移除源 ${current.delta.removedSources.length}，未变化证据 ${current.delta.unchangedEvidence}。`,
         ]
         if (current.gaps.length > 0) lines.push(`缺口清单：${current.gaps.join('；')}`)
+        if (current.bottlenecks.length > 0) {
+          lines.push(`瓶颈节点 ${current.bottlenecks.length} 个：${current.bottlenecks.map(bottleneck => `${bottleneck.name}（${bottleneck.kind === 'funnel' ? '漏斗型' : '枢纽型'}）`).join('；')}`)
+        }
+        if (current.svgPath !== null) lines.push(`SVG 网状图已写入：${current.svgPath}`)
         if (current.seedRefs.length > 0) lines.push(`本次登记来源：${current.seedRefs.join(', ')}（共 ${current.sources.length} 条，可用于 sourceRef）`)
         if (current.webDigest !== null && current.webDigest.length > 0) {
           lines.push(`web 辅助检索 ${current.webDigest.length} 条：${current.webDigest.map(source => source.title ?? source.url).join('；')}`)
@@ -150,10 +175,12 @@ export function buildIndustryMapTool(ctx: Context, config: ResolvedConfig) {
     timeoutMs: Math.max(30_000, config.fetchTimeoutMs * 3),
     async execute(args, exec): Promise<IndustryMapValue> {
       const cwd = workspaceOf(exec)
-      const { dir, name } = industryDirOf(config, cwd, args.industry)
+      const { root, dir, name } = industryDirOf(config, cwd, args.industry)
+      const depth = resolveDepth(args.depth)
       const sourcesPath = sourcesPathOf(dir)
       const registry = await loadSources(sourcesPath)
       const now = new Date().toISOString()
+      const versionsPath = versionsPathOf(root)
       const seedRefs: string[] = []
 
       if (args.seed !== undefined && args.seed.trim().length > 0) {
@@ -183,7 +210,7 @@ export function buildIndustryMapTool(ctx: Context, config: ResolvedConfig) {
         } else {
           try {
             const outcome = await web.search(
-              { query: `${name} 产业链 上游 中游 下游 结构`, maxResults: 5 },
+              { query: `${name} 产业链 上游 中游 下游 结构`, maxResults: DEPTH_PROFILES[depth].mapSearchResults },
               requestSignal(exec.signal, config.fetchTimeoutMs),
             )
             webDigest = [...outcome.sources]
@@ -207,22 +234,39 @@ export function buildIndustryMapTool(ctx: Context, config: ResolvedConfig) {
           throw new Error(`chain 校验失败（${problems.length} 项）：${problems.join('；')}`)
         }
         await mkdir(dir, { recursive: true })
-        await writeFile(chainPath, `${JSON.stringify(candidate, null, 2)}\n`, 'utf8')
+        const chainContent = `${JSON.stringify(candidate, null, 2)}\n`
+        await writeFile(chainPath, chainContent, 'utf8')
+        await recordVersion(versionsPath, rootRelative(root, chainPath), chainContent, now)
         updated = true
       }
 
       let current: ChainMap | null = null
       try {
-        current = JSON.parse(await readFile(chainPath, 'utf8')) as ChainMap
+        const chainText = await readFile(chainPath, 'utf8')
+        await verifyVersion(versionsPath, rootRelative(root, chainPath), chainText)
+        current = JSON.parse(chainText) as ChainMap
       } catch (error) {
         if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error
       }
       const gaps = current === null ? ['尚无产业链结构图：请基于 seed 与来源撰写 chain 后再次调用'] : chainGaps(current)
+      const bottlenecks = current === null ? [] : analyzeBottlenecks(current)
+
+      let svgPath: string | null = null
+      if (args.renderSvg === true && current !== null) {
+        svgPath = chainSvgPathOf(dir)
+        const svgContent = `${renderChainSvg(current)}\n`
+        await writeFile(svgPath, svgContent, 'utf8')
+        await recordVersion(versionsPath, rootRelative(root, svgPath), svgContent, now)
+      }
 
       if (updated && current !== null) {
         const payload: MapEventPayload = { industry: name, path: chainPath, nodes: current.nodes.length, edges: current.edges.length, gaps: gaps.length }
         ctx.emit('industry-research/map', payload)
       }
+
+      // Research-state memory: depth + latest hashes + registered sources + gaps, then diff vs last run.
+      const statePath = researchStatePathOf(dir)
+      const delta = await updateResearchState(statePath, versionsPath, rootRelative(root, statePath), depth, registry.items.map(item => item.origin), {}, gaps, now)
 
       return {
         industry: name,
@@ -235,6 +279,9 @@ export function buildIndustryMapTool(ctx: Context, config: ResolvedConfig) {
         seedRefs,
         webDigest,
         webNote,
+        bottlenecks,
+        svgPath,
+        delta,
       }
     },
   })

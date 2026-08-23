@@ -10,6 +10,8 @@
 import { readFile, writeFile, mkdir, stat } from 'node:fs/promises'
 import { extname, join } from 'node:path'
 import { sha256Of } from './sources.ts'
+import { isIsoDate, validateStatus } from './chain.ts'
+import type { CompanyStatus } from './chain.ts'
 import type { ResolvedConfig } from './config.ts'
 
 /** File extensions v1 can read as text. PDF and office formats are out of scope. */
@@ -53,6 +55,27 @@ export type CardWebSource = {
   publishedAt?: string
 }
 
+/** One sourced price/value datum on a company card. */
+export type CompanyValuePoint = {
+  /** Label (e.g. `股价`, `市值`, `营业收入`). */
+  key: string
+  /** The numeric value. */
+  value: number
+  /** Unit (e.g. `元`, `亿元`, `%`). */
+  unit?: string
+  /** ISO-8601 date the value is current as of (required). */
+  asOf: string
+  /** Source citation: a sources.json ref (`S1`), a URL, or a workspace path (required). */
+  source: string
+}
+
+/** Built-in ticker/code formats a company card may declare. */
+export const TICKER_FORMATS: ReadonlyArray<{ market: string; pattern: RegExp }> = [
+  { market: 'A股', pattern: /^\d{6}$/u },
+  { market: '美股', pattern: /^[A-Z]{1,5}$/u },
+  { market: '港股', pattern: /^\d{1,5}$/u },
+]
+
 /** The structured company scan card persisted as `card.json`. */
 export type CompanyCard = {
   /** Company display name. */
@@ -73,6 +96,14 @@ export type CompanyCard = {
   gaps: string[]
   /** Research-only disclaimer carried into every rendering. */
   disclaimer: string
+  /** Listing status (public/private/acquired/IPO); optional. */
+  status?: CompanyStatus
+  /** ISO-8601 date the status is current as of; required when `status` is present. */
+  statusAsOf?: string
+  /** Exchange ticker / stock code (e.g. A-share `600519`); format-checked by {@link validateTicker}. */
+  ticker?: string
+  /** Sourced price/value data points; every value must carry `source` + `asOf`. */
+  metrics?: CompanyValuePoint[]
 }
 
 /** The research-only disclaimer text shared by cards and reports. */
@@ -162,10 +193,16 @@ export function renderCardMarkdown(card: CompanyCard): string {
     `# 公司速览卡：${card.name}`,
     '',
     `> ${card.disclaimer}。扫描时间（asOf）：${card.asOf}`,
+  ]
+  const assertions: string[] = []
+  if (card.status !== undefined) assertions.push(`上市状态：${card.status}（statusAsOf ${card.statusAsOf ?? ''}）`)
+  if (card.ticker !== undefined) assertions.push(`代码/ticker：${card.ticker}`)
+  if (assertions.length > 0) lines.push(...assertions.map(assertion => `> ${assertion}`))
+  lines.push(
     '',
     '## 业务结构',
     '',
-  ]
+  )
   if (card.outline.length > 0) {
     lines.push('数据文件目录结构（供研究定位，非分析结论）：')
     for (const outline of card.outline) {
@@ -184,6 +221,14 @@ export function renderCardMarkdown(card: CompanyCard): string {
     if (card.figureCandidates.length > 20) lines.push(`- ……其余 ${card.figureCandidates.length - 20} 行见 card.json`)
   } else {
     lines.push('待补：数据文件中未发现数字行。')
+  }
+  lines.push('', '## 价格与数值数据点', '')
+  if ((card.metrics ?? []).length > 0) {
+    for (const metric of card.metrics ?? []) {
+      lines.push(`- ${metric.key}：${metric.value}${metric.unit ?? ''}（截至 ${metric.asOf}，来源 ${metric.source}）`)
+    }
+  } else {
+    lines.push('待补：未提供有来源的价格/数值数据点。')
   }
   lines.push('', '## 风险点', '', '待补：由研究者基于来源材料归纳；不得凭空列举。', '', '## 来源清单', '')
   if (card.sources.length > 0) {
@@ -235,4 +280,59 @@ export async function readCard(cardJsonPath: string): Promise<CompanyCard> {
  */
 export function boundFigures(figures: readonly FigureCandidate[], config: ResolvedConfig): FigureCandidate[] {
   return figures.slice(0, config.scan.maxFigureCandidates)
+}
+
+/**
+ * Validate a ticker/code against the built-in formats. Absent or empty tickers
+ * are always legal (no assertion to check); a present ticker must match at
+ * least one {@link TICKER_FORMATS} format unless `strict` is false (the
+ * `scan.strictTicker` config exemption).
+ * @param ticker - the raw ticker/code.
+ * @param strict - when false, only non-emptiness is required (format exemption).
+ * @returns validation problems (empty when valid).
+ */
+export function validateTicker(ticker: string | undefined, strict: boolean): string[] {
+  if (ticker === undefined || ticker.trim().length === 0) return []
+  const value = ticker.trim()
+  if (!strict) return []
+  if (TICKER_FORMATS.some(format => format.pattern.test(value))) return []
+  const expected = TICKER_FORMATS.map(format => `${format.market} ${format.pattern}`).join('；')
+  return [`ticker ${JSON.stringify(value)} does not match a known format (${expected}) — correct it or set scan.strictTicker: false to exempt`]
+}
+
+/**
+ * Validate a company card's status, ticker, and price/value discipline: a
+ * status requires a valid non-future `statusAsOf`; a ticker must match a
+ * built-in format unless the scan config exempts it; and every metric value
+ * must be finite and carry a non-empty `source` plus a valid, non-future
+ * `asOf`. Absent optional fields are always legal.
+ * @param card - the candidate card.
+ * @param now - the validation instant for the non-future checks.
+ * @param strictTicker - when false, the ticker format check is exempt.
+ * @returns validation problems, in encounter order.
+ */
+export function validateCompanyCard(card: CompanyCard, now: Date, strictTicker: boolean): string[] {
+  const problems: string[] = []
+  problems.push(...validateStatus(card.status, card.statusAsOf, `company card "${card.name}"`, now))
+  problems.push(...validateTicker(card.ticker, strictTicker))
+  for (const [index, metric] of (card.metrics ?? []).entries()) {
+    const label = `company card "${card.name}" metric[${index}]`
+    if (typeof metric.key !== 'string' || metric.key.trim().length === 0) {
+      problems.push(`${label} has an empty key`)
+    }
+    if (typeof metric.value !== 'number' || !Number.isFinite(metric.value)) {
+      problems.push(`${label} carries a non-finite value`)
+    }
+    if (typeof metric.source !== 'string' || metric.source.trim().length === 0) {
+      problems.push(`${label} carries a value without a source — every price/value requires a source`)
+    }
+    if (typeof metric.asOf !== 'string' || metric.asOf.trim().length === 0) {
+      problems.push(`${label} carries a value without an asOf — every price/value requires an asOf`)
+    } else if (!isIsoDate(metric.asOf)) {
+      problems.push(`${label} asOf ${JSON.stringify(metric.asOf)} is not a valid ISO-8601 date`)
+    } else if (Date.parse(metric.asOf) > now.getTime()) {
+      problems.push(`${label} asOf ${JSON.stringify(metric.asOf)} is in the future (now ${now.toISOString()})`)
+    }
+  }
+  return problems
 }

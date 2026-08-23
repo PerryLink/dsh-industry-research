@@ -117,6 +117,42 @@ export async function mountEngine(base: BaseHarness, assemble: (request: Assembl
   await base.ctx.plugin(StubEngine)
 }
 
+/** A minimal job hooks surface the scripted jobs service hands back. */
+export interface StubJobHooks {
+  cancel(reason?: string): void
+  done: Promise<{ status: string; output?: string }>
+}
+
+/** One job the scripted registry started, for assertions. */
+export interface StubJobStart {
+  kind: string
+  label: string
+  hooks: StubJobHooks
+}
+
+/**
+ * Mount a scripted `ctx.jobs` registry through the REAL Cordis service
+ * mechanism. `start` invokes the producer's `run()` synchronously (matching the
+ * real registry's preflight) and records the started jobs.
+ * @param base - the mounted base.
+ * @returns the record of started jobs (for awaiting and asserting).
+ */
+export async function mountJobs(base: BaseHarness): Promise<{ started: StubJobStart[] }> {
+  const started: StubJobStart[] = []
+  class StubJobs extends Service {
+    constructor(ctx: Context) {
+      super(ctx, 'jobs')
+    }
+    start(spec: { kind: string; label: string; owner?: unknown; run(): StubJobHooks }): string {
+      const hooks = spec.run()
+      started.push({ kind: spec.kind, label: spec.label, hooks })
+      return `subagent-${started.length}`
+    }
+  }
+  await base.ctx.plugin(StubJobs)
+  return { started }
+}
+
 /** A scripted search provider returning fixed sources. */
 export function stubSearch(sources: Array<{ url: string; title?: string; snippet?: string; publishedAt?: string }>): WebSearchProvider {
   return {

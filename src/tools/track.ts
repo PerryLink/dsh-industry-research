@@ -12,11 +12,15 @@
 import type { Context } from '@deepseek-ai/cordis'
 import { defineTool } from '@deepseek-ai/dsh-tools'
 import type { ResolvedConfig } from '../config.ts'
-import { mergeTimeline, readTimeline, sourceAllowed } from '../timeline.ts'
+import { DEPTH_PROFILES, resolveDepth } from '../depth.ts'
+import { EVIDENCE_CATEGORIES, mergeTimeline, readTimeline, sourceAllowed } from '../timeline.ts'
 import type { TimelineEntry } from '../timeline.ts'
 import { sha256Of } from '../sources.ts'
 import { requestSignal, requireWeb, webErrorMessage } from '../web.ts'
-import { industryDirOf, timelinePathOf, workspaceOf } from '../toolkit.ts'
+import { updateResearchState } from '../research-state.ts'
+import type { ResearchStateDelta } from '../research-state.ts'
+import { rootRelative } from '../versions.ts'
+import { industryDirOf, researchStatePathOf, timelinePathOf, versionsPathOf, workspaceOf } from '../toolkit.ts'
 import type { TrackEventPayload } from '../events.ts'
 
 /** The canonical value returned by `industry_track`. */
@@ -40,6 +44,8 @@ export interface IndustryTrackValue {
   truncated: boolean
   /** Corrupt pre-existing lines skipped while reading the store. */
   corruptSkipped: number
+  /** Incremental "vs last run" summary. */
+  delta: ResearchStateDelta
 }
 
 /** How many snapshot fetches may run concurrently. */
@@ -77,6 +83,8 @@ export function buildIndustryTrackTool(ctx: Context, config: ResolvedConfig) {
       industry: { type: 'string', required: true, description: '行业名（作为目录段，如「白酒」）' },
       topics: { type: 'array', items: { type: 'string' }, description: '检索主题列表；缺省用「<行业> 行业 政策」与「<行业> 行业 动态 要闻」' },
       since: { type: 'string', description: '只保留该日期（ISO-8601）及之后的条目（按来源发布日期过滤；无日期的来源保留）' },
+      depth: { type: 'string', enum: ['quick', 'standard', 'comprehensive'], description: '采集深度（quick=最小来源/单轮；standard=现行为；comprehensive=最大来源/全证据；默认 standard）' },
+      evidenceCategory: { type: 'string', enum: [...EVIDENCE_CATEGORIES], description: `本批条目的证据分类标签（${EVIDENCE_CATEGORIES.join('/')}）；写入时校验枚举合法` },
     },
     output: {
       schema: {
@@ -92,6 +100,7 @@ export function buildIndustryTrackTool(ctx: Context, config: ResolvedConfig) {
           total: { type: 'number', required: true },
           truncated: { type: 'boolean', required: true },
           corruptSkipped: { type: 'number', required: true },
+          delta: { type: 'json', required: true },
         },
         additionalProperties: false,
       },
@@ -99,6 +108,7 @@ export function buildIndustryTrackTool(ctx: Context, config: ResolvedConfig) {
         const current = value as IndustryTrackValue
         const lines = [
           `行业「${current.industry}」政策与动态：新增 ${current.added.length} 条（去重 ${current.duplicates}，拦截 ${current.blocked}，过早 ${current.tooOld}），时间线共 ${current.total} 条 → ${current.path}`,
+          `与上次相比：新增源 ${current.delta.newSources.length}，移除源 ${current.delta.removedSources.length}，未变化证据 ${current.delta.unchangedEvidence}。`,
         ]
         for (const entry of current.added.slice(0, 10)) {
           lines.push(`- ${entry.date ?? '日期未知'} — ${entry.title}（${entry.url}）`)
@@ -112,12 +122,15 @@ export function buildIndustryTrackTool(ctx: Context, config: ResolvedConfig) {
         return [{ type: 'text', text: lines.join('\n') }]
       },
     },
-    timeoutMs: Math.max(60_000, config.fetchTimeoutMs * config.track.maxFetchesPerCall),
+    timeoutMs: Math.max(60_000, config.fetchTimeoutMs * Math.max(config.track.maxFetchesPerCall, DEPTH_PROFILES.comprehensive.trackMaxFetchesPerCall)),
     async execute(args, exec): Promise<IndustryTrackValue> {
       const web = requireWeb(ctx, config, 'industry_track')
       const cwd = workspaceOf(exec)
-      const { dir, name } = industryDirOf(config, cwd, args.industry)
+      const { root, dir, name } = industryDirOf(config, cwd, args.industry)
       const path = timelinePathOf(dir)
+      const depth = resolveDepth(args.depth)
+      const maxResultsPerTopic = depth === 'standard' ? config.track.maxResultsPerTopic : DEPTH_PROFILES[depth].trackMaxResultsPerTopic
+      const maxFetchesPerCall = depth === 'standard' ? config.track.maxFetchesPerCall : DEPTH_PROFILES[depth].trackMaxFetchesPerCall
       const topics = (args.topics ?? [`${name} 行业 政策`, `${name} 行业 动态 要闻`]).map(topic => topic.trim()).filter(topic => topic.length > 0)
       if (topics.length === 0) throw new Error('topics must contain at least one non-empty topic')
       const since = args.since?.trim()
@@ -130,7 +143,7 @@ export function buildIndustryTrackTool(ctx: Context, config: ResolvedConfig) {
       const byUrl = new Map<string, Candidate>()
       for (const topic of topics) {
         const outcome = await web.search(
-          { query: topic, maxResults: config.track.maxResultsPerTopic },
+          { query: topic, maxResults: maxResultsPerTopic },
           requestSignal(exec.signal, config.fetchTimeoutMs),
         )
         for (const source of outcome.sources) {
@@ -172,7 +185,7 @@ export function buildIndustryTrackTool(ctx: Context, config: ResolvedConfig) {
       const now = new Date().toISOString()
       const fetchFailed: Array<{ url: string; note: string }> = []
       const snapshots = new Map<string, string>()
-      const fetchable = candidates.slice(0, config.track.maxFetchesPerCall)
+      const fetchable = candidates.slice(0, maxFetchesPerCall)
       await pool(fetchable, FETCH_CONCURRENCY, async (candidate) => {
         try {
           const outcome = await web.fetch({ url: candidate.url }, requestSignal(exec.signal, config.fetchTimeoutMs))
@@ -197,11 +210,23 @@ export function buildIndustryTrackTool(ctx: Context, config: ResolvedConfig) {
           ...(snapshotHash === null
             ? { note: failure !== undefined ? `快照抓取失败：${failure.note}` : beyondBudget ? '超出本次抓取预算，未抓取快照' : '无快照' }
             : {}),
+          ...(args.evidenceCategory !== undefined ? { evidenceCategory: args.evidenceCategory } : {}),
         }
       })
 
       const { corrupt } = await readTimeline(path)
       const merge = await mergeTimeline(path, batch, config.timelineMaxEntries)
+
+      // Research-state memory: record depth + latest hashes + source/category counts, then diff vs last run.
+      const statePath = researchStatePathOf(dir)
+      const { entries: allEntries } = await readTimeline(path)
+      const sourceUrls = allEntries.map(entry => entry.url)
+      const evidenceCategoryCounts: Record<string, number> = {}
+      for (const entry of allEntries) {
+        const category = entry.evidenceCategory ?? 'uncategorized'
+        evidenceCategoryCounts[category] = (evidenceCategoryCounts[category] ?? 0) + 1
+      }
+      const delta = await updateResearchState(statePath, versionsPathOf(root), rootRelative(root, statePath), depth, sourceUrls, evidenceCategoryCounts, [], now)
 
       const payload: TrackEventPayload = { industry: name, path, added: merge.added.length, duplicates: merge.duplicates, total: merge.total }
       ctx.emit('industry-research/track', payload)
@@ -217,6 +242,7 @@ export function buildIndustryTrackTool(ctx: Context, config: ResolvedConfig) {
         total: merge.total,
         truncated: merge.truncated,
         corruptSkipped: corrupt,
+        delta,
       }
     },
   })

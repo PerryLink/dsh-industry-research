@@ -42,3 +42,7 @@
           maxFileBytes: 1048576
           # Maximum figure-candidate lines surfaced per company scan.
           maxFigureCandidates: 100
+          # When true, company-card tickers must match a built-in format
+          # (A-share 6 digits, US 1-5 letters, HK 1-5 digits); false exempts
+          # the format check.
+          strictTicker: true

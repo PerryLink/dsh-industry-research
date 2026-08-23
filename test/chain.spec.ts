@@ -6,7 +6,7 @@
  */
 
 import { describe, expect, it } from 'vitest'
-import { chainGaps, validateChainMap } from '../src/chain.ts'
+import { chainGaps, validateChainMap, validateStatus } from '../src/chain.ts'
 import type { ChainMap } from '../src/chain.ts'
 
 /** A minimal valid map used as the mutation base. */
@@ -63,6 +63,36 @@ describe('validateChainMap', () => {
     const map = validMap()
     map.nodes[0]!.metrics.push({ key: '坏值', value: Number.NaN, sourceRef: 'S1' })
     expect(validateChainMap(map).some(problem => problem.includes('non-finite'))).toBe(true)
+  })
+})
+
+describe('status assertion', () => {
+  const NOW = new Date('2026-08-24T00:00:00.000Z')
+
+  it('accepts a legal status with a non-future statusAsOf', () => {
+    expect(validateStatus('public', '2026-08-23', 'node "x"', NOW)).toEqual([])
+  })
+
+  it('rejects a status missing its statusAsOf', () => {
+    const problems = validateStatus('IPO', undefined, 'node "x"', NOW)
+    expect(problems.some(problem => problem.includes('statusAsOf'))).toBe(true)
+  })
+
+  it('rejects a future statusAsOf and an illegal status', () => {
+    expect(validateStatus('public', '2099-01-01', 'node "x"', NOW).some(problem => problem.includes('future'))).toBe(true)
+    expect(validateStatus('delisted', '2026-08-23', 'node "x"', NOW).some(problem => problem.includes('illegal status'))).toBe(true)
+    expect(validateStatus('public', 'not-a-date', 'node "x"', NOW).some(problem => problem.includes('ISO-8601'))).toBe(true)
+  })
+
+  it('rejects a statusAsOf without a status', () => {
+    expect(validateStatus(undefined, '2026-08-23', 'node "x"', NOW).some(problem => problem.includes('without a status'))).toBe(true)
+  })
+
+  it('surfaces status problems through validateChainMap', () => {
+    const map = validMap()
+    map.nodes[0]!.status = 'IPO'
+    const problems = validateChainMap(map, NOW)
+    expect(problems.some(problem => problem.includes('status') && problem.includes('statusAsOf'))).toBe(true)
   })
 })
 

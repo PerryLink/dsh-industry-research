@@ -90,24 +90,25 @@ dsh plugin --profile demo remove dsh-industry-research    # 卸载
 | `track.maxFetchesPerCall` | `10` | 每次 `industry_track` 调用的快照抓取预算。 |
 | `scan.maxFileBytes` | `1048576` | 公司数据文件的单文件读取上限（字节）。 |
 | `scan.maxFigureCandidates` | `100` | 每次公司扫描的数字候选行预算。 |
+| `scan.strictTicker` | `true` | 公司卡 ticker 必须匹配内置格式（A 股 6 位数字、美股 1–5 字母、港股 1–5 数字）；`false` 豁免格式校验。 |
 
 ## Tools & surfaces
 
-### `industry_map({ industry, seed?, seedFiles?, web?, chain? })`
+### `industry_map({ industry, seed?, seedFiles?, web?, chain?, renderSvg?, depth? })`
 
-带 `chain` 调用：校验（悬空边、无来源数值、非法 tier、重复 id——带完整问题清单响亮失败）并落盘 `chain.json`，随后列出显式缺口槽位。不带 `chain` 调用：返回当前图、已登记来源与可选 `ctx.web` 产业链结构摘要，供模型迭代。发出 `industry-research/map` 事件。
+带 `chain` 调用：校验（悬空边、无来源数值、非法 tier、重复 id、status/statusAsOf、未知 `taxonomyCode`——带完整问题清单响亮失败）并落盘 `chain.json`，随后列出显式缺口槽位与瓶颈节点。不带 `chain` 调用：返回当前图、已登记来源与可选 `ctx.web` 产业链结构摘要，供模型迭代。`renderSvg: true` 时另写确定性的 `chain.svg`。`depth`（quick/standard/comprehensive）调节 web 辅助检索规模。返回与上次 `research-state.json` 相比的 `delta` 摘要。发出 `industry-research/map` 事件。
 
-### `industry_track({ industry, topics?, since? })`
+### `industry_track({ industry, topics?, since?, depth?, evidenceCategory? })`
 
-经 `ctx.web` 逐主题检索，按白/黑名单与 `since` 过滤，在调用预算内抓取页面快照（SHA-256），合并进 `timeline.jsonl`（按规范化 URL 去重，保留上限）。快照失败的来源以纯引用条目保留并在 `note` 中说明原因。`ctx.web` 未挂载或 `offline: true` 时响亮失败并指明缺失能力。发出 `industry-research/track` 事件。
+经 `ctx.web` 逐主题检索，按白/黑名单与 `since` 过滤，在调用预算内抓取页面快照（SHA-256），合并进 `timeline.jsonl`（按规范化 URL 去重，保留上限）。`depth` 调节来源/抓取预算；`evidenceCategory` 为本批条目打分类标签并按六类枚举校验。快照失败的来源以纯引用条目保留并在 `note` 中说明原因。返回与上次 `research-state.json` 相比的 `delta` 摘要。`ctx.web` 未挂载或 `offline: true` 时响亮失败并指明缺失能力。发出 `industry-research/track` 事件。
 
-### `company_scan({ name, dataFiles?, web? })`
+### `company_scan({ name | companies, dataFiles?, web?, status?, statusAsOf?, ticker?, metrics?, depth?, parallel? })`
 
-读取工作区数据文件（`.md/.txt/.csv/.tsv/.json`；v1 不解析 PDF），计算哈希，提取 Markdown 大纲与数字候选行，可选附加 `ctx.web` 引用，落盘速览卡。未采纳文件带原因返回；卡片无法确立的内容一律写入显式缺口。
+读取工作区数据文件（`.md/.txt/.csv/.tsv/.json`；v1 不解析 PDF），计算哈希，提取 Markdown 大纲与数字候选行，可选附加 `ctx.web` 引用，落盘速览卡。`status` 必须带非未来 `statusAsOf`；`ticker` 必须匹配内置格式（除非 `scan.strictTicker: false`）；每条 `metrics` 数值必须带 `source` + `asOf`。`companies`（批量）单公司失败不中断整批；`parallel: true` 且挂载 `ctx.jobs` 时按公司 fan-out 为独立 job（否则回退顺序路径并在结果 `mode` 注明）。未采纳文件带原因返回；卡片无法确立的内容一律写入显式缺口。
 
 ### `industry_report({ industry, sections?, companies?, draft? })`
 
-组装证据（`E-chain`、`E-timeline`、`E-company-<slug>`），或校验你提供的 `draft`（章节 + claims；每条 claim 的 `evidenceIds` 必须引用已登记证据），或机械自动生成草稿（有来源的指标与近期时间线条目生成 claims）。引擎路径：封存目录 + `sealHash` + 逐 claim 结论。降级路径：版本化 Markdown + manifest，claims 如实标记 `unverified`。发出 `industry-research/report` 事件。
+组装证据（`E-chain`、`E-timeline`、`E-company-<slug>`），读取时对照 `versions.jsonl` 校验哈希（不一致响亮失败），或校验你提供的 `draft`（章节 + claims；每条 claim 的 `evidenceIds` 必须引用已登记证据），或机械自动生成草稿（有来源的指标与近期时间线条目生成 claims，按 `evidenceCategory` 分组）。产出前跑确定性交付契约校验（缺区块/占位符/无来源或无日期断言即响亮失败）。确定性对抗机器检查始终执行；挂载 `ctx.jobs` 时派生红方审阅 job 写回 `red-review-note.md`（否则 `review: skipped(jobs unavailable)`）。引擎路径：封存目录 + `sealHash` + 逐 claim 结论。降级路径：版本化 Markdown + manifest，claims 如实标记 `unverified`。发出 `industry-research/report` 事件。
 
 ## Skills
 
@@ -119,10 +120,14 @@ dsh plugin --profile demo remove dsh-industry-research    # 卸载
 ## Data layout
 
 ```
+<工作区>/<industryRoot>/versions.jsonl        工件版本清单（SHA-256 + 时间戳 + 变更类型）
+<工作区>/<industryRoot>/<行业>/research-state.json  研究状态记忆
 <工作区>/<industryRoot>/<行业>/chain.json      industry_map
+<工作区>/<industryRoot>/<行业>/chain.svg       industry_map（renderSvg: true）
 <工作区>/<industryRoot>/<行业>/timeline.jsonl  industry_track
 <工作区>/<industryRoot>/<行业>/sources.json    可引用来源登记（S1、S2……）
 <工作区>/<industryRoot>/<行业>/notes/          种子笔记
+<工作区>/<industryRoot>/<行业>/red-review-note.md  industry_report（红方审阅，需 jobs）
 <工作区>/<industryRoot>/<行业>/reports/<ts>/   industry_report（report.md + manifest.json）
 <工作区>/<industryRoot>/companies/<公司>/card.*  company_scan
 ```

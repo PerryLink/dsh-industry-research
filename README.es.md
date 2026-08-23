@@ -90,24 +90,25 @@ Todos los ajustes son campos `Config` de Schemastery; los valores inválidos fal
 | `track.maxFetchesPerCall` | `10` | Presupuesto de capturas por llamada `industry_track`. |
 | `scan.maxFileBytes` | `1048576` | Tope de lectura por archivo de datos de empresa. |
 | `scan.maxFigureCandidates` | `100` | Presupuesto de líneas candidatas por escaneo. |
+| `scan.strictTicker` | `true` | Los tickers de tarjetas deben coincidir con un formato integrado (A-share 6 dígitos, EE. UU. 1–5 letras, HK 1–5 dígitos); `false` exime la verificación. |
 
 ## Tools & surfaces
 
-### `industry_map({ industry, seed?, seedFiles?, web?, chain? })`
+### `industry_map({ industry, seed?, seedFiles?, web?, chain?, renderSvg?, depth? })`
 
-Con `chain`: valida (aristas colgadas, valores sin fuente, tiers ilegales, ids duplicados — fallo ruidoso con la lista completa) y persiste `chain.json`, luego lista las lagunas explícitas. Sin `chain`: devuelve el mapa actual, las fuentes registradas y un resumen opcional de estructura vía `ctx.web` para iterar. Emite `industry-research/map`.
+Con `chain`: valida (aristas colgadas, valores sin fuente, tiers ilegales, ids duplicados, status/statusAsOf, `taxonomyCode` desconocido — fallo ruidoso con la lista completa) y persiste `chain.json`, luego lista las lagunas explícitas y los nodos cuello de botella. Sin `chain`: devuelve el mapa actual, las fuentes registradas y un resumen opcional de estructura vía `ctx.web` para iterar. Con `renderSvg: true` también escribe un `chain.svg` determinista. `depth` escala la asistencia web. Emite `industry-research/map`.
 
-### `industry_track({ industry, topics?, since? })`
+### `industry_track({ industry, topics?, since?, depth?, evidenceCategory? })`
 
-Busca cada tema a través de `ctx.web`, filtra por las listas y `since`, captura instantáneas (SHA-256) dentro del presupuesto y fusiona en `timeline.jsonl` (deduplicación por URL normalizada, con tope). Las fuentes cuya instantánea falló se conservan como entradas solo-cita con la razón en `note`. Falla en voz alta nombrando la capacidad faltante cuando `ctx.web` no está montada o `offline: true`. Emite `industry-research/track`.
+Busca cada tema a través de `ctx.web`, filtra por las listas y `since`, captura instantáneas (SHA-256) dentro del presupuesto y fusiona en `timeline.jsonl` (deduplicación por URL normalizada, con tope). `depth` escala el presupuesto; `evidenceCategory` etiqueta cada entrada y se valida contra la enumeración de seis categorías. Las fuentes cuya instantánea falló se conservan como entradas solo-cita con la razón en `note`. Falla en voz alta nombrando la capacidad faltante cuando `ctx.web` no está montada o `offline: true`. Emite `industry-research/track`.
 
-### `company_scan({ name, dataFiles?, web? })`
+### `company_scan({ name | companies, dataFiles?, web?, status?, statusAsOf?, ticker?, metrics?, depth?, parallel? })`
 
-Lee los archivos de datos del workspace (`.md/.txt/.csv/.tsv/.json`; v1 no analiza PDF), los hashea, extrae esquemas Markdown y líneas candidatas de cifras, adjunta citas `ctx.web` opcionales y persiste la tarjeta. Los archivos rechazados regresan con razones; todo lo que la tarjeta no puede establecer es una laguna explícita.
+Lee los archivos de datos del workspace (`.md/.txt/.csv/.tsv/.json`; v1 no analiza PDF), los hashea, extrae esquemas Markdown y líneas candidatas de cifras, adjunta citas `ctx.web` opcionales y persiste la tarjeta. Un `status` requiere un `statusAsOf` no futuro; un `ticker` debe coincidir con un formato integrado salvo `scan.strictTicker: false`; cada valor de `metrics` debe llevar `source` + `asOf`. `companies` (lote) aísla una empresa fallida sin abortar el lote; `parallel: true` distribuye cada empresa en un job independiente cuando `ctx.jobs` está montado (si no, vuelve a secuencial, reflejado en `mode`). Los archivos rechazados regresan con razones; todo lo que la tarjeta no puede establecer es una laguna explícita.
 
 ### `industry_report({ industry, sections?, companies?, draft? })`
 
-Reúne la evidencia (`E-chain`, `E-timeline`, `E-company-<slug>`) y valida tu `draft` (secciones + claims; cada `evidenceIds` debe referenciar evidencia registrada) o construye el borrador mecánico (métricas con fuente y entradas recientes se convierten en claims). Ruta del motor: directorio sellado + `sealHash` + veredictos por claim. Ruta integrada: Markdown versionado + manifiesto, claims honestamente marcados `unverified`. Emite `industry-research/report`.
+Reúne la evidencia (`E-chain`, `E-timeline`, `E-company-<slug>`), verifica los artefactos leídos contra `versions.jsonl` (el hash que no coincide falla en voz alta) y valida tu `draft` (secciones + claims; cada `evidenceIds` debe referenciar evidencia registrada) o construye el borrador mecánico (métricas con fuente y entradas recientes se convierten en claims, agrupadas por `evidenceCategory`). Un contrato de entrega determinista corre antes de producir y falla en voz alta ante bloques faltantes, marcadores de posición o aserciones sin fuente/fecha. Una comprobación adversaria determinista siempre corre, y un job de revisión rojo (`red-review-note.md`) se lanza cuando `ctx.jobs` está montado (si no, `review: skipped(jobs unavailable)`). Ruta del motor: directorio sellado + `sealHash` + veredictos por claim. Ruta integrada: Markdown versionado + manifiesto, claims honestamente marcados `unverified`. Emite `industry-research/report`.
 
 ## Skills
 
@@ -119,7 +120,11 @@ Ambas se cargan bajo demanda con la herramienta estándar `skill` (`加载 indus
 ## Data layout
 
 ```
+<workspace>/<industryRoot>/versions.jsonl             registro de versiones (SHA-256 + timestamp + cambio)
+<workspace>/<industryRoot>/<industria>/research-state.json  memoria de estado de investigación
+<workspace>/<industryRoot>/<industria>/red-review-note.md    industry_report (revisión roja, jobs)
 <workspace>/<industryRoot>/<industria>/chain.json      industry_map
+<workspace>/<industryRoot>/<industria>/chain.svg       industry_map (renderSvg: true)
 <workspace>/<industryRoot>/<industria>/timeline.jsonl  industry_track
 <workspace>/<industryRoot>/<industria>/sources.json    registro de fuentes citables (S1, S2, …)
 <workspace>/<industryRoot>/<industria>/notes/          notas semilla

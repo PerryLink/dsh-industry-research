@@ -22,6 +22,8 @@ export interface ScanConfig {
   maxFileBytes?: number
   /** Maximum figure-candidate lines surfaced per company scan. */
   maxFigureCandidates?: number
+  /** When true, a company-card ticker must match a built-in format; false exempts the format check. */
+  strictTicker?: boolean
 }
 
 /** Raw plugin config — every field optional; {@link resolveConfig} supplies the defaults. */
@@ -63,6 +65,7 @@ export interface ResolvedConfig {
   readonly scan: {
     readonly maxFileBytes: number
     readonly maxFigureCandidates: number
+    readonly strictTicker: boolean
   }
 }
 
@@ -83,7 +86,8 @@ export const Config: z<Config> = z.object({
   scan: z.object({
     maxFileBytes: z.number().default(1_048_576),
     maxFigureCandidates: z.number().default(100),
-  }).default({ maxFileBytes: 1_048_576, maxFigureCandidates: 100 }),
+    strictTicker: z.boolean().default(true),
+  }).default({ maxFileBytes: 1_048_576, maxFigureCandidates: 100, strictTicker: true }),
 })
 
 /** Throw unless `value` is a positive safe integer. */
@@ -138,6 +142,7 @@ export function resolveConfig(config: Config = {}): ResolvedConfig {
   assertPositiveInt('scan.maxFileBytes', maxFileBytes)
   const maxFigureCandidates = config.scan?.maxFigureCandidates ?? 100
   assertPositiveInt('scan.maxFigureCandidates', maxFigureCandidates)
+  const strictTicker = config.scan?.strictTicker ?? true
 
   return {
     enabled: config.enabled ?? true,
@@ -149,6 +154,6 @@ export function resolveConfig(config: Config = {}): ResolvedConfig {
     offline: config.offline ?? false,
     skillsDir,
     track: { maxResultsPerTopic, maxFetchesPerCall },
-    scan: { maxFileBytes, maxFigureCandidates },
+    scan: { maxFileBytes, maxFigureCandidates, strictTicker },
   }
 }

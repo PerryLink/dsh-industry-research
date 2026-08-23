@@ -5,6 +5,30 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Deterministic `chain.json` → SVG network renderer (`src/chain-svg.ts`): tier-column layout, directed arrow edges, and dual-rule bottleneck detection (funnel: in-degree ≥ 2 and out-degree ≤ 1; hub: in-degree ≥ 2 and out-degree ≥ 2) with highlight colors. `industry_map` gains a `renderSvg` flag that writes `chain.svg` beside `chain.json` and returns the bottleneck summary; all user text is XML-escaped and the output is byte-stable for the same input.
+- Status assertions with dates: chain nodes and company cards may carry a `status` (`public`/`private`/`acquired`/`IPO`) that must carry a non-future `statusAsOf`; missing or future dates fail validation loud.
+- Price discipline and ticker validation: company cards accept sourced `metrics` (every value requires `source` + `asOf`) and a `ticker` checked against built-in formats (A-share 6 digits, US 1–5 letters, HK 1–5 digits), with the `scan.strictTicker` config exemption.
+- Research depth routing (`src/depth.ts`): `industry_map` / `industry_track` / `company_scan` accept a `depth` argument (quick/standard/comprehensive, default standard) that deterministically scales web collection — quick uses minimal source counts, comprehensive uses maximum — with loud failure out of range.
+- Per-company scan failure isolation: `company_scan` accepts a `companies` batch argument; one company's failure (bad file, path escape, validation) no longer aborts the batch and is reported in a `failures` list with its reason while the rest produce normally.
+- Artifact version ledger (`src/versions.ts` + `versions.jsonl` at the industry root): `industry_map` / `company_scan` / `industry_report` append a root-relative path + SHA-256 + injected timestamp + change type on every artifact write; artifact reads verify against the ledger and fail loud on a hash mismatch (unrecorded artifacts are skipped).
+- Built-in industry taxonomy anchor table (`src/taxonomy.ts`, 国民经济行业分类 大类 code-name-keywords); chain nodes may declare a `taxonomyCode` that must hit the table, with loud failure for unknown codes.
+- Evidence category labels: timeline entries may carry an `evidenceCategory` (`confirmed-catalyst` / `market-narrative` / `forum-buzz` / `technical-confirmation` / `macro-amplifier` / `background-noise`) validated on write; the auto-draft groups timeline entries by category.
+- Delivery contract validation (`validateDeliveryContract`): `industry_report` runs a deterministic pre-production check (complete blocks, status assertions with dates, value assertions with source + asOf, no placeholder residue) and fails loud instead of emitting a half-assembled report.
+- Research-state memory (`src/research-state.ts` + `research-state.json` per industry): `industry_map` / `industry_track` persist the last run's depth, latest artifact hashes, source URLs, evidence-category counts, gaps, and an injected timestamp, and return a deterministic "vs last run" delta (new/removed sources, unchanged evidence); a corrupt state fails loud and the write is registered in `versions.jsonl`.
+- Red-team adversarial review (`src/adversarial.ts`): `industry_report` runs the deterministic `adversarialCheck` machine-check baseline (dead evidence links, unsourced/undated numbers, statuses without dates) and, when `ctx.get('jobs')` is mounted, spawns a devil's-advocate review job that writes `red-review-note.md`; without `jobs` it records `review: skipped(jobs unavailable)`.
+- Per-company parallel scan: `company_scan` batch mode accepts `parallel` (default false); with `parallel: true` and a mounted `ctx.jobs` it fans each company out into an independent job with failure isolation and reports the execution `mode`, otherwise it falls back to the sequential path.
+
+### Deviations
+
+- **chain.json Slot client visualization UI** — needs a new client face plus packaging changes; the deterministic `chain.svg` artifact already covers the core value.
+- **Industry-expert subagent team (model orchestration)** — covered by failure isolation, depth routing, and adversarial review; a full model team exceeds this repo's determinism-first principle.
+- **Exa external retrieval service** — third-party API dependency, out of scope.
+- **Skill self-evolution (Hermes shadow agent)** — exceeds the DSH skill-provider mechanism.
+
 ## [0.1.3] - 2026-08-23
 
 ### Added

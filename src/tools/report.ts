@@ -11,24 +11,30 @@
  * @module dsh-industry-research/tools/report
  */
 
-import { readdir, readFile } from 'node:fs/promises'
+import { readdir, readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { existsSync } from 'node:fs'
 import type { Context } from '@deepseek-ai/cordis'
 import { defineTool } from '@deepseek-ai/dsh-tools'
 import type { ResolvedConfig } from '../config.ts'
 import { readCard } from '../company.ts'
-import { autoDraft, buildEvidence, reportDirName, validateDraft, writeFallbackReport } from '../report.ts'
+import { adversarialCheck, renderRedReviewNote } from '../adversarial.ts'
+import { autoDraft, buildEvidence, reportDirName, validateDeliveryContract, validateDraft, writeFallbackReport } from '../report.ts'
 import type { LoadedArtifacts, ReportDraft } from '../report.ts'
 import { AUTO_SECTIONS } from '../report.ts'
 import type { AutoSection } from '../report.ts'
-import { chainPathOf, companyDirOf, industryDirOf, reportsDirOf, timelinePathOf, workspaceOf } from '../toolkit.ts'
+import { lookupJobs } from '../jobs.ts'
+import { chainPathOf, companyDirOf, industryDirOf, reportsDirOf, timelinePathOf, versionsPathOf, workspaceOf } from '../toolkit.ts'
+import { recordVersion, rootRelative, verifyVersion } from '../versions.ts'
 import { lookupEngine } from '../engine-bridge.ts'
 import type { AssembleReportResult } from '../engine-bridge.ts'
 import type { ChainMap } from '../chain.ts'
 import { chainGaps } from '../chain.ts'
 import { readTimeline } from '../timeline.ts'
 import type { ReportEventPayload } from '../events.ts'
+
+/** The red-team review outcome attached to a report. */
+export type ReviewOutcome = { mode: 'job'; jobId: string } | { mode: 'skipped'; note: string }
 
 /** The canonical value returned by `industry_report`. */
 export interface IndustryReportValue {
@@ -53,6 +59,10 @@ export interface IndustryReportValue {
   gaps: string[]
   /** ISO-8601 generation time. */
   generatedAt: string
+  /** Deterministic adversarial-check findings (machine-check baseline). */
+  machineCheck: string[]
+  /** Red-team review outcome (spawned job or skipped). */
+  review: ReviewOutcome
 }
 
 /** The draft parameter schema (semantic reference checks live in {@link validateDraft}). */
@@ -116,16 +126,25 @@ export async function loadArtifacts(config: ResolvedConfig, cwd: string, industr
   const artifacts: LoadedArtifacts = { cards: [], gaps }
 
   const chainPath = chainPathOf(dir)
+  let chainContent: string | undefined
   try {
-    const content = await readFile(chainPath, 'utf8')
-    const map = JSON.parse(content) as ChainMap
-    artifacts.chain = { path: chainPath, content, map }
-    gaps.push(...chainGaps(map))
+    chainContent = await readFile(chainPath, 'utf8')
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
       gaps.push('缺少产业链结构图 chain.json（先运行 industry_map）')
     } else {
-      gaps.push(`chain.json 读取/解析失败：${error instanceof Error ? error.message : String(error)}`)
+      gaps.push(`chain.json 读取失败：${error instanceof Error ? error.message : String(error)}`)
+    }
+  }
+  if (chainContent !== undefined) {
+    // Version mismatch fails loud (integrity); parse failures stay honest gaps.
+    await verifyVersion(versionsPathOf(root), rootRelative(root, chainPath), chainContent)
+    try {
+      const map = JSON.parse(chainContent) as ChainMap
+      artifacts.chain = { path: chainPath, content: chainContent, map }
+      gaps.push(...chainGaps(map))
+    } catch (error) {
+      gaps.push(`chain.json 解析失败：${error instanceof Error ? error.message : String(error)}`)
     }
   }
 
@@ -160,16 +179,24 @@ export async function loadArtifacts(config: ResolvedConfig, cwd: string, industr
   }
   for (const slug of slugs) {
     const cardJsonPath = join(companiesDir, slug, 'card.json')
+    let cardContent: string | undefined
     try {
-      const content = await readFile(cardJsonPath, 'utf8')
-      const card = await readCard(cardJsonPath)
-      artifacts.cards.push({ path: cardJsonPath, content, card })
+      cardContent = await readFile(cardJsonPath, 'utf8')
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
         gaps.push(`公司「${slug}」无速览卡（先运行 company_scan）`)
       } else {
-        gaps.push(`公司「${slug}」的 card.json 读取/解析失败：${error instanceof Error ? error.message : String(error)}`)
+        gaps.push(`公司「${slug}」的 card.json 读取失败：${error instanceof Error ? error.message : String(error)}`)
       }
+      continue
+    }
+    // Version mismatch fails loud (integrity); parse failures stay honest gaps.
+    await verifyVersion(versionsPathOf(root), rootRelative(root, cardJsonPath), cardContent)
+    try {
+      const card = await readCard(cardJsonPath)
+      artifacts.cards.push({ path: cardJsonPath, content: cardContent, card })
+    } catch (error) {
+      gaps.push(`公司「${slug}」的 card.json 解析失败：${error instanceof Error ? error.message : String(error)}`)
     }
   }
   if (artifacts.cards.length === 0 && slugs.length === 0) {
@@ -209,6 +236,8 @@ export function buildIndustryReportTool(ctx: Context, config: ResolvedConfig) {
           evidence: { type: 'number', required: true },
           gaps: { type: 'array', items: { type: 'string' }, required: true },
           generatedAt: { type: 'string', required: true },
+          machineCheck: { type: 'array', items: { type: 'string' }, required: true },
+          review: { type: 'json', required: true },
         },
         additionalProperties: false,
       },
@@ -223,6 +252,8 @@ export function buildIndustryReportTool(ctx: Context, config: ResolvedConfig) {
               `行业「${current.industry}」研究报告（builtin-fallback，未经过独立核查引擎）→ ${current.reportPath}`,
               `claims ${current.claims} 条均标记 unverified；来源回溯表见 report.md 附录与 ${current.manifestPath ?? ''}。`,
             ]
+        lines.push(`机器对抗检查：${current.machineCheck.length > 0 ? `${current.machineCheck.length} 项发现` : '未发现可攻击点'}。`)
+        lines.push(`红方审阅：${current.review.mode === 'job' ? `job ${current.review.jobId} 已派生` : `skipped（${current.review.note}）`}。`)
         if (current.gaps.length > 0) lines.push(`缺口声明：${current.gaps.join('；')}`)
         lines.push('仅供研究，不构成投资建议。')
         return [{ type: 'text', text: lines.join('\n') }]
@@ -231,7 +262,7 @@ export function buildIndustryReportTool(ctx: Context, config: ResolvedConfig) {
     timeoutMs: 60_000,
     async execute(args, exec): Promise<IndustryReportValue> {
       const cwd = workspaceOf(exec)
-      const { dir, name } = industryDirOf(config, cwd, args.industry)
+      const { root, dir, name } = industryDirOf(config, cwd, args.industry)
       const generatedAt = new Date().toISOString()
       const artifacts = await loadArtifacts(config, cwd, name, args.companies)
       const evidence = buildEvidence(artifacts, generatedAt)
@@ -251,6 +282,43 @@ export function buildIndustryReportTool(ctx: Context, config: ResolvedConfig) {
       } else {
         const sections = (args.sections ?? [...AUTO_SECTIONS]) as AutoSection[]
         draft = autoDraft(name, artifacts, sections)
+      }
+
+      // Delivery contract (blue baseline): no half-assembled report is ever emitted.
+      const contractProblems = validateDeliveryContract(draft, artifacts, evidenceIds)
+      if (contractProblems.length > 0) {
+        throw new Error(`交付契约校验失败（${contractProblems.length} 项）：${contractProblems.join('；')}`)
+      }
+
+      // Deterministic adversarial check (always runs, machine-check baseline).
+      const machineCheck = adversarialCheck(draft, artifacts, evidenceIds)
+
+      // Optional red-team review job: spawn it when a background-job registry exists.
+      let review: ReviewOutcome
+      const jobs = lookupJobs(ctx)
+      const versionsPath = versionsPathOf(root)
+      const redNotePath = join(dir, 'red-review-note.md')
+      if (jobs === undefined) {
+        review = { mode: 'skipped', note: 'jobs unavailable' }
+      } else {
+        const noteContent = renderRedReviewNote(draft, artifacts, evidenceIds, generatedAt)
+        const jobId = jobs.start({
+          kind: 'subagent',
+          label: '红方对抗审阅（魔鬼代言人）',
+          owner: exec.agent,
+          run: () => {
+            let cancelled = false
+            const done = (async () => {
+              if (!cancelled) {
+                await writeFile(redNotePath, noteContent, 'utf8')
+                await recordVersion(versionsPath, rootRelative(root, redNotePath), noteContent, generatedAt)
+              }
+              return { status: cancelled ? 'killed' as const : 'completed' as const, output: machineCheck.length > 0 ? machineCheck.join('；') : 'no findings' }
+            })()
+            return { cancel: () => { cancelled = true }, done }
+          },
+        })
+        review = { mode: 'job', jobId }
       }
 
       const engine = lookupEngine(ctx)
@@ -275,12 +343,16 @@ export function buildIndustryReportTool(ctx: Context, config: ResolvedConfig) {
           evidence: evidence.length,
           gaps: artifacts.gaps,
           generatedAt,
+          machineCheck,
+          review,
         }
       } else {
         const reportsDir = reportsDirOf(dir)
         const dirName = reportDirName(new Date(), candidate => existsSync(join(reportsDir, candidate)))
         const reportDir = join(reportsDir, dirName)
-        const { reportPath, manifestPath } = await writeFallbackReport(reportDir, name, draft, evidence, artifacts.gaps, generatedAt)
+        const { reportPath, manifestPath } = await writeFallbackReport(reportDir, name, draft, evidence, artifacts.gaps, generatedAt, machineCheck)
+        await recordVersion(versionsPath, rootRelative(root, reportPath), await readFile(reportPath, 'utf8'), generatedAt)
+        await recordVersion(versionsPath, rootRelative(root, manifestPath), await readFile(manifestPath, 'utf8'), generatedAt)
         value = {
           industry: name,
           engine: 'builtin-fallback',
@@ -293,6 +365,8 @@ export function buildIndustryReportTool(ctx: Context, config: ResolvedConfig) {
           evidence: evidence.length,
           gaps: artifacts.gaps,
           generatedAt,
+          machineCheck,
+          review,
         }
       }
 

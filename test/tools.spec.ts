@@ -98,12 +98,32 @@ describe('industry_track triple interface', () => {
 
 describe('company_scan triple interface', () => {
   const REQUIRED = ['name', 'slug', 'dir', 'cardPath', 'cardJsonPath', 'card', 'rejected']
+  const BATCH_REQUIRED = ['results', 'failures']
 
   it('asserts schema, canonical value, and content blocks together', async () => {
     const base = await setup()
     await mkdir(join(base.workspace, 'data'), { recursive: true })
     await writeFile(join(base.workspace, 'data', 'excerpt.md'), '2025 年营业收入 120.50 亿元。\n', 'utf8')
-    expectObjectSchema(base.ctx.tools.get('company_scan')?.output.schema, REQUIRED)
+    const schema = base.ctx.tools.get('company_scan')?.output.schema as {
+      oneOf?: Array<{ type?: string; additionalProperties?: unknown; required?: readonly string[]; properties?: Record<string, unknown> }>
+    }
+    expect(schema.oneOf).toBeInstanceOf(Array)
+    expect(schema.oneOf).toHaveLength(2)
+    const single = schema.oneOf?.[0]
+    const batch = schema.oneOf?.[1]
+    expect(single?.type).toBe('object')
+    expect(single?.additionalProperties).toBe(false)
+    expect(single?.properties).toBeTypeOf('object')
+    expect(single?.required).toBeInstanceOf(Array)
+    for (const field of REQUIRED) {
+      expect(single?.required).toContain(field)
+      expect(single?.properties?.[field]).toBeDefined()
+    }
+    expect(batch?.required).toBeInstanceOf(Array)
+    for (const field of BATCH_REQUIRED) {
+      expect(batch?.required).toContain(field)
+      expect(batch?.properties?.[field]).toBeDefined()
+    }
 
     const result = await callTool(base, 'company_scan', { name: '样例酒业', dataFiles: ['data/excerpt.md'], web: false })
     expect(result.isError).toBe(false)

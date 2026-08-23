@@ -8,9 +8,9 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
-import { mountBase, mountPlugin, mountWeb, callTool, stubSearch, unmountBase, type BaseHarness } from './harness.ts'
+import { mountBase, mountJobs, mountPlugin, mountWeb, callTool, stubSearch, unmountBase, type BaseHarness } from './harness.ts'
 import type { CompanyCard } from '../src/company.ts'
-import type { CompanyScanValue } from '../src/tools/company.ts'
+import type { CompanyScanBatchValue, CompanyScanValue } from '../src/tools/company.ts'
 
 const cleanups: Array<() => Promise<void>> = []
 afterEach(async () => {
@@ -108,5 +108,129 @@ describe('company_scan', () => {
     const value = result.value as unknown as CompanyScanValue
     expect(value.card.figureCandidates).toHaveLength(1)
     expect(value.card.gaps.some(gap => gap.includes('maxFigureCandidates'))).toBe(true)
+  })
+
+  it('persists status, ticker, and sourced metrics with the assertion lines', async () => {
+    const base = await setup()
+    await seedFile(base, 'data/excerpt.md', EXCERPT)
+    const result = await callTool(base, 'company_scan', {
+      name: '样例酒业',
+      dataFiles: ['data/excerpt.md'],
+      web: false,
+      status: 'public',
+      statusAsOf: '2026-08-23',
+      ticker: '600519',
+      metrics: [{ key: '股价', value: 120.5, unit: '元', asOf: '2026-08-23', source: 'S1' }],
+    })
+    expect(result.isError).toBe(false)
+    const value = result.value as unknown as CompanyScanValue
+    expect(value.card.status).toBe('public')
+    expect(value.card.statusAsOf).toBe('2026-08-23')
+    expect(value.card.ticker).toBe('600519')
+    expect(value.card.metrics).toHaveLength(1)
+    const markdown = await readFile(value.cardPath, 'utf8')
+    expect(markdown).toContain('上市状态：public')
+    expect(markdown).toContain('代码/ticker：600519')
+    expect(markdown).toContain('价格与数值数据点')
+  })
+
+  it('fails loud when a status is declared without a statusAsOf', async () => {
+    const base = await setup()
+    const result = await callTool(base, 'company_scan', { name: '样例酒业', web: false, status: 'IPO' })
+    expect(result.isError).toBe(true)
+    expect(result.error?.message).toContain('statusAsOf')
+  })
+
+  it('fails loud when a metric value lacks a source and when a ticker has a bad format', async () => {
+    const base = await setup()
+    const noSource = await callTool(base, 'company_scan', {
+      name: '样例酒业', web: false,
+      metrics: [{ key: '股价', value: 120.5, asOf: '2026-08-23', source: ' ' }],
+    })
+    expect(noSource.isError).toBe(true)
+    expect(noSource.error?.message).toContain('without a source')
+    const badTicker = await callTool(base, 'company_scan', { name: '样例酒业', web: false, ticker: '60051A' })
+    expect(badTicker.isError).toBe(true)
+    expect(badTicker.error?.message).toContain('ticker')
+  })
+
+  it('honors scan.strictTicker: false as a format exemption', async () => {
+    const base = await setup({ scan: { strictTicker: false } })
+    const result = await callTool(base, 'company_scan', { name: '样例酒业', web: false, ticker: '60051A' })
+    expect(result.isError).toBe(false)
+    const value = result.value as unknown as CompanyScanValue
+    expect(value.card.ticker).toBe('60051A')
+  })
+
+  it('isolates one failed company in a batch and produces the rest', async () => {
+    const base = await setup()
+    await seedFile(base, 'data/excerpt.md', EXCERPT)
+    const result = await callTool(base, 'company_scan', {
+      companies: [
+        { name: '样例酒业', dataFiles: ['data/excerpt.md'], web: false },
+        { name: '坏公司', web: false, status: 'IPO' },
+        { name: '样例食品', dataFiles: ['data/excerpt.md'], web: false },
+      ],
+    })
+    expect(result.isError).toBe(false)
+    const value = result.value as unknown as CompanyScanBatchValue
+    expect(value.results).toHaveLength(2)
+    expect(value.results.map(item => item.name)).toEqual(['样例酒业', '样例食品'])
+    expect(value.failures).toHaveLength(1)
+    expect(value.failures[0]?.name).toBe('坏公司')
+    expect(value.failures[0]?.reason).toContain('statusAsOf')
+  })
+
+  it('isolates a path escape in a batch without aborting good companies', async () => {
+    const base = await setup()
+    const result = await callTool(base, 'company_scan', {
+      companies: [
+        { name: '逃逸公司', dataFiles: ['../outside.md'], web: false },
+        { name: '正常公司', web: false },
+      ],
+    })
+    expect(result.isError).toBe(false)
+    const value = result.value as unknown as CompanyScanBatchValue
+    expect(value.results).toHaveLength(1)
+    expect(value.results[0]?.name).toBe('正常公司')
+    expect(value.failures).toHaveLength(1)
+    expect(value.failures[0]?.reason).toContain('escapes')
+  })
+
+  it('rejects providing both name and companies', async () => {
+    const base = await setup()
+    const result = await callTool(base, 'company_scan', { name: 'A', companies: [{ name: 'B' }], web: false })
+    expect(result.isError).toBe(true)
+    expect(result.error?.message).toContain('not both')
+  })
+
+  it('falls back to sequential when parallel is requested without a jobs service', async () => {
+    const base = await setup()
+    const result = await callTool(base, 'company_scan', { companies: [{ name: '样例酒业', web: false }, { name: '样例食品', web: false }], parallel: true })
+    expect(result.isError).toBe(false)
+    const value = result.value as unknown as CompanyScanBatchValue
+    expect(value.mode).toBe('sequential')
+    expect(value.results).toHaveLength(2)
+  })
+
+  it('fans out per company into jobs when parallel and jobs are present', async () => {
+    const base = await setup()
+    const jobs = await mountJobs(base)
+    await seedFile(base, 'data/excerpt.md', EXCERPT)
+    const result = await callTool(base, 'company_scan', {
+      companies: [
+        { name: '样例酒业', dataFiles: ['data/excerpt.md'], web: false },
+        { name: '坏公司', web: false, status: 'IPO' },
+        { name: '样例食品', web: false },
+      ],
+      parallel: true,
+    })
+    expect(result.isError).toBe(false)
+    const value = result.value as unknown as CompanyScanBatchValue
+    expect(value.mode).toBe('parallel')
+    expect(jobs.started).toHaveLength(3)
+    expect(value.results).toHaveLength(2)
+    expect(value.failures).toHaveLength(1)
+    expect(value.failures[0]?.name).toBe('坏公司')
   })
 })

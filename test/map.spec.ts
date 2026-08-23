@@ -105,4 +105,65 @@ describe('industry_map', () => {
     expect(result.isError).toBe(true)
     expect(result.error?.message).toMatch(/single path segment|traversal/u)
   })
+
+  it('renders a deterministic chain.svg and reports bottlenecks when requested', async () => {
+    const base = await setup()
+    const chain: ChainMap = {
+      industry: '示例',
+      nodes: [
+        { id: 'a', name: '上游A', tier: 'upstream', metrics: [] },
+        { id: 'b', name: '上游B', tier: 'upstream', metrics: [] },
+        { id: 'c', name: '上游C', tier: 'upstream', metrics: [] },
+        { id: 'funnel', name: '中游漏斗', tier: 'midstream', metrics: [] },
+        { id: 'hub', name: '中游枢纽', tier: 'midstream', metrics: [] },
+        { id: 'd', name: '下游D', tier: 'downstream', metrics: [] },
+        { id: 'e', name: '下游E', tier: 'downstream', metrics: [] },
+        { id: 'f', name: '下游F', tier: 'downstream', metrics: [] },
+      ],
+      edges: [
+        { from: 'a', to: 'funnel' },
+        { from: 'b', to: 'funnel' },
+        { from: 'funnel', to: 'd' },
+        { from: 'a', to: 'hub' },
+        { from: 'c', to: 'hub' },
+        { from: 'hub', to: 'e' },
+        { from: 'hub', to: 'f' },
+      ],
+    }
+    const result = await callTool(base, 'industry_map', { industry: '示例', chain, web: false, renderSvg: true })
+    expect(result.isError).toBe(false)
+    const value = result.value as unknown as IndustryMapValue
+    expect(value.bottlenecks.map(bottleneck => bottleneck.id)).toEqual(['funnel', 'hub'])
+    expect(value.svgPath).not.toBeNull()
+    const svg = await readFile(value.svgPath!, 'utf8')
+    expect(svg).toContain('<svg')
+    expect(svg).toContain('fill="#fff4cc"')
+    expect(svg).toContain('fill="#fde3e3"')
+    expect(svg).toContain('产业链结构图')
+  })
+
+  it('accepts a known taxonomyCode and rejects an unknown one', async () => {
+    const base = await setup()
+    const bad = demoChain()
+    bad.nodes[0]!.taxonomyCode = '999'
+    const badResult = await callTool(base, 'industry_map', { industry: '示例', chain: bad, web: false })
+    expect(badResult.isError).toBe(true)
+    expect(badResult.error?.message).toContain('taxonomyCode')
+
+    const good = demoChain()
+    good.nodes[0]!.taxonomyCode = '15'
+    const goodResult = await callTool(base, 'industry_map', { industry: '示例', chain: good, web: false, depth: 'comprehensive' })
+    expect(goodResult.isError).toBe(false)
+  })
+
+  it('records chain.json and chain.svg in the versions ledger', async () => {
+    const base = await setup()
+    const result = await callTool(base, 'industry_map', { industry: '示例', chain: demoChain(), web: false, renderSvg: true })
+    expect(result.isError).toBe(false)
+    const ledger = await readFile(join(base.workspace, 'industry-research', 'versions.jsonl'), 'utf8')
+    const records = ledger.trim().split('\n').map(line => JSON.parse(line) as { artifact: string; change: string; sha256: string })
+    expect(records.some(record => record.artifact === '示例/chain.json' && record.change === 'created')).toBe(true)
+    expect(records.some(record => record.artifact === '示例/chain.svg')).toBe(true)
+    expect(records.every(record => /^[0-9a-f]{64}$/u.test(record.sha256))).toBe(true)
+  })
 })

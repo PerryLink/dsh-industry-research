@@ -90,24 +90,25 @@ Todos os ajustes são campos `Config` de Schemastery; valores inválidos falham 
 | `track.maxFetchesPerCall` | `10` | Orçamento de capturas por chamada `industry_track`. |
 | `scan.maxFileBytes` | `1048576` | Teto de leitura por arquivo de dados de empresa. |
 | `scan.maxFigureCandidates` | `100` | Orçamento de linhas candidatas por varredura. |
+| `scan.strictTicker` | `true` | Tickers de cartões devem corresponder a um formato integrado (A-share 6 dígitos, EUA 1–5 letras, HK 1–5 dígitos); `false` isenta a verificação. |
 
 ## Tools & surfaces
 
-### `industry_map({ industry, seed?, seedFiles?, web?, chain? })`
+### `industry_map({ industry, seed?, seedFiles?, web?, chain?, renderSvg?, depth? })`
 
-Com `chain`: valida (arestas pendentes, valores sem fonte, tiers ilegais, ids duplicados — falha ruidosa com a lista completa) e persiste `chain.json`, depois lista as lacunas explícitas. Sem `chain`: devolve o mapa atual, as fontes registradas e um resumo opcional de estrutura via `ctx.web` para iterar. Emite `industry-research/map`.
+Com `chain`: valida (arestas pendentes, valores sem fonte, tiers ilegais, ids duplicados, status/statusAsOf, `taxonomyCode` desconhecido — falha ruidosa com a lista completa) e persiste `chain.json`, depois lista as lacunas explícitas e os nós gargalo. Sem `chain`: devolve o mapa atual, as fontes registradas e um resumo opcional de estrutura via `ctx.web` para iterar. Com `renderSvg: true` também grava um `chain.svg` determinístico. `depth` escala a assistência web. Emite `industry-research/map`.
 
-### `industry_track({ industry, topics?, since? })`
+### `industry_track({ industry, topics?, since?, depth?, evidenceCategory? })`
 
-Busca cada tópico via `ctx.web`, filtra pelas listas e `since`, captura snapshots (SHA-256) dentro do orçamento e funde em `timeline.jsonl` (deduplicação por URL normalizada, com teto). Fontes cujo snapshot falhou são mantidas como entradas só-citação com a razão em `note`. Falha em voz alta nomeando a capacidade ausente quando `ctx.web` não está montada ou `offline: true`. Emite `industry-research/track`.
+Busca cada tópico via `ctx.web`, filtra pelas listas e `since`, captura snapshots (SHA-256) dentro do orçamento e funde em `timeline.jsonl` (deduplicação por URL normalizada, com teto). `depth` escala o orçamento; `evidenceCategory` rotula cada entrada e é validado contra a enumeração de seis categorias. Fontes cujo snapshot falhou são mantidas como entradas só-citação com a razão em `note`. Falha em voz alta nomeando a capacidade ausente quando `ctx.web` não está montada ou `offline: true`. Emite `industry-research/track`.
 
-### `company_scan({ name, dataFiles?, web? })`
+### `company_scan({ name | companies, dataFiles?, web?, status?, statusAsOf?, ticker?, metrics?, depth?, parallel? })`
 
-Lê os arquivos de dados do workspace (`.md/.txt/.csv/.tsv/.json`; v1 não analisa PDF), calcula hashes, extrai esboços Markdown e linhas candidatas de números, anexa citações `ctx.web` opcionais e persiste o cartão. Arquivos rejeitados retornam com razões; tudo o que o cartão não consegue estabelecer é uma lacuna explícita.
+Lê os arquivos de dados do workspace (`.md/.txt/.csv/.tsv/.json`; v1 não analisa PDF), calcula hashes, extrai esboços Markdown e linhas candidatas de números, anexa citações `ctx.web` opcionais e persiste o cartão. Um `status` exige um `statusAsOf` não futuro; um `ticker` deve corresponder a um formato integrado salvo `scan.strictTicker: false`; cada valor de `metrics` deve levar `source` + `asOf`. `companies` (lote) isola uma empresa falha sem abortar o lote; `parallel: true` distribui cada empresa em um job independente quando `ctx.jobs` está montado (senão volta a sequencial, refletido em `mode`). Arquivos rejeitados retornam com razões; tudo o que o cartão não consegue estabelecer é uma lacuna explícita.
 
 ### `industry_report({ industry, sections?, companies?, draft? })`
 
-Reúne a evidência (`E-chain`, `E-timeline`, `E-company-<slug>`) e valida o seu `draft` (seções + claims; cada `evidenceIds` deve referenciar evidência registrada) ou constrói o rascunho mecânico (métricas com fonte e entradas recentes viram claims). Rota do motor: diretório selado + `sealHash` + veredictos por claim. Rota integrada: Markdown versionado + manifesto, claims honestamente marcados `unverified`. Emite `industry-research/report`.
+Reúne a evidência (`E-chain`, `E-timeline`, `E-company-<slug>`), verifica os artefatos lidos contra `versions.jsonl` (hash divergente falha em voz alta) e valida o seu `draft` (seções + claims; cada `evidenceIds` deve referenciar evidência registrada) ou constrói o rascunho mecânico (métricas com fonte e entradas recentes viram claims, agrupadas por `evidenceCategory`). Um contrato de entrega determinístico roda antes de produzir e falha em voz alta ante blocos faltantes, marcadores de posição ou asserções sem fonte/data. Uma verificação adversária determinística sempre roda, e um job de revisão vermelho (`red-review-note.md`) é lançado quando `ctx.jobs` está montado (senão `review: skipped(jobs unavailable)`). Rota do motor: diretório selado + `sealHash` + veredictos por claim. Rota integrada: Markdown versionado + manifesto, claims honestamente marcados `unverified`. Emite `industry-research/report`.
 
 ## Skills
 
@@ -119,7 +120,11 @@ Ambas carregam sob demanda pela ferramenta padrão `skill` (`加载 industry-res
 ## Data layout
 
 ```
+<workspace>/<industryRoot>/versions.jsonl             registro de versões (SHA-256 + timestamp + mudança)
+<workspace>/<industryRoot>/<indústria>/research-state.json  memória de estado de pesquisa
+<workspace>/<industryRoot>/<indústria>/red-review-note.md    industry_report (revisão vermelha, jobs)
 <workspace>/<industryRoot>/<indústria>/chain.json      industry_map
+<workspace>/<industryRoot>/<indústria>/chain.svg       industry_map (renderSvg: true)
 <workspace>/<industryRoot>/<indústria>/timeline.jsonl  industry_track
 <workspace>/<industryRoot>/<indústria>/sources.json    registro de fontes citáveis (S1, S2, …)
 <workspace>/<industryRoot>/<indústria>/notes/          notas-semente

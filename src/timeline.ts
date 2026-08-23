@@ -9,6 +9,19 @@
 import { readFile, writeFile, mkdir } from 'node:fs/promises'
 import { dirname } from 'node:path'
 
+/** Evidence category labels for timeline entries. */
+export const EVIDENCE_CATEGORIES = [
+  'confirmed-catalyst',
+  'market-narrative',
+  'forum-buzz',
+  'technical-confirmation',
+  'macro-amplifier',
+  'background-noise',
+] as const
+
+/** One legal evidence category. */
+export type EvidenceCategory = (typeof EVIDENCE_CATEGORIES)[number]
+
 /** One timeline entry: a dated, sourced industry event. */
 export type TimelineEntry = {
   /** Event date (ISO-8601) from the source's publication time; null when the provider gave none. */
@@ -27,6 +40,8 @@ export type TimelineEntry = {
   topics: string[]
   /** Optional caveat (e.g. why the snapshot hash is missing). */
   note?: string
+  /** Optional evidence category; validated against {@link EVIDENCE_CATEGORIES} on write. */
+  evidenceCategory?: EvidenceCategory
 }
 
 /** The outcome of merging a batch into the store. */
@@ -124,15 +139,36 @@ export async function readTimeline(path: string): Promise<{ entries: TimelineEnt
 }
 
 /**
+ * Validate an evidence category against the legal enum. Absent categories are
+ * legal; an illegal value fails loud so a mistyped label never lands in the
+ * durable store.
+ * @param value - the candidate category.
+ * @returns validation problems (empty when valid).
+ */
+export function validateEvidenceCategory(value: unknown): string[] {
+  if (value === undefined) return []
+  if (typeof value !== 'string' || !(EVIDENCE_CATEGORIES as readonly string[]).includes(value)) {
+    return [`evidenceCategory must be one of ${EVIDENCE_CATEGORIES.join('|')}, got ${JSON.stringify(value)}`]
+  }
+  return []
+}
+
+/**
  * Merge a batch into the store and persist: dedupe by normalized URL (both
  * against the store and within the batch), append the survivors, and rewrite
  * the file keeping only the newest `maxEntries` when the cap is exceeded.
+ * A batch entry carrying an illegal `evidenceCategory` fails loud before any
+ * write.
  * @param path - absolute path of the JSONL file.
  * @param batch - candidate entries, in arrival order.
  * @param maxEntries - retention cap (oldest dropped first).
  * @returns the merge outcome.
  */
 export async function mergeTimeline(path: string, batch: readonly TimelineEntry[], maxEntries: number): Promise<TimelineMerge> {
+  for (const entry of batch) {
+    const problems = validateEvidenceCategory(entry.evidenceCategory)
+    if (problems.length > 0) throw new Error(problems.join('；'))
+  }
   const { entries } = await readTimeline(path)
   const seen = new Set(entries.map(entry => normalizeUrl(entry.url)))
   const added: TimelineEntry[] = []

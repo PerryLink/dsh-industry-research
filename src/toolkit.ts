@@ -66,6 +66,11 @@ export function chainPathOf(dir: string): string {
   return join(dir, 'chain.json')
 }
 
+/** The `chain.svg` path of an industry directory. */
+export function chainSvgPathOf(dir: string): string {
+  return join(dir, 'chain.svg')
+}
+
 /** The `timeline.jsonl` path of an industry directory. */
 export function timelinePathOf(dir: string): string {
   return join(dir, 'timeline.jsonl')
@@ -74,6 +79,16 @@ export function timelinePathOf(dir: string): string {
 /** The `sources.json` path of an industry directory. */
 export function sourcesPathOf(dir: string): string {
   return join(dir, 'sources.json')
+}
+
+/** The `research-state.json` path of an industry directory. */
+export function researchStatePathOf(dir: string): string {
+  return join(dir, 'research-state.json')
+}
+
+/** The `versions.jsonl` ledger path at the industry-research root. */
+export function versionsPathOf(root: string): string {
+  return join(root, 'versions.jsonl')
 }
 
 /** The `notes/` directory of an industry directory. */

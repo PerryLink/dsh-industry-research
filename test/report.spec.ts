@@ -10,7 +10,9 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
-import { mountBase, mountEngine, mountPlugin, callTool, unmountBase, type BaseHarness } from './harness.ts'
+import { mountBase, mountEngine, mountJobs, mountPlugin, callTool, unmountBase, type BaseHarness } from './harness.ts'
+import { autoDraft, validateDeliveryContract } from '../src/report.ts'
+import type { LoadedArtifacts, ReportDraft } from '../src/report.ts'
 import type { AssembleReportRequest } from '../src/engine-bridge.ts'
 import type { IndustryReportValue } from '../src/tools/report.ts'
 import type { ReportEventPayload } from '../src/events.ts'
@@ -191,5 +193,101 @@ describe('industry_report draft handling', () => {
     })
     expect(badClaim.isError).toBe(true)
     expect(badClaim.error?.message).toContain('C9')
+  })
+})
+
+describe('validateDeliveryContract', () => {
+  const evidenceIds = new Set(['E-chain'])
+
+  it('accepts a complete draft over clean artifacts', () => {
+    const draft: ReportDraft = { title: 't', sections: [{ heading: 'h', paragraphs: [{ text: 'x' }] }], claims: [{ id: 'C1', text: 'y', evidenceIds: ['E-chain'] }] }
+    const artifacts: LoadedArtifacts = { cards: [], gaps: [] }
+    expect(validateDeliveryContract(draft, artifacts, evidenceIds)).toEqual([])
+  })
+
+  it('flags placeholder residue and empty blocks', () => {
+    const draft: ReportDraft = { title: 't', sections: [{ heading: 'h', paragraphs: [{ text: '{{todo}}' }] }], claims: [] }
+    const artifacts: LoadedArtifacts = { cards: [], gaps: [] }
+    const problems = validateDeliveryContract(draft, artifacts, evidenceIds)
+    expect(problems.some(problem => problem.includes('placeholder'))).toBe(true)
+    expect(validateDeliveryContract({ title: '', sections: [{ heading: 'h', paragraphs: [{ text: 'x' }] }], claims: [] }, artifacts, evidenceIds).some(problem => problem.includes('title'))).toBe(true)
+  })
+
+  it('flags a card metric value without an asOf', () => {
+    const artifacts: LoadedArtifacts = {
+      cards: [{ path: '/c', content: '', card: { name: 'A', slug: 'A', asOf: '2026-08-19T00:00:00.000Z', sources: [], outline: [], figureCandidates: [], webSources: null, gaps: [], disclaimer: 'x', metrics: [{ key: '股价', value: 1, asOf: '', source: 'S1' }] } }],
+      gaps: [],
+    }
+    const draft: ReportDraft = { title: 't', sections: [{ heading: 'h', paragraphs: [{ text: 'x' }] }], claims: [] }
+    expect(validateDeliveryContract(draft, artifacts, evidenceIds).some(problem => problem.includes('without an asOf'))).toBe(true)
+  })
+})
+
+describe('industry_report delivery contract', () => {
+  it('fails loud on placeholder residue before producing a report', async () => {
+    const base = await setup()
+    await seedIndustry(base)
+    const result = await callTool(base, 'industry_report', {
+      industry: '示例',
+      draft: {
+        sections: [{ heading: '要点', paragraphs: [{ text: '待填 {{industry}} 内容。', claimIds: ['C1'] }] }],
+        claims: [{ id: 'C1', text: '占位 {{x}}', evidenceIds: ['E-chain'] }],
+      },
+    })
+    expect(result.isError).toBe(true)
+    expect(result.error?.message).toContain('交付契约校验失败')
+  })
+})
+
+describe('autoDraft timeline evidence-category grouping', () => {
+  it('groups timeline entries by evidence category', () => {
+    const artifacts: LoadedArtifacts = {
+      cards: [],
+      gaps: [],
+      timeline: {
+        path: '/t',
+        content: '',
+        entries: [
+          { date: '2026-08-01', title: '催化事件', url: 'https://a.test/1', summary: null, snapshotHash: null, capturedAt: '2026-08-01T00:00:00.000Z', topics: ['x'], evidenceCategory: 'confirmed-catalyst' },
+          { date: '2026-08-02', title: '论坛噪音', url: 'https://a.test/2', summary: null, snapshotHash: null, capturedAt: '2026-08-02T00:00:00.000Z', topics: ['x'], evidenceCategory: 'forum-buzz' },
+          { date: '2026-08-03', title: '未分类', url: 'https://a.test/3', summary: null, snapshotHash: null, capturedAt: '2026-08-03T00:00:00.000Z', topics: ['x'] },
+        ],
+      },
+    }
+    const draft = autoDraft('示例', artifacts, ['timeline'])
+    const texts = draft.sections[0]!.paragraphs.map(paragraph => paragraph.text)
+    expect(texts.some(text => text.includes('confirmed-catalyst'))).toBe(true)
+    expect(texts.some(text => text.includes('forum-buzz'))).toBe(true)
+    expect(texts.some(text => text.includes('未分类'))).toBe(true)
+  })
+})
+
+describe('industry_report red-team review', () => {
+  it('skips the red review job when no jobs service is mounted', async () => {
+    const base = await setup()
+    await seedIndustry(base)
+    const result = await callTool(base, 'industry_report', { industry: '示例' })
+    expect(result.isError).toBe(false)
+    const value = result.value as unknown as IndustryReportValue
+    expect(value.review).toEqual({ mode: 'skipped', note: 'jobs unavailable' })
+    expect(value.machineCheck).toEqual([])
+    const markdown = await readFile(value.reportPath!, 'utf8')
+    expect(markdown).toContain('机器对抗检查')
+  })
+
+  it('spawns a red review job and writes red-review-note.md when jobs is mounted', async () => {
+    const base = await setup()
+    await seedIndustry(base)
+    const jobs = await mountJobs(base)
+    const result = await callTool(base, 'industry_report', { industry: '示例' })
+    expect(result.isError).toBe(false)
+    const value = result.value as unknown as IndustryReportValue
+    expect(value.review.mode).toBe('job')
+    expect(jobs.started).toHaveLength(1)
+    expect(jobs.started[0]?.label).toContain('对抗审阅')
+    await jobs.started[0]!.hooks.done
+    const note = await readFile(join(base.workspace, 'industry-research', '示例', 'red-review-note.md'), 'utf8')
+    expect(note).toContain('红方对抗审阅笔记')
+    expect(note).toContain('未发现可攻击点')
   })
 })

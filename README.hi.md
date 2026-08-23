@@ -90,24 +90,25 @@ dsh plugin --profile demo remove dsh-industry-research    # अनइंस्�
 | `track.maxFetchesPerCall` | `10` | प्रति `industry_track` कॉल स्नैपशॉट-फ़ेच बजट। |
 | `scan.maxFileBytes` | `1048576` | कंपनी डेटा फ़ाइलों की प्रति-फ़ाइल रीड सीमा। |
 | `scan.maxFigureCandidates` | `100` | प्रति कंपनी स्कैन आंकड़ा-उम्मीदवार बजट। |
+| `scan.strictTicker` | `true` | कार्ड टिकर को बिल्ट-इन फ़ॉर्मेट से मेल खाना चाहिए (A-share 6 अंक, US 1–5 अक्षर, HK 1–5 अंक); `false` फ़ॉर्मेट जाँच को छूट देता है। |
 
 ## Tools & surfaces
 
-### `industry_map({ industry, seed?, seedFiles?, web?, chain? })`
+### `industry_map({ industry, seed?, seedFiles?, web?, chain?, renderSvg?, depth? })`
 
-`chain` के साथ: वैलिडेट करता है (लटकती एज, बिना-स्रोत मान, अवैध tier, डुप्लिकेट id — पूरी समस्या सूची के साथ स्पष्ट विफलता) और `chain.json` सहेजता है, फिर स्पष्ट अंतराल स्लॉट सूचीबद्ध करता है। `chain` के बिना: वर्तमान मानचित्र, दर्ज स्रोत और वैकल्पिक `ctx.web` श्रृंखला-संरचना सारांश लौटाता है ताकि मॉडल पुनरावृत्ति कर सके। `industry-research/map` उत्सर्जित करता है।
+`chain` के साथ: वैलिडेट करता है (लटकती एज, बिना-स्रोत मान, अवैध tier, डुप्लिकेट id, status/statusAsOf, अज्ञात `taxonomyCode` — पूरी समस्या सूची के साथ स्पष्ट विफलता) और `chain.json` सहेजता है, फिर स्पष्ट अंतराल स्लॉट व बॉटलनेक नोड सूचीबद्ध करता है। `chain` के बिना: वर्तमान मानचित्र, दर्ज स्रोत और वैकल्पिक `ctx.web` श्रृंखला-संरचना सारांश लौटाता है ताकि मॉडल पुनरावृत्ति कर सके। `renderSvg: true` पर एक नियतात्मक `chain.svg` भी लिखता है। `depth` web सहायता को स्केल करता है। `industry-research/map` उत्सर्जित करता है।
 
-### `industry_track({ industry, topics?, since? })`
+### `industry_track({ industry, topics?, since?, depth?, evidenceCategory? })`
 
-`ctx.web` से प्रत्येक विषय खोजता है, सूचियों व `since` से फ़िल्टर करता है, कॉल बजट के भीतर स्नैपशॉट (SHA-256) फ़ेच करता है, और `timeline.jsonl` में मर्ज करता है (नॉर्मलाइज़्ड URL से डीडुप, सीमा सहित)। जिन स्रोतों का स्नैपशॉट विफल हुआ वे कारण `note` में लिखकर केवल-उद्धरण एंट्री के रूप में रहते हैं। `ctx.web` अनमाउंटेड या `offline: true` होने पर गुम क्षमता का नाम बताते हुए स्पष्ट विफल। `industry-research/track` उत्सर्जित करता है।
+`ctx.web` से प्रत्येक विषय खोजता है, सूचियों व `since` से फ़िल्टर करता है, कॉल बजट के भीतर स्नैपशॉट (SHA-256) फ़ेच करता है, और `timeline.jsonl` में मर्ज करता है (नॉर्मलाइज़्ड URL से डीडुप, सीमा सहित)। `depth` बजट स्केल करता है; `evidenceCategory` हर एंट्री को लेबल करता है और छह-श्रेणी एनम से वैलिडेट होता है। जिन स्रोतों का स्नैपशॉट विफल हुआ वे कारण `note` में लिखकर केवल-उद्धरण एंट्री के रूप में रहते हैं। `ctx.web` अनमाउंटेड या `offline: true` होने पर गुम क्षमता का नाम बताते हुए स्पष्ट विफल। `industry-research/track` उत्सर्जित करता है।
 
-### `company_scan({ name, dataFiles?, web? })`
+### `company_scan({ name | companies, dataFiles?, web?, status?, statusAsOf?, ticker?, metrics?, depth?, parallel? })`
 
-workspace डेटा फ़ाइलें (`.md/.txt/.csv/.tsv/.json`; v1 PDF पार्स नहीं करता) पढ़ता, हैश करता, Markdown रूपरेखा व आंकड़ा-उम्मीदवार पंक्तियाँ निकालता है, वैकल्पिक `ctx.web` उद्धरण जोड़ता है और कार्ड सहेजता है। अस्वीकृत फ़ाइलें कारणों सहित लौटती हैं; कार्ड जो स्थापित नहीं कर सकता वह स्पष्ट अंतराल है।
+workspace डेटा फ़ाइलें (`.md/.txt/.csv/.tsv/.json`; v1 PDF पार्स नहीं करता) पढ़ता, हैश करता, Markdown रूपरेखा व आंकड़ा-उम्मीदवार पंक्तियाँ निकालता है, वैकल्पिक `ctx.web` उद्धरण जोड़ता है और कार्ड सहेजता है। `status` को एक गैर-भविष्य `statusAsOf` चाहिए; `ticker` को `scan.strictTicker: false` के अलावा बिल्ट-इन फ़ॉर्मेट से मेल खाना चाहिए; हर `metrics` मान को `source` + `asOf` चाहिए। `companies` (बैच) एक विफल कंपनी को बैच रोके बिना अलग करता है; `parallel: true` और `ctx.jobs` माउंट होने पर हर कंपनी को स्वतंत्र job में फ़ैन-आउट करता है (वरना क्रमिक पथ पर लौटता है, `mode` में दर्शित)। अस्वीकृत फ़ाइलें कारणों सहित लौटती हैं; कार्ड जो स्थापित नहीं कर सकता वह स्पष्ट अंतराल है।
 
 ### `industry_report({ industry, sections?, companies?, draft? })`
 
-एविडेंस (`E-chain`, `E-timeline`, `E-company-<slug>`) जुटाता है और या तो आपका `draft` वैलिडेट करता है (sections + claims; हर claim के `evidenceIds` दर्ज एविडेंस को संदर्भित करने चाहिए) या यांत्रिक ऑटो-ड्राफ़्ट बनाता है (स्रोतित मेट्रिक्स और हालिया टाइमलाइन एंट्री claims बनती हैं)। इंजन पथ: सील्ड डायरेक्टरी + `sealHash` + प्रति-claim निष्कर्ष। फ़ॉलबैक पथ: संस्करणित Markdown + मैनिफ़ेस्ट, claims ईमानदारी से `unverified` अंकित। `industry-research/report` उत्सर्जित करता है।
+एविडेंस (`E-chain`, `E-timeline`, `E-company-<slug>`) जुटाता है, पढ़े गए आर्टिफ़ैक्ट `versions.jsonl` से वेरिफ़ाई करता है (बेमेल हैश स्पष्ट विफल) और या तो आपका `draft` वैलिडेट करता है (sections + claims; हर claim के `evidenceIds` दर्ज एविडेंस को संदर्भित करने चाहिए) या यांत्रिक ऑटो-ड्राफ़्ट बनाता है (स्रोतित मेट्रिक्स और हालिया टाइमलाइन एंट्री claims बनती हैं, `evidenceCategory` से समूहित)। उत्पादन से पहले एक नियतात्मक डिलीवरी कॉन्ट्रैक्ट चलता है और गुम ब्लॉक, प्लेसहोल्डर या बिना-स्रोत/बिना-तिथि कथन पर स्पष्ट विफल होता है। एक नियतात्मक विरोधी मशीन-जाँच हमेशा चलती है, और `ctx.jobs` माउंट होने पर एक रेड-टीम समीक्षा job (`red-review-note.md`) शुरू होता है (वरना `review: skipped(jobs unavailable)`)। इंजन पथ: सील्ड डायरेक्टरी + `sealHash` + प्रति-claim निष्कर्ष। फ़ॉलबैक पथ: संस्करणित Markdown + मैनिफ़ेस्ट, claims ईमानदारी से `unverified` अंकित। `industry-research/report` उत्सर्जित करता है।
 
 ## Skills
 
@@ -119,7 +120,11 @@ workspace डेटा फ़ाइलें (`.md/.txt/.csv/.tsv/.json`; v1 PDF
 ## Data layout
 
 ```
+<workspace>/<industryRoot>/versions.jsonl             संस्करण लेजर (SHA-256 + टाइमस्टैम्प + बदलाव)
+<workspace>/<industryRoot>/<उद्योग>/research-state.json  अनुसंधान-स्थिति स्मृति
+<workspace>/<industryRoot>/<उद्योग>/red-review-note.md    industry_report (रेड-टीम समीक्षा, jobs)
 <workspace>/<industryRoot>/<उद्योग>/chain.json      industry_map
+<workspace>/<industryRoot>/<उद्योग>/chain.svg       industry_map (renderSvg: true)
 <workspace>/<industryRoot>/<उद्योग>/timeline.jsonl  industry_track
 <workspace>/<industryRoot>/<उद्योग>/sources.json    उद्धरण योग्य स्रोत रजिस्ट्री (S1, S2, …)
 <workspace>/<industryRoot>/<उद्योग>/notes/          सीड नोट्स
