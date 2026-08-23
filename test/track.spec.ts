@@ -41,6 +41,18 @@ describe('industry_track capability gates', () => {
     expect(result.isError).toBe(true)
     expect(result.error?.message).toContain('offline')
   })
+
+  it('fails closed when the search provider throws (no silent empty timeline)', async () => {
+    const base = await setup()
+    await mountWeb(base, {
+      id: 'stub-search-fail',
+      available: () => true,
+      search: () => Promise.reject(Object.assign(new Error('search exploded'), { code: 'WEB_SEARCH_FAILED' })),
+    })
+    const result = await callTool(base, 'industry_track', { industry: '示例' })
+    expect(result.isError).toBe(true)
+    expect(result.error?.message).toContain('search exploded')
+  })
 })
 
 describe('industry_track over the real web seam', () => {
