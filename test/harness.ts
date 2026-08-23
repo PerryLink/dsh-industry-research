@@ -64,7 +64,19 @@ export async function mountBase(sessionId = 'ir-harness'): Promise<BaseHarness> 
 export async function unmountBase(base: BaseHarness): Promise<void> {
   const expected = path.join(tmpdir(), TEMP_PREFIX)
   if (!base.workspace.startsWith(expected)) throw new Error(`refusing to remove non-harness dir: ${base.workspace}`)
-  await rm(base.workspace, { recursive: true, force: true })
+  // The async red-review job appends red-review-note.md after the report is
+  // produced, racing teardown: its O_CREAT append can re-create a file between
+  // the recursive unlink pass and the final rmdir (ENOTEMPTY on Linux). Retry
+  // briefly to close that window.
+  for (let attempt = 0; ; attempt++) {
+    try {
+      await rm(base.workspace, { recursive: true, force: true })
+      return
+    } catch (error) {
+      if (attempt >= 20) throw error
+      await new Promise(resolve => setTimeout(resolve, 25))
+    }
+  }
 }
 
 /** Mount the plugin under test on a harness context. */
