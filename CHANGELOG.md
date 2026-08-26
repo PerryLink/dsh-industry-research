@@ -5,6 +5,16 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-08-26
+
+### Added
+
+- Multi-perspective bull/bear debate synthesis in `industry_report`: `synthesizePerspectives` deterministically derives bull and bear perspective points from the loaded artifacts and evidence, `renderPerspectivesNote` writes a `perspectives-note.md` artifact (appended to the SHA-256 ledger), and the report result gains a `perspectives` outcome — a forked subagent job when `ctx.jobs` is mounted, otherwise `skipped(jobs unavailable)`.
+
+### Fixed
+
+- Serialize `recordVersion` writes in the artifact version ledger (`src/versions.ts`): each path's ledger appends are chained through a per-path promise tail so a read never observes a torn write and no record is lost to a stale read when the report flow and its background jobs (red review, bull/bear debate) append `versions.jsonl` concurrently.
+
 ## [0.2.0] - 2026-08-23
 
 ### Added
