@@ -17,6 +17,7 @@ import type { CompanyCard } from './company.ts'
 import { DISCLAIMER } from './company.ts'
 import { sha256Of } from './sources.ts'
 import type { EvidenceInput, ReportSectionInput } from './engine-bridge.ts'
+import type { PerspectivesSynthesis } from './perspectives.ts'
 
 /** One claim of the report draft (frozen-contract shape). */
 export type ReportClaim = { id: string; text: string; evidenceIds: string[] }
@@ -300,9 +301,10 @@ export function autoDraft(industry: string, artifacts: LoadedArtifacts, sections
  * @param evidence - the registered evidence.
  * @param generatedAt - ISO-8601 generation time.
  * @param machineCheck - deterministic adversarial-check findings (empty = clean).
+ * @param perspectives - the bull/bear synthesis for the multi-perspective section.
  * @returns the Markdown text.
  */
-export function renderFallbackMarkdown(industry: string, draft: ReportDraft, evidence: readonly EvidenceInput[], generatedAt: string, machineCheck: readonly string[] = []): string {
+export function renderFallbackMarkdown(industry: string, draft: ReportDraft, evidence: readonly EvidenceInput[], generatedAt: string, machineCheck: readonly string[] = [], perspectives: PerspectivesSynthesis = { bull: [], bear: [] }): string {
   const lines: string[] = [
     `# ${draft.title}`,
     '',
@@ -330,6 +332,20 @@ export function renderFallbackMarkdown(industry: string, draft: ReportDraft, evi
   } else {
     lines.push('无 claims。')
   }
+  lines.push('', '## 多视角（正反方）', '', '### 多方（bull · 利好/支撑）')
+  if (perspectives.bull.length > 0) {
+    for (const point of perspectives.bull) {
+      lines.push(`- ${point.text}${point.evidenceIds.length > 0 ? `（证据 ${point.evidenceIds.join(', ')}）` : ''}`)
+    }
+  } else {
+    lines.push('- （无）')
+  }
+  lines.push('', '### 空方（bear · 利空/风险）')
+  if (perspectives.bear.length > 0) {
+    for (const point of perspectives.bear) lines.push(`- ${point.text}`)
+  } else {
+    lines.push('- （无）')
+  }
   lines.push('', '## 机器对抗检查', '')
   if (machineCheck.length > 0) {
     for (const finding of machineCheck) lines.push(`- ${finding}`)
@@ -348,9 +364,12 @@ export interface FallbackManifest {
   generatedAt: string
   disclaimer: string
   evidence: Array<{ id: string; title: string; origin: string; sha256: string; capturedAt: string; bytes: number }>
+  /** Per-claim records (fallback never verifies, so every claim is unverified). */
   claims: Array<ReportClaim & { status: 'unverified' }>
   gaps: string[]
   machineCheck: string[]
+  /** The bull/bear synthesis included in the multi-perspective section. */
+  perspectives: PerspectivesSynthesis
 }
 
 /**
@@ -362,6 +381,7 @@ export interface FallbackManifest {
  * @param gaps - artifact-level gaps to record in the manifest.
  * @param generatedAt - ISO-8601 generation time.
  * @param machineCheck - deterministic adversarial-check findings.
+ * @param perspectives - the bull/bear synthesis to embed in report.md + manifest.
  * @returns the written file paths.
  */
 export async function writeFallbackReport(
@@ -372,6 +392,7 @@ export async function writeFallbackReport(
   gaps: readonly string[],
   generatedAt: string,
   machineCheck: readonly string[] = [],
+  perspectives: PerspectivesSynthesis = { bull: [], bear: [] },
 ): Promise<{ reportPath: string; manifestPath: string }> {
   await mkdir(reportDir, { recursive: true })
   const reportPath = join(reportDir, 'report.md')
@@ -393,8 +414,9 @@ export async function writeFallbackReport(
     claims: draft.claims.map(claim => ({ ...claim, status: 'unverified' as const })),
     gaps: [...gaps],
     machineCheck: [...machineCheck],
+    perspectives: { bull: [...perspectives.bull], bear: [...perspectives.bear] },
   }
-  await writeFile(reportPath, renderFallbackMarkdown(industry, draft, evidence, generatedAt, machineCheck), 'utf8')
+  await writeFile(reportPath, renderFallbackMarkdown(industry, draft, evidence, generatedAt, machineCheck, perspectives), 'utf8')
   await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, 'utf8')
   return { reportPath, manifestPath }
 }

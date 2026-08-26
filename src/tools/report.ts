@@ -19,6 +19,7 @@ import { defineTool } from '@deepseek-ai/dsh-tools'
 import type { ResolvedConfig } from '../config.ts'
 import { readCard } from '../company.ts'
 import { adversarialCheck, renderRedReviewNote } from '../adversarial.ts'
+import { renderPerspectivesNote, synthesizePerspectives } from '../perspectives.ts'
 import { autoDraft, buildEvidence, reportDirName, validateDeliveryContract, validateDraft, writeFallbackReport } from '../report.ts'
 import type { LoadedArtifacts, ReportDraft } from '../report.ts'
 import { AUTO_SECTIONS } from '../report.ts'
@@ -63,6 +64,8 @@ export interface IndustryReportValue {
   machineCheck: string[]
   /** Red-team review outcome (spawned job or skipped). */
   review: ReviewOutcome
+  /** Multi-perspective (bull/bear) debate outcome (spawned job or skipped). */
+  perspectives: ReviewOutcome
 }
 
 /** The draft parameter schema (semantic reference checks live in {@link validateDraft}). */
@@ -238,6 +241,7 @@ export function buildIndustryReportTool(ctx: Context, config: ResolvedConfig) {
           generatedAt: { type: 'string', required: true },
           machineCheck: { type: 'array', items: { type: 'string' }, required: true },
           review: { type: 'json', required: true },
+          perspectives: { type: 'json', required: true },
         },
         additionalProperties: false,
       },
@@ -254,6 +258,7 @@ export function buildIndustryReportTool(ctx: Context, config: ResolvedConfig) {
             ]
         lines.push(`机器对抗检查：${current.machineCheck.length > 0 ? `${current.machineCheck.length} 项发现` : '未发现可攻击点'}。`)
         lines.push(`红方审阅：${current.review.mode === 'job' ? `job ${current.review.jobId} 已派生` : `skipped（${current.review.note}）`}。`)
+        lines.push(`多视角正反方：${current.perspectives.mode === 'job' ? `job ${current.perspectives.jobId} 已派生` : `skipped（${current.perspectives.note}）`}。`)
         if (current.gaps.length > 0) lines.push(`缺口声明：${current.gaps.join('；')}`)
         lines.push('仅供研究，不构成投资建议。')
         return [{ type: 'text', text: lines.join('\n') }]
@@ -321,6 +326,34 @@ export function buildIndustryReportTool(ctx: Context, config: ResolvedConfig) {
         review = { mode: 'job', jobId }
       }
 
+      // Multi-perspective (bull/bear) debate: synthesize deterministically, then
+      // fork a subagent job to write the note and append it to the SHA-256 ledger.
+      const synthesis = synthesizePerspectives(draft, artifacts, evidenceIds)
+      let perspectives: ReviewOutcome
+      const perspectivesNotePath = join(dir, 'perspectives-note.md')
+      if (jobs === undefined) {
+        perspectives = { mode: 'skipped', note: 'jobs unavailable' }
+      } else {
+        const noteContent = renderPerspectivesNote(name, draft, artifacts, evidenceIds, generatedAt)
+        const jobId = jobs.start({
+          kind: 'subagent',
+          label: '多视角正反方辩论（bull/bear）',
+          owner: exec.agent,
+          run: () => {
+            let cancelled = false
+            const done = (async () => {
+              if (!cancelled) {
+                await writeFile(perspectivesNotePath, noteContent, 'utf8')
+                await recordVersion(versionsPath, rootRelative(root, perspectivesNotePath), noteContent, generatedAt)
+              }
+              return { status: cancelled ? 'killed' as const : 'completed' as const, output: `bull ${synthesis.bull.length} 项 / bear ${synthesis.bear.length} 项` }
+            })()
+            return { cancel: () => { cancelled = true }, done }
+          },
+        })
+        perspectives = { mode: 'job', jobId }
+      }
+
       const engine = lookupEngine(ctx)
       let value: IndustryReportValue
       if (engine !== undefined) {
@@ -345,12 +378,13 @@ export function buildIndustryReportTool(ctx: Context, config: ResolvedConfig) {
           generatedAt,
           machineCheck,
           review,
+          perspectives,
         }
       } else {
         const reportsDir = reportsDirOf(dir)
         const dirName = reportDirName(new Date(), candidate => existsSync(join(reportsDir, candidate)))
         const reportDir = join(reportsDir, dirName)
-        const { reportPath, manifestPath } = await writeFallbackReport(reportDir, name, draft, evidence, artifacts.gaps, generatedAt, machineCheck)
+        const { reportPath, manifestPath } = await writeFallbackReport(reportDir, name, draft, evidence, artifacts.gaps, generatedAt, machineCheck, synthesis)
         await recordVersion(versionsPath, rootRelative(root, reportPath), await readFile(reportPath, 'utf8'), generatedAt)
         await recordVersion(versionsPath, rootRelative(root, manifestPath), await readFile(manifestPath, 'utf8'), generatedAt)
         value = {
@@ -367,6 +401,7 @@ export function buildIndustryReportTool(ctx: Context, config: ResolvedConfig) {
           generatedAt,
           machineCheck,
           review,
+          perspectives,
         }
       }
 

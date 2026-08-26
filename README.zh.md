@@ -34,7 +34,7 @@
 - **`industry_map`**——构建/更新产业链结构图（`chain.json`）：上/中/下游节点、边、指标槽位。带 `value` 的指标必须带 `sourceRef`；无值槽位即显式缺口。种子笔记/文件与可选 `ctx.web` 摘要登记为可引用来源（`S1`、`S2`……）。
 - **`industry_track`**——经官方 `ctx.web` 缝隙跟踪行业政策/要闻：按主题检索、来源主机白/黑名单、`since` 过滤、预算内快照抓取（SHA-256 溯源哈希），追加去重写入 `timeline.jsonl`（保留上限可配）。web 能力不可达时响亮失败。
 - **`company_scan`**——以工作区数据文件生成公司速览卡（`card.json` + `card.md`）：SHA-256 哈希、Markdown 大纲、数字候选行（每个数字可标注文件与行号），另可选 `ctx.web` 引用补充。v1 只读文本格式（不解析 PDF）。
-- **`industry_report`**——汇总结构图、时间线与公司卡产出可核查报告。挂载 `ctx.researchReport` 引擎时证据/章节/claims 提交其 `assemble` 封存并回传逐 claim 结论；缺席时内置降级路径写入版本化 `reports/<YYYYMMDD-HHmmss>/report.md` + `manifest.json`（含 SHA-256 来源回溯表），并如实标注 `engine: 'builtin-fallback'`。
+- **`industry_report`**——汇总结构图、时间线与公司卡产出可核查报告。确定性正反方（bull/bear）合成将「有来源且带日期的数值」列为多方、「缺口与数据质量发现」列为空方，嵌入报告多视角小节，并派生 subagent job 写回 `perspectives-note.md` 入账本。挂载 `ctx.researchReport` 引擎时证据/章节/claims 提交其 `assemble` 封存并回传逐 claim 结论；缺席时内置降级路径写入版本化 `reports/<YYYYMMDD-HHmmss>/report.md` + `manifest.json`（含 SHA-256 来源回溯表），并如实标注 `engine: 'builtin-fallback'`。
 - **两个方法论技能**——`industry-research-method`（产业链拆分、供需框架、口径纪律、缺口声明纪律）与 `company-research-method`（公司研究框架、公开源清单、合规话术）。
 - **类型化 Cordis 事件**——每份产物落盘后发出 `industry-research/map`、`industry-research/track`、`industry-research/report`。
 
@@ -108,7 +108,7 @@ dsh plugin --profile demo remove dsh-industry-research    # 卸载
 
 ### `industry_report({ industry, sections?, companies?, draft? })`
 
-组装证据（`E-chain`、`E-timeline`、`E-company-<slug>`），读取时对照 `versions.jsonl` 校验哈希（不一致响亮失败），或校验你提供的 `draft`（章节 + claims；每条 claim 的 `evidenceIds` 必须引用已登记证据），或机械自动生成草稿（有来源的指标与近期时间线条目生成 claims，按 `evidenceCategory` 分组）。产出前跑确定性交付契约校验（缺区块/占位符/无来源或无日期断言即响亮失败）。确定性对抗机器检查始终执行；挂载 `ctx.jobs` 时派生红方审阅 job 写回 `red-review-note.md`（否则 `review: skipped(jobs unavailable)`）。引擎路径：封存目录 + `sealHash` + 逐 claim 结论。降级路径：版本化 Markdown + manifest，claims 如实标记 `unverified`。发出 `industry-research/report` 事件。
+组装证据（`E-chain`、`E-timeline`、`E-company-<slug>`），读取时对照 `versions.jsonl` 校验哈希（不一致响亮失败），或校验你提供的 `draft`（章节 + claims；每条 claim 的 `evidenceIds` 必须引用已登记证据），或机械自动生成草稿（有来源的指标与近期时间线条目生成 claims，按 `evidenceCategory` 分组）。产出前跑确定性交付契约校验（缺区块/占位符/无来源或无日期断言即响亮失败）。确定性对抗机器检查始终执行；挂载 `ctx.jobs` 时派生红方审阅 job 写回 `red-review-note.md`（否则 `review: skipped(jobs unavailable)`）。确定性正反方（bull/bear）合成嵌入报告多视角小节，挂载 `ctx.jobs` 时派生辩论 job 写回 `perspectives-note.md`。引擎路径：封存目录 + `sealHash` + 逐 claim 结论。降级路径：版本化 Markdown + manifest，claims 如实标记 `unverified`。发出 `industry-research/report` 事件。
 
 ## Skills
 
@@ -128,6 +128,7 @@ dsh plugin --profile demo remove dsh-industry-research    # 卸载
 <工作区>/<industryRoot>/<行业>/sources.json    可引用来源登记（S1、S2……）
 <工作区>/<industryRoot>/<行业>/notes/          种子笔记
 <工作区>/<industryRoot>/<行业>/red-review-note.md  industry_report（红方审阅，需 jobs）
+<工作区>/<industryRoot>/<行业>/perspectives-note.md  industry_report（正反方辩论，需 jobs）
 <工作区>/<industryRoot>/<行业>/reports/<ts>/   industry_report（report.md + manifest.json）
 <工作区>/<industryRoot>/companies/<公司>/card.*  company_scan
 ```

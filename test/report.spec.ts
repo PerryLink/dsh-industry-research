@@ -270,9 +270,11 @@ describe('industry_report red-team review', () => {
     expect(result.isError).toBe(false)
     const value = result.value as unknown as IndustryReportValue
     expect(value.review).toEqual({ mode: 'skipped', note: 'jobs unavailable' })
+    expect(value.perspectives).toEqual({ mode: 'skipped', note: 'jobs unavailable' })
     expect(value.machineCheck).toEqual([])
     const markdown = await readFile(value.reportPath!, 'utf8')
     expect(markdown).toContain('机器对抗检查')
+    expect(markdown).toContain('多视角（正反方）')
   })
 
   it('spawns a red review job and writes red-review-note.md when jobs is mounted', async () => {
@@ -283,11 +285,16 @@ describe('industry_report red-team review', () => {
     expect(result.isError).toBe(false)
     const value = result.value as unknown as IndustryReportValue
     expect(value.review.mode).toBe('job')
-    expect(jobs.started).toHaveLength(1)
+    expect(value.perspectives.mode).toBe('job')
+    expect(jobs.started).toHaveLength(2)
     expect(jobs.started[0]?.label).toContain('对抗审阅')
+    expect(jobs.started[1]?.label).toContain('正反方辩论')
     await jobs.started[0]!.hooks.done
     const note = await readFile(join(base.workspace, 'industry-research', '示例', 'red-review-note.md'), 'utf8')
     expect(note).toContain('红方对抗审阅笔记')
     expect(note).toContain('未发现可攻击点')
+    await jobs.started[1]!.hooks.done
+    const perspectives = await readFile(join(base.workspace, 'industry-research', '示例', 'perspectives-note.md'), 'utf8')
+    expect(perspectives).toContain('多视角正反方笔记')
   })
 })

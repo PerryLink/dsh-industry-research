@@ -51,6 +51,8 @@ export type { JobHooksLike, JobOutcomeLike, JobStartLike, JobsLike } from './job
 export { readResearchState, summarizeDelta, updateResearchState, writeResearchState } from './research-state.ts'
 export type { ResearchState, ResearchStateDelta } from './research-state.ts'
 export { adversarialCheck, renderRedReviewNote } from './adversarial.ts'
+export { PERSPECTIVE_SIDES, renderPerspectivesNote, synthesizePerspectives } from './perspectives.ts'
+export type { PerspectivePoint, PerspectivesSynthesis, PerspectiveSide } from './perspectives.ts'
 export { loadSources, registerSource, saveSources, sha256Of } from './sources.ts'
 export type { SourceEntry, SourceRegistry } from './sources.ts'
 export { EVIDENCE_CATEGORIES, mergeTimeline, normalizeUrl, readTimeline, sourceAllowed, validateEvidenceCategory } from './timeline.ts'
