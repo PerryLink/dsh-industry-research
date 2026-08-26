@@ -83,13 +83,27 @@ export async function readVersions(path: string): Promise<VersionRecord[]> {
  * @param capturedAt - ISO-8601 capture time.
  * @returns the inferred change kind.
  */
+/**
+ * Per-path serialization for {@link recordVersion}. The ledger is read-modify-
+ * written, and the report flow plus its background jobs (red review, bull/bear
+ * debate) can append the same `versions.jsonl` concurrently. Chaining each
+ * path's writes guarantees a read never observes a torn write and no record is
+ * lost to a stale read.
+ */
+const ledgerTails = new Map<string, Promise<void>>()
+
 export async function recordVersion(path: string, artifact: string, content: string, capturedAt: string): Promise<ArtifactChange> {
-  const records = await readVersions(path)
-  const change: ArtifactChange = records.some(record => record.artifact === artifact) ? 'updated' : 'created'
-  records.push({ artifact, sha256: sha256Of(content), capturedAt, change })
-  await mkdir(dirname(path), { recursive: true })
-  await writeFile(path, `${records.map(record => JSON.stringify(record)).join('\n')}\n`, 'utf8')
-  return change
+  const previous = ledgerTails.get(path) ?? Promise.resolve()
+  const run = previous.then(async (): Promise<ArtifactChange> => {
+    const records = await readVersions(path)
+    const change: ArtifactChange = records.some(record => record.artifact === artifact) ? 'updated' : 'created'
+    records.push({ artifact, sha256: sha256Of(content), capturedAt, change })
+    await mkdir(dirname(path), { recursive: true })
+    await writeFile(path, `${records.map(record => JSON.stringify(record)).join('\n')}\n`, 'utf8')
+    return change
+  })
+  ledgerTails.set(path, run.then(() => undefined, () => undefined))
+  return run
 }
 
 /**
