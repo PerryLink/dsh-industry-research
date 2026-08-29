@@ -140,5 +140,9 @@
     "verify:skills": "node scripts/check-skills.mjs",
     "pack:check": "node scripts/prepare.mjs && pnpm pack"
   },
-  "license": "Apache-2.0"
+  "license": "Apache-2.0",
+  "funding": {
+    "type": "individual",
+    "url": "https://github.com/sponsors/PerryLink"
+  }
 }
