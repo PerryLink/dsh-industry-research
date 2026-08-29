@@ -1,6 +1,7 @@
 <div align="center">
 
 # 🏭 dsh-industry-research
+- **Canal 1024 store**: `npm i -g dsh1024` una vez, luego `dsh1024 plugin --profile web add dsh-industry-research` (cuenta para el ranking de instalaciones de [deepseek1024.com](https://deepseek1024.com)).
 
 **Paquete de dominio para investigación de industrias y empresas en DeepSeek Harness.**
 
