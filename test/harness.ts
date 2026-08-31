@@ -19,8 +19,8 @@ import ToolRuntime, { type ToolExecutionResult } from '@deepseek-ai/dsh-tools'
 import SkillRegistry from '@deepseek-ai/dsh-skill'
 import WebRuntime from '@deepseek-ai/dsh-web'
 import type { WebFetchProvider, WebSearchProvider } from '@deepseek-ai/dsh-web'
-import { CallId } from '@deepseek-ai/dsh-llm'
 import type { Agent } from '@deepseek-ai/dsh-agent'
+import { CallId } from './call-id.ts'
 import type { AssembleReportRequest, AssembleReportResult } from '../src/engine-bridge.ts'
 
 /** Everything a mounted base hands back to a test. */

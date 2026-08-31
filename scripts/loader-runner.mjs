@@ -13,13 +13,19 @@
 import { Context } from '@deepseek-ai/cordis'
 import Include from '@deepseek-ai/cordis-plugin-include'
 import Loader from '@deepseek-ai/cordis-plugin-loader'
-import { CallId } from '@deepseek-ai/dsh-llm'
 import { SessionId } from '@deepseek-ai/dsh-session'
 import { createRequire } from 'node:module'
 import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
+
+// Dual-ruler call-id: host master renamed the dsh-llm `CallId` brand to
+// `ToolCallId` (0.1.2-alpha.2), while the 0.1.1-rc.2 line still exports
+// `CallId`. The brand is opaque at runtime, so a local identity keeps this
+// plain-Node runner green on both published lines without naming either
+// export (the typed test harness mirrors this via ToolExecution['callId']).
+const CallId = id => id
 
 const configArgument = process.argv[2]
 if (configArgument === undefined) {
