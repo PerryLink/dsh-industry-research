@@ -1,7 +1,7 @@
 /**
  * Shared test harness: REAL Cordis `Context`, REAL `SessionStore`/`Session`
  * with a per-suite temp workspace as the session cwd, the REAL
- * SystemPrompt/ToolRuntime/SkillRegistry from the 0.1.1-rc.2 peers, and the
+ * SystemPrompt/ToolRuntime/SkillRegistry from the 0.1.2-alpha.2 peers, and the
  * REAL `WebRuntime` seam when a suite mounts web (providers at that pluggable
  * edge are scripted, exactly as the harness's own tool-web tests do). The
  * optional `ctx.researchReport` engine is mounted through the REAL Cordis

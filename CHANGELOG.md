@@ -5,6 +5,13 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- Upgrade the `@deepseek-ai/dsh-*` devDependency family from `0.1.1-rc.2` to `0.1.2-alpha.2` (DeepSeek Harness alpha.2); the `@deepseek-ai/cordis` and `@deepseek-ai/schemastery` devDependencies align to `^4.0.2` / `^3.18.2`. The `dsh-tools` / `dsh-skill` / `dsh-skill-filesystem` peer dependencies remain `>=0.1.0-rc.8 <0.2.0`.
+- Derive the test call id from the `ToolExecution['callId']` contract (`test/call-id.ts`) and a local opaque identity in `scripts/loader-runner.mjs` instead of importing the dsh-llm `CallId` brand, which the alpha.2 host renamed to `ToolCallId`; the dual-ruler brand keeps both the typed harness and the plain-Node Loader runner green on both published lines.
+
 ## [0.3.0] - 2026-08-26
 
 ### Added
