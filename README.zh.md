@@ -25,10 +25,10 @@
 
 ## Compatibility
 
-- DeepSeek Harness `0.1.1-rc.2`（peer 钉版 `0.1.1-rc.2`）。
-0.1.2-alpha.2（2026-08-31 已适配）：会话信封保留 ignorable 字段但仅用于存量日志读取兼容——Session.append 仍无法盖章，门控行为不变。
+- DeepSeek Harness `0.1.2-alpha.3`（peer 钉版 `0.1.2-alpha.3`）。
+0.1.2-alpha.3（2026-09-01 已适配）：会话信封保留 ignorable 字段但仅用于存量日志读取兼容——Session.append 仍无法盖章，门控行为不变。
 - Node `^22.19.0 || >=24.0.0`，仅 ESM（`"type": "module"`）。
-- Peer 依赖：`@deepseek-ai/cordis ^4.0.1`、`@deepseek-ai/schemastery ^3.18.0`，以及 `>=0.1.0-rc.8 <0.2.0` 的 `@deepseek-ai/dsh-tools`、`@deepseek-ai/dsh-skill`、`@deepseek-ai/dsh-skill-filesystem`（官方 `dsh-base` bundle 均已组合）。
+- Peer 依赖：`@deepseek-ai/cordis ^4.0.2`、`@deepseek-ai/schemastery ^3.18.2`，以及 `>=0.1.0-rc.8 <0.2.0` 的 `@deepseek-ai/dsh-tools`、`@deepseek-ai/dsh-skill`、`@deepseek-ai/dsh-skill-filesystem`（官方 `dsh-base` bundle 均已组合）。
 - 可选能力在执行时查找（绝不注入）：`ctx.web`（公开源检索，`dsh-base` 已组合）与 `ctx.researchReport`（兄弟插件 `dsh-research-report` 的封存引擎）。
 
 ## What you get
