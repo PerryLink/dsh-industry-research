@@ -1,7 +1,7 @@
 {
   "name": "dsh-industry-research",
   "version": "0.3.0",
-  "description": "Industry and company research domain pack for DeepSeek Harness: methodology skills, an industry-chain structure model (industry_map), public-source policy/news tracking over ctx.web (industry_track), company scan cards (company_scan), and auditable research reports with an optional ctx.researchReport sealing bridge and a builtin Markdown fallback (industry_report). Research only — not investment advice.",
+  "description": "Industry and company research domain pack for DeepSeek Harness: methodology skills, an industry-chain structure model (industry_map), public-source policy/news tracking over ctx.web (industry_track), company scan cards (company_scan), and auditable research reports with an optional ctx.researchReport sealing bridge and a builtin Markdown fallback (industry_report). Research only 鈥?not investment advice.",
   "author": "dsh-industry-research contributors",
   "repository": {
     "type": "git",
@@ -67,7 +67,7 @@
     ],
     "compatibility": {
       "dshVersions": [
-        "0.1.1-rc.2"
+        "0.1.2-alpha.2"
       ]
     },
     "capability": {
