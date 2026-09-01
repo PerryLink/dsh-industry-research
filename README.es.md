@@ -26,6 +26,7 @@
 ## Compatibility
 
 - DeepSeek Harness `0.1.1-rc.2` (peers fijados en `0.1.1-rc.2`).
+0.1.2-alpha.2 (adaptado el 2026-08-31): el sobre de sesión conserva su campo ignorable solo para compatibilidad de lectura de logs almacenados - Session.append aún no puede estamparlo, por lo que el comportamiento de la puerta no cambia.
 - Node `^22.19.0 || >=24.0.0`, solo ESM (`"type": "module"`).
 - Dependencias peer: `@deepseek-ai/cordis ^4.0.1`, `@deepseek-ai/schemastery ^3.18.0`, y `@deepseek-ai/dsh-tools`, `@deepseek-ai/dsh-skill`, `@deepseek-ai/dsh-skill-filesystem` en `>=0.1.0-rc.8 <0.2.0` (todas compuestas por el bundle oficial `dsh-base`).
 - Capacidades opcionales, resueltas en tiempo de ejecución (nunca inyectadas): `ctx.web` (recuperación de fuentes públicas, compuesta por `dsh-base`) y `ctx.researchReport` (el motor de sellado del plugin hermano `dsh-research-report`).
