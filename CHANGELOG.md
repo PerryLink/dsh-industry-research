@@ -1,11 +1,11 @@
-# Changelog
+﻿# Changelog
 
 All notable changes to this project are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.3.3] - 2026-09-04
 
 ### Changed
 
@@ -28,7 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Multi-perspective bull/bear debate synthesis in `industry_report`: `synthesizePerspectives` deterministically derives bull and bear perspective points from the loaded artifacts and evidence, `renderPerspectivesNote` writes a `perspectives-note.md` artifact (appended to the SHA-256 ledger), and the report result gains a `perspectives` outcome — a forked subagent job when `ctx.jobs` is mounted, otherwise `skipped(jobs unavailable)`.
+- Multi-perspective bull/bear debate synthesis in `industry_report`: `synthesizePerspectives` deterministically derives bull and bear perspective points from the loaded artifacts and evidence, `renderPerspectivesNote` writes a `perspectives-note.md` artifact (appended to the SHA-256 ledger), and the report result gains a `perspectives` outcome 鈥?a forked subagent job when `ctx.jobs` is mounted, otherwise `skipped(jobs unavailable)`.
 
 ### Fixed
 
@@ -38,13 +38,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Deterministic `chain.json` → SVG network renderer (`src/chain-svg.ts`): tier-column layout, directed arrow edges, and dual-rule bottleneck detection (funnel: in-degree ≥ 2 and out-degree ≤ 1; hub: in-degree ≥ 2 and out-degree ≥ 2) with highlight colors. `industry_map` gains a `renderSvg` flag that writes `chain.svg` beside `chain.json` and returns the bottleneck summary; all user text is XML-escaped and the output is byte-stable for the same input.
+- Deterministic `chain.json` 鈫?SVG network renderer (`src/chain-svg.ts`): tier-column layout, directed arrow edges, and dual-rule bottleneck detection (funnel: in-degree 鈮?2 and out-degree 鈮?1; hub: in-degree 鈮?2 and out-degree 鈮?2) with highlight colors. `industry_map` gains a `renderSvg` flag that writes `chain.svg` beside `chain.json` and returns the bottleneck summary; all user text is XML-escaped and the output is byte-stable for the same input.
 - Status assertions with dates: chain nodes and company cards may carry a `status` (`public`/`private`/`acquired`/`IPO`) that must carry a non-future `statusAsOf`; missing or future dates fail validation loud.
-- Price discipline and ticker validation: company cards accept sourced `metrics` (every value requires `source` + `asOf`) and a `ticker` checked against built-in formats (A-share 6 digits, US 1–5 letters, HK 1–5 digits), with the `scan.strictTicker` config exemption.
-- Research depth routing (`src/depth.ts`): `industry_map` / `industry_track` / `company_scan` accept a `depth` argument (quick/standard/comprehensive, default standard) that deterministically scales web collection — quick uses minimal source counts, comprehensive uses maximum — with loud failure out of range.
+- Price discipline and ticker validation: company cards accept sourced `metrics` (every value requires `source` + `asOf`) and a `ticker` checked against built-in formats (A-share 6 digits, US 1鈥? letters, HK 1鈥? digits), with the `scan.strictTicker` config exemption.
+- Research depth routing (`src/depth.ts`): `industry_map` / `industry_track` / `company_scan` accept a `depth` argument (quick/standard/comprehensive, default standard) that deterministically scales web collection 鈥?quick uses minimal source counts, comprehensive uses maximum 鈥?with loud failure out of range.
 - Per-company scan failure isolation: `company_scan` accepts a `companies` batch argument; one company's failure (bad file, path escape, validation) no longer aborts the batch and is reported in a `failures` list with its reason while the rest produce normally.
 - Artifact version ledger (`src/versions.ts` + `versions.jsonl` at the industry root): `industry_map` / `company_scan` / `industry_report` append a root-relative path + SHA-256 + injected timestamp + change type on every artifact write; artifact reads verify against the ledger and fail loud on a hash mismatch (unrecorded artifacts are skipped).
-- Built-in industry taxonomy anchor table (`src/taxonomy.ts`, 国民经济行业分类 大类 code-name-keywords); chain nodes may declare a `taxonomyCode` that must hit the table, with loud failure for unknown codes.
+- Built-in industry taxonomy anchor table (`src/taxonomy.ts`, 鍥芥皯缁忔祹琛屼笟鍒嗙被 澶х被 code-name-keywords); chain nodes may declare a `taxonomyCode` that must hit the table, with loud failure for unknown codes.
 - Evidence category labels: timeline entries may carry an `evidenceCategory` (`confirmed-catalyst` / `market-narrative` / `forum-buzz` / `technical-confirmation` / `macro-amplifier` / `background-noise`) validated on write; the auto-draft groups timeline entries by category.
 - Delivery contract validation (`validateDeliveryContract`): `industry_report` runs a deterministic pre-production check (complete blocks, status assertions with dates, value assertions with source + asOf, no placeholder residue) and fails loud instead of emitting a half-assembled report.
 - Research-state memory (`src/research-state.ts` + `research-state.json` per industry): `industry_map` / `industry_track` persist the last run's depth, latest artifact hashes, source URLs, evidence-category counts, gaps, and an injected timestamp, and return a deterministic "vs last run" delta (new/removed sources, unchanged evidence); a corrupt state fails loud and the write is registered in `versions.jsonl`.
@@ -53,10 +53,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deviations
 
-- **chain.json Slot client visualization UI** — needs a new client face plus packaging changes; the deterministic `chain.svg` artifact already covers the core value.
-- **Industry-expert subagent team (model orchestration)** — covered by failure isolation, depth routing, and adversarial review; a full model team exceeds this repo's determinism-first principle.
-- **Exa external retrieval service** — third-party API dependency, out of scope.
-- **Skill self-evolution (Hermes shadow agent)** — exceeds the DSH skill-provider mechanism.
+- **chain.json Slot client visualization UI** 鈥?needs a new client face plus packaging changes; the deterministic `chain.svg` artifact already covers the core value.
+- **Industry-expert subagent team (model orchestration)** 鈥?covered by failure isolation, depth routing, and adversarial review; a full model team exceeds this repo's determinism-first principle.
+- **Exa external retrieval service** 鈥?third-party API dependency, out of scope.
+- **Skill self-evolution (Hermes shadow agent)** 鈥?exceeds the DSH skill-provider mechanism.
 
 ## [0.1.3] - 2026-08-23
 
@@ -92,10 +92,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Industry/company research domain pack: four workspace-bound tools and two methodology skills.
-- `industry_map` — validate and persist an industry chain map (`chain.json`): upstream/midstream/downstream nodes, edges, and metric slots where every value requires a `sourceRef` (unsourced values are rejected; value-less slots are explicit gaps). Seed notes/files and an optional `ctx.web` digest are registered as citable sources (`sources.json`).
-- `industry_track` — public-source policy/news tracking over the official `ctx.web` seam (never a hand-rolled fetch): per-topic search, host allow/block lists, `since` filtering, bounded snapshot fetches with SHA-256 provenance hashes, and append + dedupe into `timeline.jsonl` with a retention cap. Fails loud when `ctx.web` is unmounted or `offline: true`.
-- `company_scan` — company cards (`card.json` + `card.md`) from user-supplied workspace data files (hashed, with Markdown outlines and figure-candidate lines so every number cites a file and a line) plus an optional `ctx.web` citation complement. Text formats only in v1 (no PDF).
-- `industry_report` — report assembly with two paths: the frozen-contract `ctx.researchReport` engine (`assemble` → sealed directory + per-claim verdicts) when mounted, or an honest builtin fallback (`reports/<YYYYMMDD-HHmmss>/report.md` + `manifest.json` with a SHA-256 source-traceability table, claims marked `unverified`, `engine: 'builtin-fallback'`).
+- `industry_map` 鈥?validate and persist an industry chain map (`chain.json`): upstream/midstream/downstream nodes, edges, and metric slots where every value requires a `sourceRef` (unsourced values are rejected; value-less slots are explicit gaps). Seed notes/files and an optional `ctx.web` digest are registered as citable sources (`sources.json`).
+- `industry_track` 鈥?public-source policy/news tracking over the official `ctx.web` seam (never a hand-rolled fetch): per-topic search, host allow/block lists, `since` filtering, bounded snapshot fetches with SHA-256 provenance hashes, and append + dedupe into `timeline.jsonl` with a retention cap. Fails loud when `ctx.web` is unmounted or `offline: true`.
+- `company_scan` 鈥?company cards (`card.json` + `card.md`) from user-supplied workspace data files (hashed, with Markdown outlines and figure-candidate lines so every number cites a file and a line) plus an optional `ctx.web` citation complement. Text formats only in v1 (no PDF).
+- `industry_report` 鈥?report assembly with two paths: the frozen-contract `ctx.researchReport` engine (`assemble` 鈫?sealed directory + per-claim verdicts) when mounted, or an honest builtin fallback (`reports/<YYYYMMDD-HHmmss>/report.md` + `manifest.json` with a SHA-256 source-traceability table, claims marked `unverified`, `engine: 'builtin-fallback'`).
 - Methodology skills `industry-research-method` and `company-research-method` (chain decomposition, supply/demand discipline, sourcing and gap-declaration discipline, compliance wording) published from the packaged `skills/` directory.
 - Typed Cordis events `industry-research/map`, `industry-research/track`, and `industry-research/report` emitted after each committed artifact.
-- Fail-loud Schemastery config (`industryRoot`, `fetchTimeoutMs`, `timelineMaxEntries`, `sourceAllowlist`/`sourceBlocklist`, `offline`, `skillsDir`, `track.*`, `scan.*`); vitest suites over the real 0.1.0-rc.6 `Context`/`Session`/`ToolRuntime`/`SkillRegistry`/`WebRuntime`; a keyless offline end-to-end suite over the 白酒 fixtures.
+- Fail-loud Schemastery config (`industryRoot`, `fetchTimeoutMs`, `timelineMaxEntries`, `sourceAllowlist`/`sourceBlocklist`, `offline`, `skillsDir`, `track.*`, `scan.*`); vitest suites over the real 0.1.0-rc.6 `Context`/`Session`/`ToolRuntime`/`SkillRegistry`/`WebRuntime`; a keyless offline end-to-end suite over the 鐧介厭 fixtures.
