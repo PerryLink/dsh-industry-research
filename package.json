@@ -99,9 +99,9 @@
   "packageManager": "pnpm@11.7.0",
   "peerDependencies": {
     "@deepseek-ai/cordis": "^4.0.2",
-    "@deepseek-ai/dsh-skill": ">=0.1.0-rc.8 <0.2.0",
-    "@deepseek-ai/dsh-skill-filesystem": ">=0.1.0-rc.8 <0.2.0",
-    "@deepseek-ai/dsh-tools": ">=0.1.0-rc.8 <0.2.0",
+    "@deepseek-ai/dsh-skill": ">=0.1.2-rc.1 <0.2.0",
+    "@deepseek-ai/dsh-skill-filesystem": ">=0.1.2-rc.1 <0.2.0",
+    "@deepseek-ai/dsh-tools": ">=0.1.2-rc.1 <0.2.0",
     "@deepseek-ai/schemastery": "^3.18.2"
   },
   "dependencies": {
