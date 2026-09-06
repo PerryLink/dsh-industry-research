@@ -26,7 +26,7 @@
 
 ## Compatibility
 
-- DeepSeek Harness `0.1.2-rc.1` (peers pinned to `0.1.2-rc.1`).
+- DeepSeek Harness `dsh-v0.1.3-alpha.1` (GitHub tag, verified 2026-09-06; peers pinned to `0.1.2-rc.1`).
 0.1.2-rc.1 (adapted 2026-09-02): the session envelope keeps its ignorable field for stored-log read compatibility only - Session.append still cannot stamp it, so audit-gate behavior is unchanged.
 Verified 2026-09-06 against the dsh-v0.1.3-alpha.1 master checkout (full gate chain + profile install smoke).
 - Node `^22.19.0 || >=24.0.0`, ESM only (`"type": "module"`).
