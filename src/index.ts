@@ -33,6 +33,9 @@ export const name = 'industry-research'
 /** The four tools and the skill provider; web/engine stay optional lookups. */
 export const inject = ['skills', 'tools']
 
+// Service Definition — the public contract surface re-exported by the plugin:
+// config, models, the four tool builders and their result value types, plus
+// the frozen structural contracts of the optional web / researchReport seams.
 export { Config, resolveConfig } from './config.ts'
 export type { Config as IndustryResearchConfig, ResolvedConfig } from './config.ts'
 export { VERSION } from './version.ts'
@@ -137,6 +140,8 @@ export function apply(ctx: Context, config: Config = {}): void {
   }
 
   const skillsRoot = resolveSkillsRoot(resolved.skillsDir)
+  // Service Provider — publishes the packaged methodology skills through
+  // ctx.skills.registerProvider and registers the four research tools below.
   ctx.effect(function* () {
     yield ctx.skills.registerProvider(control => new FileSystemSkillProvider(ctx, control, {
       providerName: 'industry-research',
@@ -146,6 +151,8 @@ export function apply(ctx: Context, config: Config = {}): void {
     }))
   })
 
+  // Consumer — at execution time the tool handlers consume the optional
+  // ctx.web and ctx.researchReport services (structural lookup, never injected).
   ctx.tools.register(buildIndustryMapTool(ctx, resolved))
   ctx.tools.register(buildIndustryTrackTool(ctx, resolved))
   ctx.tools.register(buildCompanyScanTool(ctx, resolved))
