@@ -22,7 +22,7 @@
 
 ---
 
-**仅供研究，不构成投资建议 — Research only, not investment advice.** This pack does research support only: no trading, no price prediction, no paid/login-walled sources.
+**Research only, not investment advice.** This pack does research support only: no trading, no price prediction, no paid/login-walled sources.
 
 ## Compatibility
 
