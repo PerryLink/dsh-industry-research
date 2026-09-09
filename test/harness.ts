@@ -1,7 +1,7 @@
 /**
  * Shared test harness: REAL Cordis `Context`, REAL `SessionStore`/`Session`
  * with a per-suite temp workspace as the session cwd, the REAL
- * SystemPrompt/ToolRuntime/SkillRegistry from the 0.1.2-rc.1 peers, and the
+ * SystemPrompt/ToolRuntime/SkillRegistry from the 0.1.5-alpha.1 peers, and the
  * REAL `WebRuntime` seam when a suite mounts web (providers at that pluggable
  * edge are scripted, exactly as the harness's own tool-web tests do). The
  * optional `ctx.researchReport` engine is mounted through the REAL Cordis
@@ -48,7 +48,7 @@ export async function mountBase(sessionId = 'ir-harness'): Promise<BaseHarness> 
   await ctx.plugin(SessionStore)
   const workspace = await mkdtemp(path.join(tmpdir(), TEMP_PREFIX))
   const session = ctx.sessions.create(SessionId(sessionId), { meta: { cwd: workspace } })
-  await ctx.plugin(SystemPrompt, { persona: '' })
+  await ctx.plugin(SystemPrompt, { personaPrefix: '' })
   await ctx.plugin(ToolRuntime)
   await ctx.plugin(SkillRegistry)
   const agent = {
