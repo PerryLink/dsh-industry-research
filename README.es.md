@@ -25,11 +25,11 @@
 
 ## Compatibility
 
-- DeepSeek Harness `dsh-v0.1.3-alpha.1` (tag de GitHub, verificado el 2026-09-06; peers fijados en `0.1.2-rc.1`).
+- DeepSeek Harness `dsh-v0.1.5-alpha.1` (tag de GitHub, verificado el 2026-09-09; peers en `>=0.1.2-rc.1 <0.2.0 || >=0.1.5-alpha.1 <0.2.0`).
 0.1.2-rc.1 (adaptado el 2026-09-02): el sobre de sesión conserva su campo ignorable solo para compatibilidad de lectura de logs almacenados - Session.append aún no puede estamparlo, por lo que el comportamiento de la puerta no cambia.
-Verificado el 2026-09-06 contra el checkout master dsh-v0.1.3-alpha.1 (cadena de puertas completa + smoke de instalación de perfil).
+Verificado el 2026-09-09 contra el checkout master dsh-v0.1.5-alpha.1 (cadena de puertas completa; el smoke de instalación de perfil real lo ejecuta el job mensual `compat.yml`).
 - Node `^22.19.0 || >=24.0.0`, solo ESM (`"type": "module"`).
-- Dependencias peer: `@deepseek-ai/cordis ^4.0.2`, `@deepseek-ai/schemastery ^3.18.2`, y `@deepseek-ai/dsh-tools`, `@deepseek-ai/dsh-skill`, `@deepseek-ai/dsh-skill-filesystem` en `>=0.1.2-rc.1 <0.2.0` (todas compuestas por el bundle oficial `dsh-base`).
+- Dependencias peer: `@deepseek-ai/cordis ^4.0.2`, `@deepseek-ai/schemastery ^3.18.2`, y `@deepseek-ai/dsh-tools`, `@deepseek-ai/dsh-skill`, `@deepseek-ai/dsh-skill-filesystem` en `>=0.1.2-rc.1 <0.2.0 || >=0.1.5-alpha.1 <0.2.0` (todas compuestas por el bundle oficial `dsh-base`).
 - Capacidades opcionales, resueltas en tiempo de ejecución (nunca inyectadas): `ctx.web` (recuperación de fuentes públicas, compuesta por `dsh-base`) y `ctx.researchReport` (el motor de sellado del plugin hermano `dsh-research-report`).
 
 ## What you get
