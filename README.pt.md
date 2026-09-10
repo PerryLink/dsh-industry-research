@@ -26,9 +26,9 @@
 
 ## Compatibility
 
-- DeepSeek Harness `dsh-v0.1.5-alpha.1` (tag do GitHub, verificado em 2026-09-09; peers em `>=0.1.2-rc.1 <0.2.0 || >=0.1.5-alpha.1 <0.2.0`).
+- DeepSeek Harness `dsh-v0.1.5-rc.1` (tag do GitHub, verificado em 2026-09-10; peers em `>=0.1.2-rc.1 <0.2.0 || >=0.1.5-alpha.1 <0.2.0`).
 0.1.2-rc.1 (adaptado em 2026-09-02): o envelope de sessão mantém seu campo ignorable apenas para compatibilidade de leitura de logs armazenados - o Session.append ainda não consegue estampá-lo, então o comportamento da porta não muda.
-Verificado em 2026-09-09 contra o checkout master dsh-v0.1.5-alpha.1 (cadeia de portas completa; o smoke de instalação de perfil real roda no job mensal `compat.yml`).
+Verificado em 2026-09-10 contra o checkout master dsh-v0.1.5-rc.1 (cadeia de portas completa; o smoke de instalação de perfil real roda no job mensal `compat.yml`).
 - Node `^22.19.0 || >=24.0.0`, apenas ESM (`"type": "module"`).
 - Dependências peer: `@deepseek-ai/cordis ^4.0.2`, `@deepseek-ai/schemastery ^3.18.2`, e `@deepseek-ai/dsh-tools`, `@deepseek-ai/dsh-skill`, `@deepseek-ai/dsh-skill-filesystem` em `>=0.1.2-rc.1 <0.2.0 || >=0.1.5-alpha.1 <0.2.0` (todas compostas pelo bundle oficial `dsh-base`).
 - Capacidades opcionais, resolvidas em tempo de execução (nunca injetadas): `ctx.web` (recuperação de fontes públicas, composta pelo `dsh-base`) e `ctx.researchReport` (o motor de selagem do plugin irmão `dsh-research-report`).
