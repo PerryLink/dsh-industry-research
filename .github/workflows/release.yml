@@ -56,7 +56,7 @@ jobs:
           if npm view "dsh-industry-research@${version}" version >/dev/null 2>&1; then
             echo "dsh-industry-research@${version} is already published; skipping npm publish"
           else
-            npm publish --access public
+            npm publish --access public --provenance
           fi
 
   release:
