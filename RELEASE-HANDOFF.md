@@ -15,7 +15,7 @@
 
 | 目标 | 状态 | 记录 |
 |---|---|---|
-| awesome-dsh-plugin/awesome-dsh-plugin | 🟡 **分支就绪，PR 延后** | fork `PerryLink/awesome-dsh-plugin-main` 分支 `add/dsh-industry-research`（commit `c84fdaf`）已推送：`data/plugins/PerryLink__dsh-industry-research.yml`（category: tools）+ 生成的 README.md/README.zh.md（1248 条目）。仓库年龄门槛（≥1 天）：仓库创建于 2026-08-19T14:20:16Z，**满 1 天 = 2026-08-20T14:20Z（本地 22:20）**；PR 需在满 1 天后创建（见下方命令）。 |
+| awesome-dsh-plugin/awesome-dsh-plugin | 🟡 **分支就绪，PR 延后** | fork `PerryLink/awesome-dsh-plugin-main` 分支 `add/dsh-industry-research`（commit `c84fdaf`）已推送：`data/plugins/PerryLink__dsh-industry-research.yml`（category: tools）+ 生成的 README.md/README-zh.md（1248 条目）。仓库年龄门槛（≥1 天）：仓库创建于 2026-08-19T14:20:16Z，**满 1 天 = 2026-08-20T14:20Z（本地 22:20）**；PR 需在满 1 天后创建（见下方命令）。 |
 | 0xsline/awesome-deepseek-harness | ✅ PR 已开 | **PR #423**（`docs: add dsh-industry-research`，state=open、mergeable=true）：双语 README 的 Domain & Specialist Skills 分类各加一条，待维护者审查。 |
 | AdamPlatin123/awesome-dsh-plugins | ✅ 已收录 | topic 自动扫描已收录（PLUGINS.md 命中），无需动作。 |
 | bruc3van/awesome-dsh-plugin | ⛔ 跳过（门槛） | 自荐要求 `stargazers_count > 10`；当前 0 星，CI 会拒。如实跳过，星数达标后按 CONTRIBUTING.md 重提（中英 SHOWCASE.md 末尾各追加一行 + 同步 README 预览区）。 |
