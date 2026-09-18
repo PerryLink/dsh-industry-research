@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- The untyped `ctx.get('researchReport')` result was bridged with `as unknown as`, which asserted a shape nobody checked: a service mounted under that name without an `assemble` method was accepted at lookup time and failed later inside the call path. It is now proven by an `isResearchReportLike` guard, so a wrong-shaped service takes the honest builtin-fallback path.
+- The untyped `ctx.get(...)` results were bridged with `as unknown as`, which asserted a shape nobody checked: a service mounted under that name without the expected methods was accepted at lookup time and failed later inside the call path. `ctx.researchReport`, `ctx.web`, and `ctx.jobs` are now all proven by structural guards (`isResearchReportLike`, `isWebLike`, `isJobsLike`), so a wrong-shaped service takes the honest unmounted path — the builtin report fallback, or the loud mount guidance for `industry_track` and the marked sequential degrade for `company_scan` — instead of throwing from inside a call.
 - Pin `@deepseek-ai/dsh-sandbox` to `0.1.6-alpha.2`. A stale `0.1.1-rc.2` was resolved for it while the rest of the tree moved to `0.1.6-alpha.2`; that old build imports `assertNever` from `@deepseek-ai/dsh-llm`, which `0.1.6-alpha.2` no longer exports, so importing `@deepseek-ai/dsh-tools` — and therefore the built entry — failed to link at all (`does not provide an export named 'assertNever'`). Also pin `@deepseek-ai/dsh-user-approval` to `0.1.6-alpha.2`, which was the same class of stale resolution and broke `typecheck:ci` with `TS2614: Module '"@deepseek-ai/dsh-llm"' has no exported member 'CallId'`.
 
 ### Docs

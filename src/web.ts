@@ -40,12 +40,30 @@ export interface WebLike {
 }
 
 /**
+ * Structural guard for the optional web capability.
+ *
+ * `ctx.get()` is untyped, so the looked-up value is proven to carry both
+ * methods this plugin calls rather than asserted with a cast. A service
+ * mounted under `web` missing `search` or `fetch` would otherwise be accepted
+ * here and fail inside `industry_track` instead of taking the loud,
+ * actionable unmounted path.
+ * @param value - the value returned by `ctx.get('web')`.
+ * @returns true when the value exposes callable `search` and `fetch`.
+ */
+function isWebLike(value: unknown): value is WebLike {
+  if (typeof value !== 'object' || value === null) return false
+  const candidate = value as { search?: unknown; fetch?: unknown }
+  return typeof candidate.search === 'function' && typeof candidate.fetch === 'function'
+}
+
+/**
  * Look up the optional web capability.
  * @param ctx - the plugin context.
  * @returns the web service surface, or undefined when no web seam is mounted.
  */
 export function lookupWeb(ctx: Context): WebLike | undefined {
-  return ctx.get('web') as unknown as WebLike | undefined
+  const candidate: unknown = ctx.get('web')
+  return isWebLike(candidate) ? candidate : undefined
 }
 
 /**

@@ -19,6 +19,8 @@ import { mkdir, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
 import { lookupEngine } from '../src/engine-bridge.ts'
+import { lookupJobs } from '../src/jobs.ts'
+import { lookupWeb } from '../src/web.ts'
 import type { IndustryReportValue } from '../src/tools/report.ts'
 import { callTool, mountBase, mountEngine, mountPlugin, unmountBase, type BaseHarness } from './harness.ts'
 
@@ -89,8 +91,33 @@ describe('lookupEngine guard', () => {
   })
 })
 
-describe('industry_report falls back when the mounted engine is the wrong shape', () => {
-  it('does not call into a malformed service and reports the builtin engine', async () => {
+describe('the sibling optional-capability guards', () => {
+  // The same prove-don't-assert rule applies to ctx.web and ctx.jobs: both are
+  // looked up with ctx.get and were previously bridged with `as unknown as`.
+  it('rejects malformed ctx.web values and accepts a well-formed one', async () => {
+    for (const candidate of [undefined, null, 'web', 7, [], { search: 'nope', fetch: 'nope' }, { search: () => undefined }]) {
+      const base = await setup()
+      base.ctx.reflect.provide('web', candidate)
+      expect(lookupWeb(base.ctx), `candidate: ${JSON.stringify(candidate)}`).toBeUndefined()
+    }
+    const base = await setup()
+    base.ctx.reflect.provide('web', { search: () => Promise.resolve({ sources: [], truncated: false }), fetch: () => Promise.resolve({}) })
+    expect(lookupWeb(base.ctx)).toBeDefined()
+  })
+
+  it('rejects malformed ctx.jobs values and accepts a well-formed one', async () => {
+    for (const candidate of [undefined, null, 'jobs', 7, {}, { start: 'nope' }]) {
+      const base = await setup()
+      base.ctx.reflect.provide('jobs', candidate)
+      expect(lookupJobs(base.ctx), `candidate: ${JSON.stringify(candidate)}`).toBeUndefined()
+    }
+    const base = await setup()
+    base.ctx.reflect.provide('jobs', { start: () => 'job-1' })
+    expect(lookupJobs(base.ctx)).toBeDefined()
+  })
+})
+
+describe('industry_report falls back when the mounted engine is the wrong shape', () => {  it('does not call into a malformed service and reports the builtin engine', async () => {
     const base = await setup()
     await seedIndustry(base)
     // Mounted but unusable: without the guard this would be cast and called.
