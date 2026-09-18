@@ -48,6 +48,16 @@ export type CompanyScanBatchValue = {
   failures: Array<{ name: string; reason: string }>
   /** How the batch was executed (parallel fan-out or sequential fallback). */
   mode: 'sequential' | 'parallel'
+  /**
+   * Present only when the caller asked for something the deployment cannot
+   * provide: `parallel: true` without a mounted `ctx.jobs` registry silently
+   * ran the batch sequentially. Declared so the downgrade is visible in the
+   * tool result instead of being inferred from `mode`.
+   */
+  degraded?: {
+    capability: 'ctx.jobs'
+    reason: string
+  }
 }
 
 /** One company scan spec, shared by single and batch modes. */
@@ -107,6 +117,7 @@ const BATCH_OUTPUT = {
     results: { type: 'array', items: { type: 'json' }, required: true },
     failures: { type: 'array', items: { type: 'json' }, required: true },
     mode: { type: 'string', enum: ['sequential', 'parallel'], required: true },
+    degraded: { type: 'json', description: '仅在请求了部署不具备的能力时出现（parallel:true 但无 ctx.jobs ⇒ 已顺序降级）' },
   },
   additionalProperties: false,
 } as const
@@ -247,6 +258,7 @@ export function buildCompanyScanTool(ctx: Context, config: ResolvedConfig) {
           const lines = [`批量公司扫描（${current.mode === 'parallel' ? 'parallel' : 'sequential'}）：成功 ${current.results.length} 家，失败 ${current.failures.length} 家。`]
           for (const result of current.results) lines.push(`- 成功：${result.name} → ${result.cardPath}`)
           for (const failure of current.failures) lines.push(`- 失败：${failure.name}（${failure.reason}）`)
+          if (current.degraded !== undefined) lines.push(`- 能力降级（${current.degraded.capability}）：${current.degraded.reason}`)
           return [{ type: 'text', text: lines.join('\n') }]
         }
         const card = current.card
@@ -299,7 +311,15 @@ export function buildCompanyScanTool(ctx: Context, config: ResolvedConfig) {
           ...(company.ticker !== undefined ? { ticker: company.ticker } : {}),
           ...(company.metrics !== undefined ? { metrics: company.metrics } : {}),
         }))
-        const jobs = args.parallel === true ? lookupJobs(ctx) : undefined
+        // `parallel: true` is a request, not a guarantee: the job registry is an
+        // optional capability. When it is absent the batch still runs, but the
+        // downgrade is reported through `degraded` instead of being left for the
+        // caller to infer from `mode`.
+        const wantsParallel = args.parallel === true
+        const jobs = wantsParallel ? lookupJobs(ctx) : undefined
+        const degraded: CompanyScanBatchValue['degraded'] = wantsParallel && jobs === undefined
+          ? { capability: 'ctx.jobs', reason: 'ctx.jobs 未挂载：批量扫描已顺序执行，未 fan-out 为独立 job' }
+          : undefined
         if (jobs !== undefined) {
           const outcomes: Array<{ name: string; value?: CompanyScanValue; error?: string }> = specs.map(spec => ({ name: spec.name }))
           const dones: Array<Promise<JobOutcomeLike>> = []
@@ -344,7 +364,12 @@ export function buildCompanyScanTool(ctx: Context, config: ResolvedConfig) {
             failures.push({ name: spec.name, reason: error instanceof Error ? error.message : String(error) })
           }
         }
-        return { results, failures, mode: 'sequential' }
+        return {
+          results,
+          failures,
+          mode: 'sequential',
+          ...(degraded !== undefined ? { degraded } : {}),
+        }
       }
       throw new Error('company_scan requires a name (single company) or companies (batch)')
     },
