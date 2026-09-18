@@ -35,10 +35,26 @@ export interface JobsLike {
 }
 
 /**
+ * Structural guard for the optional background-job registry.
+ *
+ * `ctx.get()` is untyped, so the looked-up value is proven to carry the one
+ * method this plugin calls rather than asserted with a cast. A service mounted
+ * under `jobs` without a callable `start` would otherwise be accepted here and
+ * fail inside the batch path.
+ * @param value - the value returned by `ctx.get('jobs')`.
+ * @returns true when the value exposes a callable `start`.
+ */
+function isJobsLike(value: unknown): value is JobsLike {
+  if (typeof value !== 'object' || value === null) return false
+  return typeof (value as { start?: unknown }).start === 'function'
+}
+
+/**
  * Look up the optional background-job registry.
  * @param ctx - the plugin context.
  * @returns the registry surface, or undefined when no job service is mounted.
  */
 export function lookupJobs(ctx: Context): JobsLike | undefined {
-  return ctx.get('jobs') as unknown as JobsLike | undefined
+  const candidate: unknown = ctx.get('jobs')
+  return isJobsLike(candidate) ? candidate : undefined
 }

@@ -5,6 +5,24 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.10] - 2026-09-18
+
+### Changed
+
+- Move the verified baseline to the published `0.1.6-alpha.2` line: the `@deepseek-ai/dsh-*` dev/test pins and the `compat.yml` CLI/bundle pins now target it, and the peer range gains a third clause (`>=0.1.6-0 <0.2.0`). The two existing clauses are unchanged, so no previously supported host line is dropped. `dshWorkshop.compatibility.dshVersions` is unchanged: it records the lines verified by a real profile install, and the `0.1.6-alpha.2` smoke runs in CI rather than having been observed here.
+- Declare `dsh.manifestVersion: 1` and `engines.dsh` on the package manifest (same shape as the rest of the family).
+- **The `ctx.researchReport` contract is now owned by `dsh-research-report` instead of mirrored here.** `AssembleReportRequest`, `AssembleReportResult`, `EvidenceInput`, and `ReportSectionInput` were hand-copied interfaces in `src/engine-bridge.ts`, kept in sync by convention alone — if the sibling changed its contract, nothing here would have failed until a real call misbehaved. They are now imported with `import type` from `dsh-research-report@0.3.10`, so a mismatch is a compile error. The import is type-only and erased by the build: `lib/index.js` still contains no reference to the package, so the runtime seam is exactly as optional as before and the published package gains no dependency.
+- `company_scan` batch mode now reports a capability downgrade instead of degrading silently: with `parallel: true` and no mounted `ctx.jobs`, the value carries `degraded: { capability: 'ctx.jobs', reason }` and the rendered result states it. Previously the caller could only infer this from `mode: 'sequential'`, which is indistinguishable from never having asked for parallelism.
+
+### Fixed
+
+- The untyped `ctx.get(...)` results were bridged with `as unknown as`, which asserted a shape nobody checked: a service mounted under that name without the expected methods was accepted at lookup time and failed later inside the call path. `ctx.researchReport`, `ctx.web`, and `ctx.jobs` are now all proven by structural guards (`isResearchReportLike`, `isWebLike`, `isJobsLike`), so a wrong-shaped service takes the honest unmounted path — the builtin report fallback, or the loud mount guidance for `industry_track` and the marked sequential degrade for `company_scan` — instead of throwing from inside a call.
+- Pin `@deepseek-ai/dsh-sandbox` to `0.1.6-alpha.2`. A stale `0.1.1-rc.2` was resolved for it while the rest of the tree moved to `0.1.6-alpha.2`; that old build imports `assertNever` from `@deepseek-ai/dsh-llm`, which `0.1.6-alpha.2` no longer exports, so importing `@deepseek-ai/dsh-tools` — and therefore the built entry — failed to link at all (`does not provide an export named 'assertNever'`). Also pin `@deepseek-ai/dsh-user-approval` to `0.1.6-alpha.2`, which was the same class of stale resolution and broke `typecheck:ci` with `TS2614: Module '"@deepseek-ai/dsh-llm"' has no exported member 'CallId'`.
+
+### Docs
+
+- Refresh the five-language README compatibility sections to the `0.1.6-alpha.2` baseline and the three-clause peer range; the same correction is applied to `THIRD_PARTY_NOTICES.md`, and `AGENTS.md` now records that the report contract has one owner and that the optional lookup is guarded rather than asserted.
+
 ## [0.3.9] - 2026-09-12
 
 ### Changed

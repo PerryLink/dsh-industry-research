@@ -11,7 +11,7 @@ Standalone DeepSeek Harness plugin repository (`dsh-industry-research`). Develop
 - `src/sources.ts` — the per-industry `sources.json` registry: stable `S<n>` refs, origins, and SHA-256 content hashes.
 - `src/company.ts` — company scan: text-format data files (no PDF), Markdown outlines, figure-candidate lines, `card.json` + `card.md`.
 - `src/report.ts` — report assembly: evidence/sections/claims building, draft validation, the mechanical auto-draft, and the builtin-fallback Markdown + manifest renderer.
-- `src/engine-bridge.ts` — the frozen `ctx.researchReport` contract (byte-identical with the sibling plugin) and the structural `ctx.get('researchReport')` lookup. Never injected, never imported.
+- `src/engine-bridge.ts` — the optional `ctx.researchReport` contract, imported as **types only** from `dsh-research-report` (erased at build time — the built entry never imports it at runtime) plus the structural `ctx.get('researchReport')` lookup behind an `isResearchReportLike` guard. Never injected, never reached through a runtime import.
 - `src/web.ts` — the structural `ctx.web` lookup, the offline/unmounted loud failures, and per-request timeout signals.
 - `src/paths.ts` / `src/toolkit.ts` — workspace containment and the `<cwd>/<industryRoot>/` layout.
 - `src/events.ts` — typed Cordis events (`industry-research/map|track|report`, `@mode emit`).
@@ -19,11 +19,12 @@ Standalone DeepSeek Harness plugin repository (`dsh-industry-research`). Develop
 - `skills/` — the two methodology SKILL.md bundles (Chinese edition).
 - `fixtures/baijiu/` — committed teaching fixtures for the keyless e2e suite (clearly fictional).
 - `scripts/` — `prepare.mjs` (build), `verify-self-contained.mjs`, `verify-artifacts.mjs`, `check-readme-sync.mjs` (five-language gate), `check-skills.mjs` (skills frontmatter gate), `fix-dts.mjs` (declaration-specifier rewrite), `changelog-section.mjs`, `loader-runner.mjs` (real Loader composition runner).
-- `test/` — vitest; REAL `Context`/`SessionStore`/`Session`/`ToolRuntime`/`SkillRegistry`/`WebRuntime` from the 0.1.5-rc.2 peers. Only the pluggable edges (web providers, the optional report engine) are scripted, through the real registration mechanisms.
+- `test/` — vitest; REAL `Context`/`SessionStore`/`Session`/`ToolRuntime`/`SkillRegistry`/`WebRuntime` from the 0.1.6-alpha.2 peers. Only the pluggable edges (web providers, the optional report engine) are scripted, through the real registration mechanisms.
 
 ## Hard rules applied here
 
 - **Optional capabilities are looked up, never injected.** `ctx.web` and `ctx.researchReport` are resolved with `ctx.get(...)` at execution time; without them `industry_track` fails loud with mount guidance and `industry_report` takes the honest builtin-fallback path. Writing them into `inject` would park the plugin in PENDING forever on deployments without those siblings.
+- **The report contract has one owner.** `AssembleReportRequest`/`AssembleReportResult`/`EvidenceInput`/`ReportSectionInput` are imported as types from `dsh-research-report`; they are never mirrored here, because a hand-kept mirror drifts silently. `dsh-research-report` is a type-only devDependency (the build erases it — `lib/index.js` must never import it), and the untyped `ctx.get` result is proven by the `isResearchReportLike` guard before use, never asserted with `as unknown as`.
 - **Cordis events, not session-log events.** `industry-research/*` events are typed Cordis observability events and are never appended to the session log: the durable record is the workspace artifacts, model-visible tool results ride the durable `tool/result` session event, and observability rides the typed Cordis events.
 - **No network outside `ctx.web`.** All retrieval goes through the official seam (provider selection, timeouts, and error taxonomy have one owner); `offline: true` disables it entirely.
 - **No invented data.** A metric value without a source is a validation error; a missing value is an explicit gap slot; reports list gaps instead of filling them. Fictitious fixture data is clearly marked as teaching material.
@@ -36,7 +37,7 @@ Standalone DeepSeek Harness plugin repository (`dsh-industry-research`). Develop
 
 `pnpm run typecheck && pnpm run typecheck:ci && pnpm test && pnpm run build && pnpm run verify:self-contained && pnpm run verify:artifacts && pnpm run verify:readme-sync && pnpm run verify:skills && pnpm run pack:check`
 
-- `typecheck` resolves `@deepseek-ai/*` through the installed 0.1.5-rc.2 peers; `typecheck:ci` clears `skipLibCheck` and enables `verbatimModuleSyntax` against the published types. Both must stay green.
+- `typecheck` resolves `@deepseek-ai/*` through the installed 0.1.6-alpha.2 peers; `typecheck:ci` clears `skipLibCheck` and enables `verbatimModuleSyntax` against the published types. Both must stay green.
 
 ## Release
 
