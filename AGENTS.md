@@ -35,7 +35,7 @@ Standalone DeepSeek Harness plugin repository (`dsh-industry-research`). Develop
 
 ## Checks
 
-`pnpm run typecheck && pnpm run typecheck:ci && pnpm test && pnpm run build && pnpm run verify:self-contained && pnpm run verify:artifacts && pnpm run verify:readme-sync && pnpm run verify:skills && pnpm run pack:check`
+`pnpm run typecheck && pnpm run typecheck:ci && pnpm test && pnpm run build && pnpm run verify:self-contained && pnpm run check:lockfile && pnpm run verify:artifacts && pnpm run check:lockfile && pnpm run verify:readme-sync && pnpm run check:lockfile && pnpm run verify:skills && pnpm run check:lockfile && pnpm run pack:check`
 
 - `typecheck` resolves `@deepseek-ai/*` through the installed 0.1.6-alpha.2 peers; `typecheck:ci` clears `skipLibCheck` and enables `verbatimModuleSyntax` against the published types. Both must stay green.
 
