@@ -3,6 +3,7 @@
 # 🏭 dsh-industry-research
 - **1024 store channel**: `npm i -g dsh1024` once, then `dsh1024 plugin --profile web add dsh-industry-research` (counts toward the [deepseek1024.com](https://deepseek1024.com) install ranking).
 [![Gitee](https://img.shields.io/badge/Gitee-mirror-c71d23?logo=gitee)](https://gitee.com/perrylink/dsh-industry-research)
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/PerryLink/dsh-industry-research/badge)](https://api.securityscorecards.dev/projects/github.com/PerryLink/dsh-industry-research)
 
 **Industry and company research domain pack for DeepSeek Harness.**
 
