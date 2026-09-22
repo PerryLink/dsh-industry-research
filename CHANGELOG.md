@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.12] - 2026-09-22
+
 ### Fixed
 
 - Correct `src/version.ts`, which still declared `0.3.10` after the `0.3.11` release. The release session is documented in `AGENTS.md` as bumping `package.json` **and** `src/version.ts` together; the second half did not happen, so the published `0.3.11` exported a `VERSION` that named the previous release. `VERSION` is re-exported from `src/index.ts`, so it is part of the package's public surface rather than an internal detail. No runtime behaviour changes.
