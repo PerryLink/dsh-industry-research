@@ -5,7 +5,18 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.3.13] - 2026-09-23
+
+### Added
+
+- `typecheck:checkout` (`tsc -p tsconfig.checkout.json --noEmit`) compiles the same `src` + `test` + `vitest.config.ts` program as `typecheck`, with the nine `@deepseek-ai/*` packages this repo imports re-pointed at the local harness checkout's built type faces instead of the installed published ones. The nine entries were derived from the imports under `src/` and `test/` and each mapped path was verified to exist; `--listFiles` resolves 83 program files from the checkout and none from `node_modules/@deepseek-ai`. It complements rather than replaces `typecheck` (installed published faces) and `typecheck:ci` (published faces, `skipLibCheck` off). `AGENTS.md`'s checks chain and ruler note now name all three rulers.
+
+### Changed
+
+- Move the verified baseline to the published `0.1.7-alpha.2` line: every `@deepseek-ai/*` dev/test pin moves from `0.1.6-alpha.2` to `0.1.7-alpha.2` (11 packages), and the dev carets converge on what that line declares — `@deepseek-ai/cordis` `^4.0.2` → `^4.0.4`, `@deepseek-ai/schemastery` `^3.18.2` → `^3.18.4`. The tree now resolves exactly one `schemastery` copy (3.18.4), so the two-copy `Volatile` typing split cannot occur here. The seven remaining `0.1.5-rc.2` lockfile entries are auto-installed peers of the type-only third-party devDependency `dsh-research-report@0.3.10`, whose own published peer range excludes `0.1.7` prereleases; that count is unchanged from the pre-migration baseline and it is not reachable from any `@deepseek-ai` pin this manifest declares.
+- Every declared host range gains `|| >=0.1.7-0 <0.2.0` — `engines.dsh` and the three `@deepseek-ai/dsh-skill` / `dsh-skill-filesystem` / `dsh-tools` peer bands, which now read `>=0.1.2-rc.1 <0.2.0 || >=0.1.5-alpha.1 <0.2.0 || >=0.1.6-0 <0.2.0 || >=0.1.7-0 <0.2.0`. This is a correctness fix, not a tightening: under npm semver's prerelease rule a comparator set whose only prerelease comparators sit on earlier `[major, minor, patch]` tuples cannot admit a later alpha, so the three-clause band excluded the very host line this release targets. No existing segment moved and nothing was narrowed.
+- `dshWorkshop.compatibility.dshVersions` records `0.1.7-alpha.2`; the five-language README compatibility rows name `dsh-v0.1.7-alpha.2` and quote the four-clause band; the `compat.yml` profile smoke installs the `0.1.7-alpha.2` CLI and bundle.
+- `THIRD_PARTY_NOTICES.md`'s `@deepseek-ai/dsh-*` peer row gains the fourth clause. Its `cordis` `^4.0.2` and `schemastery` `^3.18.2` rows describe the peer carets and already matched `package.json`, so they are unchanged.
 
 ## [0.3.12] - 2026-09-22
 
