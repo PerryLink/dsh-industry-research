@@ -19,7 +19,7 @@ Standalone DeepSeek Harness plugin repository (`dsh-industry-research`). Develop
 - `skills/` — the two methodology SKILL.md bundles (Chinese edition).
 - `fixtures/baijiu/` — committed teaching fixtures for the keyless e2e suite (clearly fictional).
 - `scripts/` — `prepare.mjs` (build), `verify-self-contained.mjs`, `verify-artifacts.mjs`, `check-readme-sync.mjs` (five-language gate), `check-skills.mjs` (skills frontmatter gate), `fix-dts.mjs` (declaration-specifier rewrite), `changelog-section.mjs`, `loader-runner.mjs` (real Loader composition runner).
-- `test/` — vitest; REAL `Context`/`SessionStore`/`Session`/`ToolRuntime`/`SkillRegistry`/`WebRuntime` from the 0.1.7-alpha.2 peers. Only the pluggable edges (web providers, the optional report engine) are scripted, through the real registration mechanisms.
+- `test/` — vitest; REAL `Context`/`SessionStore`/`Session`/`ToolRuntime`/`SkillRegistry`/`WebRuntime` from the 0.1.7-rc.1 peers. Only the pluggable edges (web providers, the optional report engine) are scripted, through the real registration mechanisms.
 
 ## Hard rules applied here
 
@@ -37,7 +37,7 @@ Standalone DeepSeek Harness plugin repository (`dsh-industry-research`). Develop
 
 `pnpm run typecheck && pnpm run typecheck:ci && pnpm run typecheck:checkout && pnpm test && pnpm run build && pnpm run verify:self-contained && pnpm run verify:artifacts && pnpm run verify:readme-sync && pnpm run verify:skills && pnpm run check:lockfile && pnpm run pack:check`
 
-- `typecheck` resolves `@deepseek-ai/*` through the installed 0.1.7-alpha.2 peers; `typecheck:ci` clears `skipLibCheck` and enables `verbatimModuleSyntax` against the published types; `typecheck:checkout` compiles the same file set against the local harness checkout's built types through `tsconfig.checkout.json` (no paths in the other two, so this is the only ruler that sees the checkout). All three must stay green.
+- `typecheck` resolves `@deepseek-ai/*` through the installed 0.1.7-rc.1 peers; `typecheck:ci` clears `skipLibCheck` and enables `verbatimModuleSyntax` against the published types; `typecheck:checkout` compiles the same file set against the local harness checkout's built types through `tsconfig.checkout.json` (no paths in the other two, so this is the only ruler that sees the checkout). All three must stay green.
 
 ## Release
 

@@ -29,9 +29,9 @@
 
 ## Compatibility
 
-- DeepSeek Harness `dsh-v0.1.7-alpha.2` (linha publicada no npm, verificado em 2026-09-18; peers em `>=0.1.2-rc.1 <0.2.0 || >=0.1.5-alpha.1 <0.2.0 || >=0.1.6-0 <0.2.0 || >=0.1.7-0 <0.2.0`).
+- DeepSeek Harness `dsh-v0.1.7-rc.1` (linha publicada no npm, verificado em 2026-09-24; peers em `>=0.1.2-rc.1 <0.2.0 || >=0.1.5-alpha.1 <0.2.0 || >=0.1.6-0 <0.2.0 || >=0.1.7-0 <0.2.0`).
 0.1.2-rc.1 (adaptado em 2026-09-02): o envelope de sessão mantém seu campo ignorable apenas para compatibilidade de leitura de logs armazenados - o Session.append ainda não consegue estampá-lo, então o comportamento da porta não muda.
-Verificado em 2026-09-18 contra os peers publicados `0.1.7-alpha.2` (cadeia de portas completa; o smoke de instalação de perfil real roda no job semanal e por PR `compat.yml`).
+Verificado em 2026-09-24 contra os peers publicados `0.1.7-rc.1` (cadeia de portas completa; o smoke de instalação de perfil real roda no job semanal e por PR `compat.yml`).
 - Node `^22.19.0 || >=24.0.0`, apenas ESM (`"type": "module"`).
 - Dependências peer: `@deepseek-ai/cordis ^4.0.2`, `@deepseek-ai/schemastery ^3.18.2`, e `@deepseek-ai/dsh-tools`, `@deepseek-ai/dsh-skill`, `@deepseek-ai/dsh-skill-filesystem` em `>=0.1.2-rc.1 <0.2.0 || >=0.1.5-alpha.1 <0.2.0 || >=0.1.6-0 <0.2.0 || >=0.1.7-0 <0.2.0` (todas compostas pelo bundle oficial `dsh-base`).
 - Capacidades opcionais, resolvidas em tempo de execução (nunca injetadas): `ctx.web` (recuperação de fontes públicas, composta pelo `dsh-base`) e `ctx.researchReport` (o motor de selagem do plugin irmão `dsh-research-report`).
@@ -183,7 +183,7 @@ pnpm run pack:check
 
 Contribuições externas são bem-vindas — abra uma issue ou um pull request.
 
-**Versão do DSH aplicável:** verificada com `dsh-v0.1.7-alpha.2` (a versão do host que esta compilação visa); requer `>=0.1.7-alpha.1 <0.2.0`.
+**Versão do DSH aplicável:** verificada com `dsh-v0.1.7-rc.1` (a versão do host que esta compilação visa); requer `>=0.1.7-alpha.1 <0.2.0`.
 
 ## PerryLink DSH Plugin Family
 
