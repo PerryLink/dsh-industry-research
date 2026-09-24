@@ -36,9 +36,9 @@
 *English:* part of a 40+ plugin family for DeepSeek Harness. If it is useful, **a star helps the next person find it** — nothing is gated behind it.
 ## Compatibility
 
-- DeepSeek Harness `dsh-v0.1.7-rc.1`（npm 发布线，2026-09-24 已核验；peer 范围 `>=0.1.2-rc.1 <0.2.0 || >=0.1.5-alpha.1 <0.2.0 || >=0.1.6-0 <0.2.0 || >=0.1.7-0 <0.2.0`）。
+- DeepSeek Harness `dsh-v0.1.7-rc.2`（npm 发布线，2026-09-24 已核验；peer 范围 `>=0.1.2-rc.1 <0.2.0 || >=0.1.5-alpha.1 <0.2.0 || >=0.1.6-0 <0.2.0 || >=0.1.7-0 <0.2.0`）。
 0.1.2-rc.1（2026-09-02 已适配）：会话信封保留 ignorable 字段但仅用于存量日志读取兼容——Session.append 仍无法盖章，门控行为不变。
-2026-09-24 已核验：对照 `0.1.7-rc.1` 已发布 peer 实测（完整门禁链；真实 profile 安装冒烟由每周及每 PR 的 `compat.yml` 任务执行）。
+2026-09-24 已核验：对照 `0.1.7-rc.2` 已发布 peer 实测（完整门禁链；真实 profile 安装冒烟由每周及每 PR 的 `compat.yml` 任务执行）。
 - Node `^22.19.0 || >=24.0.0`，仅 ESM（`"type": "module"`）。
 - Peer 依赖：`@deepseek-ai/cordis ^4.0.2`、`@deepseek-ai/schemastery ^3.18.2`，以及 `>=0.1.2-rc.1 <0.2.0 || >=0.1.5-alpha.1 <0.2.0 || >=0.1.6-0 <0.2.0 || >=0.1.7-0 <0.2.0` 的 `@deepseek-ai/dsh-tools`、`@deepseek-ai/dsh-skill`、`@deepseek-ai/dsh-skill-filesystem`（官方 `dsh-base` bundle 均已组合）。
 - 可选能力在执行时查找（绝不注入）：`ctx.web`（公开源检索，`dsh-base` 已组合）与 `ctx.researchReport`（兄弟插件 `dsh-research-report` 的封存引擎）。
@@ -191,7 +191,7 @@ pnpm run pack:check
 
 欢迎外部贡献 —— 提交 issue 或 pull request。
 
-**适用的 DSH 版本：** 已在 `dsh-v0.1.7-rc.1`（本构建所针对的宿主版本）上验证；要求 `>=0.1.7-alpha.1 <0.2.0`。
+**适用的 DSH 版本：** 已在 `dsh-v0.1.7-rc.2`（本构建所针对的宿主版本）上验证；要求 `>=0.1.7-alpha.1 <0.2.0`。
 
 ## PerryLink DSH Plugin Family
 
