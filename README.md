@@ -38,7 +38,7 @@
 
 ## Compatibility
 
-- DeepSeek Harness `dsh-v0.1.7-rc.2` (published npm line, verified 2026-09-25; peers `>=0.1.2-rc.1 <0.2.0 || >=0.1.5-alpha.1 <0.2.0 || >=0.1.6-0 <0.2.0 || >=0.1.7-0 <0.2.0`).
+- DeepSeek Harness `dsh-v0.2.1-alpha.1` (published npm line, verified 2026-09-25; peers `>=0.1.2-rc.1 <0.2.0 || >=0.1.5-alpha.1 <0.2.0 || >=0.1.6-0 <0.2.0 || >=0.1.7-0 <0.2.0`).
 0.1.2-rc.1 (adapted 2026-09-02): the session envelope keeps its ignorable field for stored-log read compatibility only - Session.append still cannot stamp it, so audit-gate behavior is unchanged.
 Verified 2026-09-24 against the `0.1.7-rc.2` published peers (full gate chain; the real profile install smoke runs in the weekly and per-PR `compat.yml` job).
 - Node `^22.19.0 || >=24.0.0`, ESM only (`"type": "module"`).
@@ -194,7 +194,7 @@ pnpm run pack:check
 
 External contributions are welcome — open an issue or a pull request.
 
-**Applicable DSH version:** verified against `dsh-v0.1.7-rc.2` (the host release this build targets); requires `>=0.1.7-alpha.1 <0.2.0`.
+**Applicable DSH version:** verified against `dsh-v0.2.1-alpha.1` (the host release this build targets); requires `>=0.1.7-alpha.1 <0.2.0`.
 
 ## PerryLink DSH Plugin Family
 
