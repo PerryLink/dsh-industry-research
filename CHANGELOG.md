@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+### Changed
+
+- Host pins move to `0.2.1-alpha.1`; re-verified against that host line. Every `@deepseek-ai/dsh-*` dev/test dependency now pins `0.2.1-alpha.1`, the `dshWorkshop.compatibility.dshVersions` timeline appends `0.2.1-alpha.1`, and the compatibility baseline in every README records the `dsh-v0.2.1-alpha.1` host. The declared host ranges (`engines.dsh` and the `peerDependencies` union) gain the `|| >=0.2.0-0 <0.3.0 || >=0.2.1-0 <0.3.0` clauses: the previous upper bound was `<0.2.0`, which under semver rejects every 0.2.x host, so the probe host itself was not installable. Nothing was narrowed — the `0.1.x` clauses are unchanged, in place and in order.
+
+### Fixed
+
+- The invalid-config and default-export composition regressions (`test/composition.spec.ts`) now fail for the *real* reason again. `cordis-plugin-loader` 1.0.6 dropped the failure surface `loader.await()` had in 1.0.4: the old body collected each `entry._await()` outcome and rejected with the single failure (or an `AggregateError`), while 1.0.6 only polls `entry._initTask || entry.fiber?.inertia`. `Entry._reload()` resolves `fiber.inertia` in the same turn it swallows the throw into `fiber._error`, so a row whose `apply` threw — an invalid `enabled`/`fetchTimeoutMs`/`strictTicker`, or a default-export wrapper with no `inject` — leaves nothing pending and `await()` resolves cleanly, which let both cases be judged purely on the downstream symptom (`industry_map` missing from the tools registry) instead of the cause. `scripts/loader-runner.mjs` now re-awaits every `FAILED` row through `Fiber.await()`, which still rethrows the stored error, and rethrows the first failure; `DSH_LOADER_RUNNER_NO_RETHROW=1` disables that walk for re-measurement only. `apply`, `Config`, and the runner's positive path are unchanged, and the suite additionally pins the causal chain: the rethrow happens before the registry check, so stderr must carry the real reason and must *not* carry the "tool is missing" symptom.
+
 ## [0.3.15] - 2026-09-25
 
 ### Changed

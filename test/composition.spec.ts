@@ -95,6 +95,13 @@ describe('Loader composition (built entry)', () => {
       const evidence = runRunner(configPath)
       expect(evidence.status, `invalid config unexpectedly mounted:\n${entry.lines.join('\n')}`).not.toBe(0)
       expect(evidence.stderr, `failed for the wrong reason:\n${evidence.stderr}`).toMatch(entry.reason)
+      // The two reports are mutually exclusive: the runner rethrows the failed
+      // row's own error before it ever consults the tools registry, so stderr
+      // carrying only the registry symptom would mean the reason was lost
+      // again. This pins the causal chain instead of weakening it — see the
+      // loader-await contract note at the end of this file.
+      expect(evidence.stderr, `the registry symptom replaced the real reason:\n${evidence.stderr}`)
+        .not.toMatch(/industry_map tool is missing from the tools registry/u)
     }
   })
 
@@ -111,6 +118,10 @@ describe('Loader composition (built entry)', () => {
     const evidence = runRunner(configPath)
     expect(evidence.status).not.toBe(0)
     expect(evidence.stderr, `failed for the wrong reason:\n${evidence.stderr}`).toMatch(/without inject/u)
+    // Same causal chain as the invalid-config case: the wrapper's `apply` was
+    // never reached, so only the missing-inject reason may be reported.
+    expect(evidence.stderr, `the registry symptom replaced the real reason:\n${evidence.stderr}`)
+      .not.toMatch(/industry_map tool is missing from the tools registry/u)
   })
 
   it('exports no default on the real built entry (function-plugin contract)', async () => {
@@ -120,6 +131,24 @@ describe('Loader composition (built entry)', () => {
     expect(mod.name).toBe('industry-research')
   })
 })
+
+// Loader-await contract the negative cases above depend on.
+//
+// `cordis-plugin-loader` 1.0.6 dropped the failure surface `loader.await()`
+// had in 1.0.4: 1.0.4 collected each `entry._await()` outcome and rejected with
+// the single failure (or an AggregateError), while 1.0.6 only polls
+// `entry._initTask || entry.fiber?.inertia`. `Entry._reload()` resolves
+// `fiber.inertia` in the same turn it swallows the throw into `fiber._error`,
+// so a row whose `apply` threw leaves nothing pending and `await()` resolves
+// cleanly. The reason then survives in exactly two places: the row's
+// error-level log record, and `Fiber.await()`, which rethrows the stored error.
+// `scripts/loader-runner.mjs` therefore re-awaits every FAILED row, so these
+// negatives fail on the real cause (the schema issue, or the missing inject)
+// instead of only on the downstream symptom. The two reports are mutually
+// exclusive: the rethrow happens before the registry check, so stderr can never
+// carry both. With that rethrow disabled (`DSH_LOADER_RUNNER_NO_RETHROW=1`) the
+// paired "tool is missing" negative assertions are what keep the suite from
+// silently accepting a symptom-only report.
 
 afterAll(() => {
   rmSync(temporaryRoot, { recursive: true, force: true })

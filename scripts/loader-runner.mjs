@@ -8,7 +8,9 @@
 // Usage: node scripts/loader-runner.mjs <cordis.yml>
 // Exit 0 prints DSH_LOADER_RESULT <json>; any assertion or load failure exits
 // non-zero with the reason on stderr (used by the invalid-config and
-// default-export regression cases).
+// default-export regression cases). A row whose `apply` threw is re-checked
+// through `rethrowFirstFailedRow()`, because `loader.await()` no longer rejects
+// on it (see that helper).
 
 import { Context } from '@deepseek-ai/cordis'
 import Include from '@deepseek-ai/cordis-plugin-include'
@@ -58,6 +60,7 @@ try {
     config: { path: pathToFileURL(configPath).href },
   })
   await ctx.loader.await()
+  await rethrowFirstFailedRow()
 
   // Authoritative registries carry the plugin's contributions.
   const schemas = ctx.tools.schemas()
@@ -143,4 +146,44 @@ try {
   if (workspace.startsWith(join(tmpdir(), 'dsh-industry-research-loader-'))) {
     rmSync(workspace, { recursive: true, force: true })
   }
+}
+
+/**
+ * Re-throw the first FAILED loader row's own reason.
+ *
+ * `cordis-plugin-loader` 1.0.6 dropped the failure surface `await()` had in
+ * 1.0.4: the old body collected `entry._await()` outcomes and threw the single
+ * failure (or an AggregateError), while 1.0.6's body only loops over
+ * `entry._initTask || entry.fiber?.inertia` and returns as soon as no task is
+ * pending. `Entry._reload()` resolves `fiber.inertia` in the same turn it
+ * swallows the throw into `fiber._error`, so by the time `loader.await()`
+ * returns, a row whose `apply` threw (invalid config, missing inject) has
+ * already lost both its `_initTask` and its `inertia` — the await cannot see
+ * it and resolves cleanly. The negative regressions below would then fail on
+ * the downstream symptom ("tool is missing from the tools registry") instead
+ * of the real cause, which is a silently weaker test.
+ *
+ * `Fiber.await()` still rethrows that stored error, and a row keeps its fiber
+ * for the life of the entry, so walking the tree restores the reason without
+ * depending on the resurrected 1.0.4 API. Calling it on a healthy row is a
+ * no-op, which keeps this runner correct on both loader lines.
+ *
+ * `DSH_LOADER_RUNNER_NO_RETHROW=1` disables the walk for re-measurement only.
+ */
+async function rethrowFirstFailedRow() {
+  if (process.env.DSH_LOADER_RUNNER_NO_RETHROW === '1') return
+  const failures = []
+  for (const entry of ctx.loader.entries()) {
+    const fiber = entry.fiber
+    // FiberState.FAILED === 3 (const enum, erased at runtime): the row did not
+    // activate, so it contributed no tools. Re-awaiting it surfaces why.
+    if (!fiber || fiber.state !== 3) continue
+    try {
+      await fiber.await()
+    } catch (error) {
+      failures.push(error)
+    }
+  }
+  if (failures.length === 1) throw failures[0]
+  if (failures.length > 1) throw new AggregateError(failures, 'loader rows failed')
 }
