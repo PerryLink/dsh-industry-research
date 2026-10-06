@@ -28,6 +28,8 @@
 **Apenas para pesquisa; não constitui aconselhamento de investimento.** Este pacote só apoia pesquisa: sem trading, sem previsão de preços, sem fontes pagas ou com login.
 
 
+**📖 Base de conhecimento do ecossistema** — dados medidos, não marketing: [guia de desenvolvimento · dados de seleção · critérios de manutenção](https://perrylink.github.io/dsh-plugin-guide/).
+
 <!-- star-cta -->
 ## ⭐ 如果它帮到了你
 

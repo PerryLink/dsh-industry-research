@@ -28,6 +28,8 @@
 **Solo con fines de investigación; no constituye asesoramiento de inversión.** Este paquete solo apoya la investigación: sin trading, sin predicción de precios, sin fuentes de pago o con inicio de sesión.
 
 
+**📖 Base de conocimiento del ecosistema** — datos medidos, no marketing: [guía de desarrollo · datos de selección · criterios de mantenimiento](https://perrylink.github.io/dsh-plugin-guide/).
+
 <!-- star-cta -->
 ## ⭐ 如果它帮到了你
 

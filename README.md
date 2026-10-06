@@ -28,6 +28,8 @@
 
 **Research only, not investment advice.** This pack does research support only: no trading, no price prediction, no paid/login-walled sources.
 
+**📖 Ecosystem knowledge base** — measured data, not marketing: [plugin development guide · plugin-selection data · maintenance criteria](https://perrylink.github.io/dsh-plugin-guide/).
+
 <!-- star-cta -->
 ## ⭐ 如果它帮到了你
 
