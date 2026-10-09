@@ -36,6 +36,14 @@
 这个插件是 [DSH 插件家族](https://github.com/PerryLink)的一员（40+ 个，全部 Apache-2.0）。如果你在用，**给个 star** —— 它不会解锁任何功能，但会让下一个人在搜索里更容易找到它。
 
 *English:* part of a 40+ plugin family for DeepSeek Harness. If it is useful, **a star helps the next person find it** — nothing is gated behind it.
+## What is dsh-industry-research?
+
+DeepSeek Harness 的行业/公司研究领域包。
+
+产业链建图、公开源跟踪、公司速览卡、可核查报告——每个数字都能回溯来源，每个缺口都如实声明。
+
+![dsh-industry-research 终端演示：dsh-industry-research — install, then the three artifacts](https://raw.githubusercontent.com/PerryLink/dsh-industry-research/main/docs/assets/dsh-industry-research-demo.png)
+
 ## Compatibility
 
 - DeepSeek Harness `dsh-v0.2.1-alpha.1`（npm 发布线，2026-09-24 已核验；peer 范围 `>=0.1.2-rc.1 <0.2.0 || >=0.1.5-alpha.1 <0.2.0 || >=0.1.6-0 <0.2.0 || >=0.1.7-0 <0.2.0`）。
@@ -55,6 +63,10 @@
 - **类型化 Cordis 事件**——每份产物落盘后发出 `industry-research/map`、`industry-research/track`、`industry-research/report`。
 
 ## Quick start
+
+```sh
+dsh plugin --profile web add github:PerryLink/dsh-industry-research
+```
 
 ### git 渠道
 

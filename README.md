@@ -38,6 +38,14 @@
 *English:* part of a 40+ plugin family for DeepSeek Harness. If it is useful, **a star helps the next person find it** — nothing is gated behind it.
 
 
+## What is dsh-industry-research?
+
+Industry and company research domain pack for DeepSeek Harness.
+
+Chain maps, public-source tracking, company cards, and auditable reports — every number traces to a source, every gap is declared.
+
+![Terminal demo of dsh-industry-research: dsh-industry-research — install, then the three artifacts](https://raw.githubusercontent.com/PerryLink/dsh-industry-research/main/docs/assets/dsh-industry-research-demo.png)
+
 ## Compatibility
 
 - DeepSeek Harness `dsh-v0.2.1-alpha.1` (published npm line, verified 2026-09-25; peers `>=0.1.2-rc.1 <0.2.0 || >=0.1.5-alpha.1 <0.2.0 || >=0.1.6-0 <0.2.0 || >=0.1.7-0 <0.2.0`).
@@ -58,6 +66,10 @@ Verified 2026-09-24 against the `0.1.7-rc.2` published peers (full gate chain; t
 - **Typed Cordis events** — `industry-research/map`, `industry-research/track`, `industry-research/report` emitted after each committed artifact.
 
 ## Quick start
+
+```sh
+dsh plugin --profile web add github:PerryLink/dsh-industry-research
+```
 
 ### git channel
 

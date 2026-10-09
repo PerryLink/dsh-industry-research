@@ -36,6 +36,14 @@
 यह प्लगइन [DSH प्लगइन परिवार](https://github.com/PerryLink) का हिस्सा है (40+ प्लगइन, सभी Apache-2.0)। अगर यह उपयोगी लगे, तो **एक स्टार दें** — इससे कोई सुविधा अनलॉक नहीं होती, पर अगला व्यक्ति इसे खोज में आसानी से पा लेता है।
 
 *English:* part of a 40+ plugin family for DeepSeek Harness. If it is useful, **a star helps the next person find it** — nothing is gated behind it.
+## What is dsh-industry-research?
+
+DeepSeek Harness के लिए उद्योग एवं कंपनी अनुसंधान डोमेन पैक।
+
+औद्योगिक श्रृंखला मानचित्र, सार्वजनिक-स्रोत ट्रैकिंग, कंपनी कार्ड और ऑडिट योग्य रिपोर्ट — हर आंकड़ा किसी स्रोत से जुड़ा है, हर अंतराल घोषित है।
+
+![dsh-industry-research का टर्मिनल डेमो: dsh-industry-research — install, then the three artifacts](https://raw.githubusercontent.com/PerryLink/dsh-industry-research/main/docs/assets/dsh-industry-research-demo.png)
+
 ## Compatibility
 
 - DeepSeek Harness `dsh-v0.2.1-alpha.1` (npm प्रकाशित लाइन, 2026-09-25 को सत्यापित; peers `>=0.1.2-rc.1 <0.2.0 || >=0.1.5-alpha.1 <0.2.0 || >=0.1.6-0 <0.2.0 || >=0.1.7-0 <0.2.0` पर)।
@@ -55,6 +63,10 @@
 - **टाइप किए गए Cordis इवेंट** — हर कमिट हुए आर्टिफ़ैक्ट के बाद `industry-research/map`, `industry-research/track`, `industry-research/report`।
 
 ## Quick start
+
+```sh
+dsh plugin --profile web add github:PerryLink/dsh-industry-research
+```
 
 ### git चैनल
 
