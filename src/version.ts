@@ -5,4 +5,4 @@
  */
 
 /** The package version. */
-export const VERSION = '0.3.18'
+export const VERSION = '0.3.19'
