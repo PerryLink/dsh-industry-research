@@ -45,6 +45,10 @@ DeepSeek Harness के लिए उद्योग एवं कंपनी �
 
 ![dsh-industry-research का टर्मिनल डेमो: dsh-industry-research — install, then the three artifacts](https://raw.githubusercontent.com/PerryLink/dsh-industry-research/main/docs/assets/dsh-industry-research-demo.png)
 
+![Animated terminal demo of dsh-industry-research](https://raw.githubusercontent.com/PerryLink/dsh-industry-research/main/docs/assets/dsh-industry-research-demo.gif)
+
+*वही रन, एनिमेटेड।*
+
 ## Compatibility
 
 - DeepSeek Harness `dsh-v0.2.1-alpha.1` (npm प्रकाशित लाइन, 2026-09-25 को सत्यापित; peers `>=0.1.2-rc.1 <0.2.0 || >=0.1.5-alpha.1 <0.2.0 || >=0.1.6-0 <0.2.0 || >=0.1.7-0 <0.2.0` पर)।

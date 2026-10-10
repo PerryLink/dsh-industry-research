@@ -45,6 +45,10 @@ DeepSeek Harness 的行业/公司研究领域包。
 
 ![dsh-industry-research 终端演示：dsh-industry-research — install, then the three artifacts](https://raw.githubusercontent.com/PerryLink/dsh-industry-research/main/docs/assets/dsh-industry-research-demo.png)
 
+![Animated terminal demo of dsh-industry-research](https://raw.githubusercontent.com/PerryLink/dsh-industry-research/main/docs/assets/dsh-industry-research-demo.gif)
+
+*同一次运行，动图版。*
+
 ## Compatibility
 
 - DeepSeek Harness `dsh-v0.2.1-alpha.1`（npm 发布线，2026-09-24 已核验；peer 范围 `>=0.1.2-rc.1 <0.2.0 || >=0.1.5-alpha.1 <0.2.0 || >=0.1.6-0 <0.2.0 || >=0.1.7-0 <0.2.0`）。
