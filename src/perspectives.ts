@@ -53,6 +53,11 @@ const BEAR_CAP = 12
  * @param evidenceIds - registered evidence ids (for dead-link checks).
  * @returns the bull/bear synthesis.
  */
+/** Format a metric so the numeric value stays verbatim in the evidence; the unit is separate in the snapshot. */
+function metricValueText(value: number, unit: string | undefined): string {
+  return unit === '%' ? `${value}（单位：%）` : `${value}${unit ?? ''}`
+}
+
 export function synthesizePerspectives(draft: ReportDraft, artifacts: LoadedArtifacts, evidenceIds: ReadonlySet<string>): PerspectivesSynthesis {
   const bull: PerspectivePoint[] = []
   const bear: PerspectivePoint[] = []
@@ -63,7 +68,7 @@ export function synthesizePerspectives(draft: ReportDraft, artifacts: LoadedArti
         if (metric.value === undefined || metric.sourceRef === undefined) continue
         if (bull.length >= BULL_CHAIN_CAP) break
         bull.push({
-          text: `产业链指标：${node.name} 的「${metric.key}」为 ${metric.value}${metric.unit ?? ''}${metric.asOf !== undefined ? `（截至 ${metric.asOf}` : ''}${metric.asOf !== undefined ? `，来源 ${metric.sourceRef}）` : ''}`,
+          text: `产业链指标：${node.name} 的「${metric.key}」为 ${metricValueText(metric.value, metric.unit)}${metric.asOf !== undefined ? `（截至 ${metric.asOf}` : ''}${metric.asOf !== undefined ? `，来源 ${metric.sourceRef}）` : ''}`,
           evidenceIds: ['E-chain'],
         })
       }
@@ -81,7 +86,7 @@ export function synthesizePerspectives(draft: ReportDraft, artifacts: LoadedArti
       if (cardPoints >= BULL_CARD_CAP) break
       cardPoints += 1
       bull.push({
-        text: `公司数据：${card.name} 的「${metric.key}」为 ${metric.value}${metric.unit ?? ''}（截至 ${metric.asOf}，来源 ${metric.source}）。`,
+        text: `公司数据：${card.name} 的「${metric.key}」为 ${metricValueText(metric.value, metric.unit)}（截至 ${metric.asOf}，来源 ${metric.source}）。`,
         evidenceIds: [`E-company-${card.slug}`],
       })
     }

@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.3.23] - 2026-10-19
+
+### Fixed
+
+- **Percentage metrics now produce verifiable claims (issue #10).** The snapshot stores `value` and `unit` separately, but the claim text concatenated them (`57.9%`), which the evidence matcher could not find. Percentage claims now read `57.9（单位：%）` while non-percentage units keep the previous `10元` form; regression test covers the percent case.
+
 ## [0.3.22] - 2026-10-18
 
 ### Changed

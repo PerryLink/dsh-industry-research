@@ -224,7 +224,7 @@ export function autoDraft(industry: string, artifacts: LoadedArtifacts, sections
           const id = `C-chain-${node.id}-${index}`
           claims.push({
             id,
-            text: `${node.name} 的 ${metric.key} 为 ${metric.value}${metric.unit ?? ''}（截至 ${metric.asOf}，来源 ${metric.sourceRef}）`,
+            text: `${node.name} 的 ${metric.key} 为 ${metric.value}${metric.unit === '%' ? '（单位：%）' : (metric.unit ?? '')}（截至 ${metric.asOf}，来源 ${metric.sourceRef}）`,
             evidenceIds: ['E-chain'],
           })
           metricClaims.push(id)

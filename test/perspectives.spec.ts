@@ -56,6 +56,26 @@ describe('synthesizePerspectives', () => {
     expect(synthesis.bear.some(point => point.text.includes('缺少政策与动态'))).toBe(true)
   })
 
+  it('keeps a percentage value verbatim while carrying the unit separately', () => {
+    const artifacts: LoadedArtifacts = {
+      cards: [],
+      gaps: [],
+      chain: {
+        path: '/c',
+        content: '',
+        map: {
+          industry: 'x',
+          nodes: [{ id: 'a', name: 'A', tier: 'upstream', metrics: [{ key: '占比', value: 57.9, unit: '%', asOf: '2026-08-01', sourceRef: 'S1' }] }],
+          edges: [],
+        },
+      },
+    }
+    const synthesis = synthesizePerspectives(draft(), artifacts, evidenceIds)
+    const text = synthesis.bull.map(point => point.text).join('\n')
+    expect(text).toContain('57.9（单位：%）')
+    expect(text).not.toContain('57.9%')
+  })
+
   it('surfaces data-quality findings on the bear side', () => {
     const artifacts: LoadedArtifacts = {
       cards: [],
