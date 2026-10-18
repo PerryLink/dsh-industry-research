@@ -21,6 +21,11 @@
 
 [English](README.md) · [简体中文](README-zh.md) · [Español](README-es.md) · [Português](README-pt.md) · [हिन्दी](README-hi.md)
 
+```sh
+dsh plugin --profile <name> add dsh-industry-research
+```
+
+
 </div>
 
 ---
@@ -31,6 +36,15 @@
 **📖 Base de conocimiento del ecosistema** — datos medidos, no marketing: [guía de desarrollo · datos de selección · criterios de mantenimiento](https://perrylink.github.io/dsh-plugin-guide/).
 
 <!-- star-cta -->
+## Install & uninstall
+
+```sh
+dsh plugin --profile demo add dsh-industry-research       # instalar
+dsh plugin --profile demo remove dsh-industry-research    # desinstalar
+```
+
+Verifica que la fila se monta: `dsh --profile demo --dump-config | grep dsh-industry-research`.
+
 ## ⭐ 如果它帮到了你
 
 Este plugin forma parte de la [familia de plugins DSH](https://github.com/PerryLink) (más de 40, todos Apache-2.0). Si te resulta útil, **dale una estrella**: no desbloquea nada, pero ayuda a que la siguiente persona lo encuentre antes.
@@ -95,15 +109,6 @@ Luego, en una sesión:
 加载 industry-research-method 技能，然后研究白酒行业：
 先 industry_map 建产业链图，再 industry_track 跟踪政策，最后 industry_report 出报告。
 ```
-
-## Install & uninstall
-
-```sh
-dsh plugin --profile demo add dsh-industry-research       # instalar
-dsh plugin --profile demo remove dsh-industry-research    # desinstalar
-```
-
-Verifica que la fila se monta: `dsh --profile demo --dump-config | grep dsh-industry-research`.
 
 ## Configuration
 
