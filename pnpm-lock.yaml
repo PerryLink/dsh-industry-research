@@ -7,13 +7,6 @@ settings:
 importers:
 
   .:
-    dependencies:
-      tsdown:
-        specifier: ^0.22.14
-        version: 0.22.14(typescript@5.9.3)
-      typescript:
-        specifier: ^5.9.0
-        version: 5.9.3
     devDependencies:
       '@deepseek-ai/cordis':
         specifier: ^4.0.5-alpha.1
@@ -75,6 +68,12 @@ importers:
       oxlint:
         specifier: 0.18.1
         version: 0.18.1
+      tsdown:
+        specifier: ^0.22.14
+        version: 0.22.14(typescript@5.9.3)
+      typescript:
+        specifier: ^5.9.0
+        version: 5.9.3
       vitest:
         specifier: ^3.2.0
         version: 3.2.7(@types/node@22.20.1)(yaml@2.9.0)

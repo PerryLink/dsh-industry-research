@@ -1,6 +1,6 @@
 {
   "name": "dsh-industry-research",
-  "version": "0.3.21",
+  "version": "0.3.22",
   "description": "Industry and company research domain pack for DeepSeek Harness: methodology skills, an industry-chain structure model (industry_map), public-source policy/news tracking over ctx.web (industry_track), company scan cards (company_scan), and auditable research reports with an optional ctx.researchReport sealing bridge and a builtin Markdown fallback (industry_report). Research only — not investment advice.",
   "author": "dsh-industry-research contributors",
   "repository": {
@@ -111,10 +111,7 @@
     "@deepseek-ai/dsh-tools": ">=0.1.2-rc.1 <0.2.0 || >=0.1.5-alpha.1 <0.2.0 || >=0.1.6-0 <0.2.0 || >=0.1.7-0 <0.2.0 || >=0.2.0-0 <0.3.0 || >=0.2.1-0 <0.3.0",
     "@deepseek-ai/schemastery": "^3.18.5-alpha.1"
   },
-  "dependencies": {
-    "tsdown": "^0.22.14",
-    "typescript": "^5.9.0"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@deepseek-ai/cordis": "^4.0.5-alpha.1",
     "@deepseek-ai/cordis-plugin-include": "^1.0.10-alpha.1",
@@ -136,7 +133,9 @@
     "oxlint": "0.18.1",
     "vitest": "^3.2.0",
     "@deepseek-ai/dsh-attachment": "0.2.1-rc.2",
-    "@deepseek-ai/dsh-working-directory": "0.2.1-rc.2"
+    "@deepseek-ai/dsh-working-directory": "0.2.1-rc.2",
+    "tsdown": "^0.22.14",
+    "typescript": "^5.9.0"
   },
   "scripts": {
     "build": "node scripts/prepare.mjs",
