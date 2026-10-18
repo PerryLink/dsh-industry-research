@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.3.21] - 2026-10-18
+
+### Changed
+
+- Add a 1280×720 hero and a 960×540, 4-second terminal GIF rendered from the test run; `screenshots.json` is an object array and `capture.json` records the command.
+
+## [0.3.20] - 2026-10-17
+
+### Fixed
+
+- **Background report/company jobs carry a SessionId owner and the originating tool call.** They passed the Agent object as `owner`, which the jobs service resolves through `agents.get()` and rejects with "has no live agent"; and they omitted `toolCall`, so the job was unlinked from the `tool_start` that created it. Both are fixed at the three `jobs.start` sites.
+- Compatibility: `engines.dsh` -> `>=0.2.1-0 <0.3.0`; devDependencies to `0.2.1-rc.2`; add `@deepseek-ai/dsh-working-directory`.
+
 All notable changes to this project are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),

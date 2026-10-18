@@ -310,7 +310,8 @@ export function buildIndustryReportTool(ctx: Context, config: ResolvedConfig) {
         const jobId = jobs.start({
           kind: 'subagent',
           label: '红方对抗审阅（魔鬼代言人）',
-          owner: exec.agent,
+          owner: exec.agent?.id,
+              toolCall: { callId: exec.callId, rootCallId: exec.rootCallId },
           run: () => {
             let cancelled = false
             const done = (async () => {
@@ -338,7 +339,8 @@ export function buildIndustryReportTool(ctx: Context, config: ResolvedConfig) {
         const jobId = jobs.start({
           kind: 'subagent',
           label: '多视角正反方辩论（bull/bear）',
-          owner: exec.agent,
+          owner: exec.agent?.id,
+              toolCall: { callId: exec.callId, rootCallId: exec.rootCallId },
           run: () => {
             let cancelled = false
             const done = (async () => {

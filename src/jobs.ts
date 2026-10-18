@@ -25,7 +25,9 @@ export interface JobHooksLike {
 export interface JobStartLike {
   kind: string
   label: string
-  owner?: unknown
+  owner?: string | undefined
+  /** Optional link back to the tool call that produced the job (host 0.2.x). */
+  toolCall?: { callId: string; rootCallId: string }
   run(): JobHooksLike
 }
 

@@ -44,7 +44,7 @@ Industry and company research domain pack for DeepSeek Harness.
 
 Chain maps, public-source tracking, company cards, and auditable reports — every number traces to a source, every gap is declared.
 
-![Terminal demo of dsh-industry-research: dsh-industry-research — install, then the three artifacts](https://raw.githubusercontent.com/PerryLink/dsh-industry-research/main/docs/assets/dsh-industry-research-demo.png)
+![Terminal demo of dsh-industry-research: dsh-industry-research — install, then the three artifacts](https://raw.githubusercontent.com/PerryLink/dsh-industry-research/main/docs/assets/dsh-industry-research-hero.png)
 
 ![Animated terminal demo of dsh-industry-research](https://raw.githubusercontent.com/PerryLink/dsh-industry-research/main/docs/assets/dsh-industry-research-demo.gif)
 

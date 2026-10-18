@@ -43,7 +43,7 @@ DeepSeek Harness 的行业/公司研究领域包。
 
 产业链建图、公开源跟踪、公司速览卡、可核查报告——每个数字都能回溯来源，每个缺口都如实声明。
 
-![dsh-industry-research 终端演示：dsh-industry-research — install, then the three artifacts](https://raw.githubusercontent.com/PerryLink/dsh-industry-research/main/docs/assets/dsh-industry-research-demo.png)
+![dsh-industry-research 终端演示：dsh-industry-research — install, then the three artifacts](https://raw.githubusercontent.com/PerryLink/dsh-industry-research/main/docs/assets/dsh-industry-research-hero.png)
 
 ![Animated terminal demo of dsh-industry-research](https://raw.githubusercontent.com/PerryLink/dsh-industry-research/main/docs/assets/dsh-industry-research-demo.gif)
 

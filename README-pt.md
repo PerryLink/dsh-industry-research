@@ -43,7 +43,7 @@ Pacote de domínio para pesquisa de indústrias e empresas no DeepSeek Harness.
 
 Mapas de cadeia industrial, acompanhamento de fontes públicas, cartões de empresa e relatórios auditáveis — cada número remonta a uma fonte, cada lacuna é declarada.
 
-![Demonstração de terminal do dsh-industry-research: dsh-industry-research — install, then the three artifacts](https://raw.githubusercontent.com/PerryLink/dsh-industry-research/main/docs/assets/dsh-industry-research-demo.png)
+![Demonstração de terminal do dsh-industry-research: dsh-industry-research — install, then the three artifacts](https://raw.githubusercontent.com/PerryLink/dsh-industry-research/main/docs/assets/dsh-industry-research-hero.png)
 
 ![Animated terminal demo of dsh-industry-research](https://raw.githubusercontent.com/PerryLink/dsh-industry-research/main/docs/assets/dsh-industry-research-demo.gif)
 

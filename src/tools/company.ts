@@ -331,7 +331,8 @@ export function buildCompanyScanTool(ctx: Context, config: ResolvedConfig) {
             jobs.start({
               kind: 'subagent',
               label: `company_scan: ${spec.name}`,
-              owner: exec.agent,
+              owner: exec.agent?.id,
+              toolCall: { callId: exec.callId, rootCallId: exec.rootCallId },
               run: () => {
                 void (async () => {
                   if (cancelled) { resolveDone({ status: 'killed' }); return }
