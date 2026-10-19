@@ -117,7 +117,33 @@ São os pontos de entrada reais; instale e chame um.
 
 #### Exemplo detalhado
 
-- `industry_map`
+**Comando**
+
+~~~sh
+industry_map({
+  industry: "示例",
+  web: false,
+  chain: {
+    nodes: [
+      { id: "up", name: "上游原料", tier: "upstream", metrics: [{ key: "价格", value: 10, unit: "元", asOf: "2026-01-01", sourceRef: "S1" }] },
+      { id: "down", name: "下游渠道", tier: "downstream", metrics: [{ key: "占比" }] }
+    ],
+    edges: [{ from: "up", to: "down" }]
+  }
+})
+~~~
+
+**Saída**
+
+~~~text
+行业「示例」产业链图：已校验并写入 /tmp/dsh-industry-research-test-Pxf1l8/industry-research/示例/chain.json
+节点 2 / 边 1；缺口 2 项。
+与上次相比：新增源 0，移除源 0，未变化证据 0。
+缺口清单：节点「下游渠道」(down) 的指标「占比」待补（无来源数值）；产业链缺少 midstream 层节点
+web 辅助未执行：调用方指定 web: false
+~~~
+
+*Observado em `README.md:151-153; test/map.spec.ts:44-51; src/tools/map.ts:157-163; src/chain.ts:177-194`*
 
 #### Exemplos breves
 
