@@ -57,9 +57,10 @@ DeepSeek Harness 的行业/公司研究领域包。
 
 产业链建图、公开源跟踪、公司速览卡、可核查报告——每个数字都能回溯来源，每个缺口都如实声明。
 
-![dsh-industry-research 终端演示：dsh-industry-research — install, then the three artifacts](https://raw.githubusercontent.com/PerryLink/dsh-industry-research/main/docs/assets/dsh-industry-research-hero.png)
+![dsh-industry-research 工作流图：问题 → 封存来源 → 报告。](docs/assets/dsh-industry-research-flow.svg)
 
-![Animated terminal demo of dsh-industry-research](https://raw.githubusercontent.com/PerryLink/dsh-industry-research/main/docs/assets/dsh-industry-research-demo.gif)
+*工作流概览：问题 → 封存来源 → 报告。下面的示例使用实际命令面。*
+
 
 *同一次运行，动图版。*
 
@@ -109,6 +110,20 @@ dsh plugin --profile demo add dsh-industry-research
 加载 industry-research-method 技能，然后研究白酒行业：
 先 industry_map 建产业链图，再 industry_track 跟踪政策，最后 industry_report 出报告。
 ```
+
+### 示例
+
+以下为插件真实入口；安装后调用一个即可。
+
+#### 详细示例
+
+- `industry_map`
+
+#### 简短示例
+
+- `industry_track`
+- `company_scan`
+- `industry_report`
 
 ## Configuration
 

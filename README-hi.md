@@ -57,9 +57,10 @@ DeepSeek Harness के लिए उद्योग एवं कंपनी �
 
 औद्योगिक श्रृंखला मानचित्र, सार्वजनिक-स्रोत ट्रैकिंग, कंपनी कार्ड और ऑडिट योग्य रिपोर्ट — हर आंकड़ा किसी स्रोत से जुड़ा है, हर अंतराल घोषित है।
 
-![dsh-industry-research का टर्मिनल डेमो: dsh-industry-research — install, then the three artifacts](https://raw.githubusercontent.com/PerryLink/dsh-industry-research/main/docs/assets/dsh-industry-research-hero.png)
+![dsh-industry-research कार्यप्रवाह आरेख: प्रश्न → सीलबंद स्रोत → रिपोर्ट।](docs/assets/dsh-industry-research-flow.svg)
 
-![Animated terminal demo of dsh-industry-research](https://raw.githubusercontent.com/PerryLink/dsh-industry-research/main/docs/assets/dsh-industry-research-demo.gif)
+*कार्यप्रवाह: प्रश्न → सीलबंद स्रोत → रिपोर्ट। नीचे के उदाहरण वास्तविक कमांड सतह का उपयोग करते हैं।*
+
 
 *वही रन, एनिमेटेड।*
 
@@ -109,6 +110,20 @@ dsh plugin --profile demo add dsh-industry-research
 加载 industry-research-method 技能，然后研究白酒行业：
 先 industry_map 建产业链图，再 industry_track 跟踪政策，最后 industry_report 出报告。
 ```
+
+### उदाहरण
+
+ये वास्तविक प्रवेश बिंदु हैं; इंस्टॉल के बाद एक चलाएँ।
+
+#### विस्तृत उदाहरण
+
+- `industry_map`
+
+#### संक्षिप्त उदाहरण
+
+- `industry_track`
+- `company_scan`
+- `industry_report`
 
 ## Configuration
 

@@ -57,9 +57,10 @@ Paquete de dominio para investigación de industrias y empresas en DeepSeek Harn
 
 Mapas de cadena industrial, seguimiento de fuentes públicas, tarjetas de empresa e informes auditables: cada cifra remonta a una fuente y cada laguna se declara.
 
-![Demostración de terminal de dsh-industry-research: dsh-industry-research — install, then the three artifacts](https://raw.githubusercontent.com/PerryLink/dsh-industry-research/main/docs/assets/dsh-industry-research-hero.png)
+![Diagrama de flujo de dsh-industry-research: pregunta → fuentes selladas → informe.](docs/assets/dsh-industry-research-flow.svg)
 
-![Animated terminal demo of dsh-industry-research](https://raw.githubusercontent.com/PerryLink/dsh-industry-research/main/docs/assets/dsh-industry-research-demo.gif)
+*Resumen del flujo: pregunta → fuentes selladas → informe. Los ejemplos siguientes usan la superficie de comandos real.*
+
 
 *La misma ejecución, animada.*
 
@@ -109,6 +110,20 @@ Luego, en una sesión:
 加载 industry-research-method 技能，然后研究白酒行业：
 先 industry_map 建产业链图，再 industry_track 跟踪政策，最后 industry_report 出报告。
 ```
+
+### Ejemplos
+
+Son los puntos de entrada reales; instala y llama a uno.
+
+#### Ejemplo detallado
+
+- `industry_map`
+
+#### Ejemplos breves
+
+- `industry_track`
+- `company_scan`
+- `industry_report`
 
 ## Configuration
 

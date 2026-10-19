@@ -57,9 +57,10 @@ Pacote de domínio para pesquisa de indústrias e empresas no DeepSeek Harness.
 
 Mapas de cadeia industrial, acompanhamento de fontes públicas, cartões de empresa e relatórios auditáveis — cada número remonta a uma fonte, cada lacuna é declarada.
 
-![Demonstração de terminal do dsh-industry-research: dsh-industry-research — install, then the three artifacts](https://raw.githubusercontent.com/PerryLink/dsh-industry-research/main/docs/assets/dsh-industry-research-hero.png)
+![Diagrama de fluxo de dsh-industry-research: pergunta → fontes seladas → relatório.](docs/assets/dsh-industry-research-flow.svg)
 
-![Animated terminal demo of dsh-industry-research](https://raw.githubusercontent.com/PerryLink/dsh-industry-research/main/docs/assets/dsh-industry-research-demo.gif)
+*Visão geral do fluxo: pergunta → fontes seladas → relatório. Os exemplos abaixo usam a superfície real de comandos.*
+
 
 *A mesma execução, animada.*
 
@@ -109,6 +110,20 @@ Depois, numa sessão:
 加载 industry-research-method 技能，然后研究白酒行业：
 先 industry_map 建产业链图，再 industry_track 跟踪政策，最后 industry_report 出报告。
 ```
+
+### Exemplos
+
+São os pontos de entrada reais; instale e chame um.
+
+#### Exemplo detalhado
+
+- `industry_map`
+
+#### Exemplos breves
+
+- `industry_track`
+- `company_scan`
+- `industry_report`
 
 ## Configuration
 

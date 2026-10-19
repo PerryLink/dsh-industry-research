@@ -58,11 +58,11 @@ Industry and company research domain pack for DeepSeek Harness.
 
 Chain maps, public-source tracking, company cards, and auditable reports — every number traces to a source, every gap is declared.
 
-![Terminal demo of dsh-industry-research: dsh-industry-research — install, then the three artifacts](https://raw.githubusercontent.com/PerryLink/dsh-industry-research/main/docs/assets/dsh-industry-research-hero.png)
+![Workflow diagram for dsh-industry-research: question → sealed sources → report.](docs/assets/dsh-industry-research-flow.svg)
 
-![Animated terminal demo of dsh-industry-research](https://raw.githubusercontent.com/PerryLink/dsh-industry-research/main/docs/assets/dsh-industry-research-demo.gif)
+*Workflow overview: question → sealed sources → report. The examples below use the real command surface.*
 
-*The same run, animated.*
+
 
 ## Compatibility
 
@@ -111,6 +111,20 @@ Then, in a session:
 加载 industry-research-method 技能，然后研究白酒行业：
 先 industry_map 建产业链图，再 industry_track 跟踪政策，最后 industry_report 出报告。
 ```
+
+### Examples
+
+These are the plugin's real entry points; install once, then call one.
+
+#### Detailed example
+
+- `industry_map`
+
+#### Brief examples
+
+- `industry_track`
+- `company_scan`
+- `industry_report`
 
 ## Configuration
 
