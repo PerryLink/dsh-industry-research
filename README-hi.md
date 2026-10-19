@@ -145,6 +145,22 @@ web 辅助未执行：调用方指定 web: false
 
 *स्रोत `README.md:151-153; test/map.spec.ts:44-51; src/tools/map.ts:157-163; src/chain.ts:177-194`*
 
+#### विफलता शाखा
+
+**इनपुट**
+
+~~~text
+{"industry":"白酒","web":false,"chain":{"industry":"白酒","nodes":[{"id":"upstream-1","name":"高粱种植","tier":"upstream","metrics":[{"key":"市场规模","value":120,"unit":"亿元"}]}],"edges":[]}}
+~~~
+
+**आउटपुट**
+
+~~~text
+isError=true; error.message=chain 校验失败（1 项）：node "upstream-1" metric "市场规模" carries a value without a sourceRef — register the source or mark the slot 待补 (omit value)
+~~~
+
+*स्रोत `plugins/dsh-industry-research/src/chain.ts:158-159 (rule); plugins/dsh-industry-research/src/tools/map.ts:232-234 (throw); plugins/dsh-industry-research/README.md:179 (unsourced values fail loud); exercised through plugins/dsh-industry-research/test/harness.ts`*
+
 #### संक्षिप्त उदाहरण
 
 - `industry_track`
