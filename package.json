@@ -119,7 +119,7 @@
     "@deepseek-ai/dsh-agent": "0.2.1-rc.2",
     "@deepseek-ai/dsh-llm": "0.2.1-rc.2",
     "@deepseek-ai/dsh-sandbox": "0.2.1-rc.2",
-    "dsh-research-report": "0.3.22",
+    "dsh-research-report": "0.3.30",
     "@deepseek-ai/dsh-session": "0.2.1-rc.2",
     "@deepseek-ai/dsh-skill": "0.2.1-rc.2",
     "@deepseek-ai/dsh-skill-filesystem": "0.2.1-rc.2",
