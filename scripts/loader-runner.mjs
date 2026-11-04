@@ -60,6 +60,8 @@ try {
     config: { path: pathToFileURL(configPath).href },
   })
   await ctx.loader.await()
+  // cordis 4.1.0 settles a failed row on its fiber instead of rejecting await().
+  for (const entry of ctx.loader.entries()) await entry.fiber
   await rethrowFirstFailedRow()
 
   // Authoritative registries carry the plugin's contributions.
@@ -96,10 +98,8 @@ try {
   })
 
   // Real behavior 1: industry_map writes a validated chain into the workspace.
-  const mapped = await ctx.tools.execute({
-    callId: CallId('call-map'),
-    name: 'industry_map',
-    arguments: {
+  const mapBatch = await ctx.tools.execute({
+    calls: [{ type: 'tool-call', id: CallId('call-map'), name: 'industry_map', arguments: JSON.stringify({
       industry: 'demo',
       chain: {
         industry: 'demo',
@@ -109,10 +109,12 @@ try {
         ],
         edges: [{ from: 'up', to: 'down' }],
       },
-    },
+    }) }],
     agent,
     signal: new AbortController().signal,
   })
+  const mapped = mapBatch.results[0]?.result
+  if (mapped === undefined) throw new Error('industry_map settled no result')
   if (mapped.isError) throw new Error(`industry_map failed: ${mapped.error?.message ?? 'unknown'}`)
   const mapValue = /** @type {any} */ (mapped.value)
   if (mapValue?.updated !== true || !Array.isArray(mapValue?.gaps)) {
@@ -120,13 +122,13 @@ try {
   }
 
   // Real behavior 2: industry_track without ctx.web fails loud with guidance.
-  const tracked = await ctx.tools.execute({
-    callId: CallId('call-track'),
-    name: 'industry_track',
-    arguments: { industry: 'demo' },
+  const trackBatch = await ctx.tools.execute({
+    calls: [{ type: 'tool-call', id: CallId('call-track'), name: 'industry_track', arguments: JSON.stringify({ industry: 'demo' }) }],
     agent,
     signal: new AbortController().signal,
   })
+  const tracked = trackBatch.results[0]?.result
+  if (tracked === undefined) throw new Error('industry_track settled no result')
   if (!tracked.isError || !String(tracked.error?.message ?? '').includes('ctx.web')) {
     throw new Error(`industry_track without ctx.web must fail loud naming ctx.web, got: ${JSON.stringify(tracked.error)}`)
   }

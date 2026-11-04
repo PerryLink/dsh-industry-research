@@ -28,6 +28,7 @@ function configFor(pluginRow: string, configLines: string[] = []): string {
     "- name: '@deepseek-ai/dsh-session'",
     "- name: '@deepseek-ai/dsh-system-prompt'",
     "- name: '@deepseek-ai/dsh-tools'",
+    "- name: '@deepseek-ai/dsh-tool-executor-native'",
     "- name: '@deepseek-ai/dsh-skill'",
     `- name: ${JSON.stringify(pluginRow)}`,
     ...(configLines.length > 0 ? ['  config:', ...configLines.map(line => `    ${line}`)] : []),

@@ -16,6 +16,7 @@ import path from 'node:path'
 import SessionStore, { SessionId, type Session } from '@deepseek-ai/dsh-session'
 import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
 import ToolRuntime, { type ToolExecutionResult } from '@deepseek-ai/dsh-tools'
+import * as NativeToolExecutor from '@deepseek-ai/dsh-tool-executor-native'
 import SkillRegistry from '@deepseek-ai/dsh-skill'
 import WebRuntime from '@deepseek-ai/dsh-web'
 import type { WebFetchProvider, WebSearchProvider } from '@deepseek-ai/dsh-web'
@@ -50,6 +51,8 @@ export async function mountBase(sessionId = 'ir-harness'): Promise<BaseHarness> 
   const session = ctx.sessions.create(SessionId(sessionId), { meta: { cwd: workspace } })
   await ctx.plugin(SystemPrompt, { personaPrefix: '' })
   await ctx.plugin(ToolRuntime)
+  // 0.2.2: raw batch execution lives behind a pluggable executor.
+  await ctx.plugin(NativeToolExecutor)
   await ctx.plugin(SkillRegistry)
   const agent = {
     session,
@@ -90,13 +93,17 @@ let callCounter = 0
 /** Execute one tool through the real registry pipeline as the harness agent. */
 export async function callTool(base: BaseHarness, name: string, args: unknown): Promise<ToolExecutionResult> {
   callCounter += 1
-  return base.ctx.tools.execute({
+  // 0.2.2: execute() takes a whole batch and settles one result per call.
+  const encoded = JSON.stringify(args)
+  if (encoded === undefined) throw new TypeError('tool arguments must encode as JSON')
+  const batch = await base.ctx.tools.execute({
+    calls: [{ type: 'tool-call', id: CallId(`ir-call-${callCounter}`), name, arguments: encoded }],
     signal: new AbortController().signal,
-    callId: CallId(`ir-call-${callCounter}`),
-    name,
-    arguments: args,
     agent: base.agent,
   })
+  const outcome = batch.results[0]
+  if (outcome === undefined) throw new Error(`tool executor settled no result for ${name}`)
+  return outcome.result
 }
 
 /**
