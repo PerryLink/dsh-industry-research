@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-label="dsh-industry-research workflow">
+<title>dsh-industry-research workflow</title>
+<rect width="1200" height="420" rx="18" fill="#ffffff"/>
+<text x="60" y="62" fill="#1f2328" font-family="ui-sans-serif,system-ui,sans-serif" font-size="30" font-weight="700">dsh-industry-research</text>
+<text x="60" y="94" fill="#57606a" font-family="ui-monospace,monospace" font-size="16">industryRoot/&lt;industry&gt; · 4 tools · 2 skills · research only</text>
+<line x1="60" y1="116" x2="1140" y2="116" stroke="#d0d7de"/>
+<rect x="60" y="150" width="180" height="96" rx="14" fill="#f6f8fa" stroke="#4B67B4" stroke-width="2"/>
+<text x="150" y="190" fill="#1f2328" text-anchor="middle" font-family="ui-monospace,monospace" font-size="16" font-weight="700">industry_map</text>
+<text x="150" y="218" fill="#57606a" text-anchor="middle" font-family="ui-monospace,monospace" font-size="12">chain.json + sources.json</text>
+<path d="M246 198h33" stroke="#57606a" stroke-width="3"/>
+<path d="M277 191l10 7-10 7" fill="none" stroke="#57606a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="285" y="150" width="180" height="96" rx="14" fill="#f6f8fa" stroke="#d0d7de" stroke-width="2"/>
+<text x="375" y="190" fill="#1f2328" text-anchor="middle" font-family="ui-monospace,monospace" font-size="16" font-weight="700">industry_track</text>
+<text x="375" y="218" fill="#57606a" text-anchor="middle" font-family="ui-monospace,monospace" font-size="12">timeline.jsonl</text>
+<path d="M471 198h33" stroke="#57606a" stroke-width="3"/>
+<path d="M502 191l10 7-10 7" fill="none" stroke="#57606a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="510" y="150" width="180" height="96" rx="14" fill="#f6f8fa" stroke="#d0d7de" stroke-width="2"/>
+<text x="600" y="190" fill="#1f2328" text-anchor="middle" font-family="ui-monospace,monospace" font-size="16" font-weight="700">company_scan</text>
+<text x="600" y="218" fill="#57606a" text-anchor="middle" font-family="ui-monospace,monospace" font-size="12">card.json + card.md</text>
+<path d="M696 198h33" stroke="#57606a" stroke-width="3"/>
+<path d="M727 191l10 7-10 7" fill="none" stroke="#57606a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="735" y="150" width="180" height="96" rx="14" fill="#f6f8fa" stroke="#4B67B4" stroke-width="2"/>
+<text x="825" y="190" fill="#1f2328" text-anchor="middle" font-family="ui-monospace,monospace" font-size="16" font-weight="700">industry_report</text>
+<text x="825" y="218" fill="#57606a" text-anchor="middle" font-family="ui-monospace,monospace" font-size="12">report.md + claims</text>
+<path d="M921 198h33" stroke="#57606a" stroke-width="3"/>
+<path d="M952 191l10 7-10 7" fill="none" stroke="#57606a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="960" y="150" width="180" height="96" rx="14" fill="#f6f8fa" stroke="#16a34a" stroke-width="2"/>
+<text x="1050" y="190" fill="#1f2328" text-anchor="middle" font-family="ui-monospace,monospace" font-size="16" font-weight="700">reports/&lt;ts&gt;/</text>
+<text x="1050" y="218" fill="#57606a" text-anchor="middle" font-family="ui-monospace,monospace" font-size="12">manifest.json</text>
+<path d="M375 246v54" stroke="#4B67B4" stroke-width="2" stroke-dasharray="5 5"/>
+<path d="M600 246v54" stroke="#4B67B4" stroke-width="2" stroke-dasharray="5 5"/>
+<path d="M825 246v54" stroke="#4B67B4" stroke-width="2" stroke-dasharray="5 5"/>
+<rect x="60" y="300" width="1080" height="52" rx="12" fill="#f6f8fa" stroke="#4B67B4" stroke-width="2"/>
+<text x="600" y="333" fill="#1f2328" text-anchor="middle" font-family="ui-monospace,monospace" font-size="14">ctx.web · ctx.researchReport · ctx.jobs — optional lookups, never injected</text>
+<text x="60" y="392" fill="#57606a" font-family="ui-monospace,monospace" font-size="13">versions.jsonl · SHA-256 provenance · unsourced value = gap, never a number</text>
+</svg>
