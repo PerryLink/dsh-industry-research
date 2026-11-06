@@ -1,8 +1,8 @@
 <div align="center">
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-industry-research-flow-dark.svg">
-  <img src="docs/assets/dsh-industry-research-flow-light.svg" width="100%" alt="dsh-industry-research 工作流：industry_map → industry_track → company_scan → industry_report → reports/&lt;ts&gt;；产物落在 industryRoot/&lt;行业&gt;/">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-industry-research-hero-zh-dark.webp">
+  <img src="docs/assets/dsh-industry-research-hero-zh-light.webp" width="100%" alt="dsh-industry-research 封面：左列是插件名、标题「行业研究可核查」、两行价值句（四个工具一条可回放的证据链；每个数字带来源与日期，缺口如实声明）、流程副标与 meta；右侧是一份教学样例研究档案——白酒产业链三层（上游高粱种植 价格 10 元 · S1 · 2026-01-01；中游酿造与下游渠道为待补缺口）、证据登记 E-chain / E-timeline / E-company-&lt;slug&gt; 各带 sha256、交付契约 4/4（区块齐全 / 来源/日期校验 / 占位符 0 / claims→证据）、以及 reports/&lt;YYYYMMDD-HHmmss&gt;/report.md + manifest.json 的封存与降级两条交付路径；底部是 versions.jsonl 版本账本">
 </picture>
 
 # dsh-industry-research
@@ -37,6 +37,11 @@ dsh plugin --profile <name> add dsh-industry-research
 ## 它是什么
 
 `dsh-industry-research` 把行业研究拆成一条可回放的流水线：先建产业链结构图，再跟踪公开源政策与要闻，然后扫描公司出速览卡，最后组装成可核查报告。每个带值的指标必须带 `sourceRef`，每个缺口是显式槽位而不是编造的数字；报告要么交给封存引擎，要么走内置降级路径并如实标注。它只做研究支持：不接交易、不预测价格、不使用付费或需登录的数据源。
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-industry-research-flow-v5-dark.svg">
+  <img src="docs/assets/dsh-industry-research-flow-v5-light.svg" width="100%" alt="dsh-industry-research 结构图：三源汇流——左侧 industry_map（chain.json + sources.json + 可选 chain.svg）、industry_track（timeline.jsonl）、company_scan（card.json + card.md）分别汇入证据登记簿（E-chain / E-timeline / E-company-&lt;slug&gt;，逐份 sha256）；industry_report 契约闸门校验区块与段落、来源与日期（sourceRef / statusAsOf / card asOf）、占位符残留与 claims→evidenceIds，并跑确定性对抗检查、可选 ctx.jobs 红方审阅与正反方；右侧双出海口：ctx.researchReport 封存（sealHash + 逐 claim 结论）或 builtin-fallback（reports/&lt;ts&gt;/report.md + manifest.json，claims unverified）；底部 versions.jsonl 账本带记录 map/scan/report 的每次落盘，读取时校验哈希、不一致即响亮失败；虚线表示 ctx.web / ctx.jobs 等运行时查找的可选缝隙">
+</picture>
 
 ## 三步上手
 

@@ -1,8 +1,8 @@
 <div align="center">
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-industry-research-flow-dark.svg">
-  <img src="docs/assets/dsh-industry-research-flow-light.svg" width="100%" alt="dsh-industry-research workflow: industry_map → industry_track → company_scan → industry_report → reports/&lt;ts&gt;; artifacts land under industryRoot/&lt;industry&gt;/">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-industry-research-hero-en-dark.webp">
+  <img src="docs/assets/dsh-industry-research-hero-en-light.webp" width="100%" alt="dsh-industry-research hero: left, the plugin name, the headline 'Industry research', two value lines (every number sourced and dated; every gap declared, never filled), the pipeline subtitle and meta lines; right, a teaching-fixture research dossier — a three-tier baijiu chain (upstream sorghum at 10 CNY with source S1 as of 2026-01-01; midstream brewing and downstream channels marked pending as explicit gaps), the evidence register E-chain / E-timeline / E-company-&lt;slug&gt; with sha256, a 4/4 delivery contract (blocks complete / source-asOf checks / placeholders 0 / claims→evidence), and the two delivery paths for reports/&lt;YYYYMMDD-HHmmss&gt;/report.md + manifest.json: the ctx.researchReport sealing engine or the builtin fallback; the versions.jsonl ledger sits at the bottom">
 </picture>
 
 # dsh-industry-research
@@ -37,6 +37,11 @@ dsh plugin --profile <name> add dsh-industry-research
 ## What it is
 
 `dsh-industry-research` splits industry research into a replayable pipeline: build the industry-chain map, track public-source policy and news, scan companies into cards, then assemble an auditable report. Every metric with a value must carry a `sourceRef`; every gap is an explicit slot rather than a fabricated number; a report either goes to the sealing engine or takes the builtin fallback path and says so honestly. Research support only: no trading, no price prediction, no paid or login-walled sources.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-industry-research-flow-v5-dark.svg">
+  <img src="docs/assets/dsh-industry-research-flow-v5-light.svg" width="100%" alt="dsh-industry-research structure: three producers converge — industry_map (chain.json + sources.json, optional chain.svg), industry_track (timeline.jsonl) and company_scan (card.json + card.md) — into one evidence register (E-chain / E-timeline / E-company-&lt;slug&gt;, each with sha256); the industry_report contract gate checks blocks and paragraphs, source and asOf requirements, placeholder residue and claims→evidenceIds, plus a deterministic adversarial check and optional ctx.jobs red review and bull/bear notes; two outlets: ctx.researchReport sealed (sealHash + per-claim verdicts) or builtin-fallback (reports/&lt;ts&gt;/report.md + manifest.json, claims unverified); the versions.jsonl ledger tape records every map/scan/report write and verifies the hash on read, failing loud on mismatch; dashed strokes mark optional runtime seams such as ctx.web and ctx.jobs">
+</picture>
 
 ## Three-step setup
 

@@ -1,8 +1,8 @@
 <div align="center">
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-industry-research-flow-dark.svg">
-  <img src="docs/assets/dsh-industry-research-flow-light.svg" width="100%" alt="Flujo de dsh-industry-research: industry_map → industry_track → company_scan → industry_report → reports/&lt;ts&gt;; los artefactos quedan en industryRoot/&lt;industria&gt;/">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-industry-research-hero-en-dark.webp">
+  <img src="docs/assets/dsh-industry-research-hero-en-light.webp" width="100%" alt="Portada de dsh-industry-research: a la izquierda, el nombre del plugin, el titular «Industry research», dos líneas de valor (cada número con fuente y fecha; cada hueco declarado, nunca rellenado), el subtítulo del pipeline y las líneas meta; a la derecha, un dosier de investigación de ejemplo didáctico — cadena de tres niveles del baijiu (upstream sorgo a 10 CNY con fuente S1 y fecha 2026-01-01; midstream y downstream marcados como pendientes, huecos explícitos), el registro de evidencia E-chain / E-timeline / E-company-&lt;slug&gt; con sha256, un contrato de entrega 4/4 (bloques completos / comprobación de fuente y asOf / placeholders 0 / claims→evidencia) y las dos vías para reports/&lt;YYYYMMDD-HHmmss&gt;/report.md + manifest.json: el motor de sellado ctx.researchReport o el fallback integrado; abajo, el libro versions.jsonl">
 </picture>
 
 # dsh-industry-research
@@ -37,6 +37,11 @@ dsh plugin --profile <name> add dsh-industry-research
 ## Qué es
 
 `dsh-industry-research` divide la investigación sectorial en una tubería reproducible: construir el mapa de la cadena industrial, seguir políticas y noticias de fuentes públicas, escanear empresas en fichas y, por último, ensamblar un informe auditable. Toda métrica con valor debe llevar un `sourceRef`; todo hueco es una ranura explícita y no una cifra inventada; el informe se entrega al motor de sellado o toma la ruta de respaldo integrada y lo declara con honestidad. Solo apoyo a la investigación: sin trading, sin predicción de precios y sin fuentes de pago o con muro de acceso.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-industry-research-flow-v5-dark.svg">
+  <img src="docs/assets/dsh-industry-research-flow-v5-light.svg" width="100%" alt="Estructura de dsh-industry-research: tres productores convergen — industry_map (chain.json + sources.json, chain.svg opcional), industry_track (timeline.jsonl) y company_scan (card.json + card.md) — en un registro de evidencia (E-chain / E-timeline / E-company-&lt;slug&gt;, cada uno con sha256); la compuerta de contrato de industry_report comprueba bloques y párrafos, requisitos de fuente y asOf, residuos de placeholder y claims→evidenceIds, además de una revisión adversarial determinista y, opcionalmente, revisión roja y notas bull/bear vía ctx.jobs; dos salidas: ctx.researchReport sellado (sealHash + veredictos por claim) o builtin-fallback (reports/&lt;ts&gt;/report.md + manifest.json, claims unverified); la cinta versions.jsonl registra cada escritura de map/scan/report y verifica el hash al leer, fallando en voz alta si no coincide; las líneas discontinuas marcan capacidades opcionales como ctx.web y ctx.jobs">
+</picture>
 
 ## Instalación en tres pasos
 

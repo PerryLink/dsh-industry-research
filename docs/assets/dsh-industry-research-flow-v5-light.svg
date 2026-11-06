@@ -1,0 +1,144 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="660" viewBox="0 0 1100 660" role="img" aria-label="dsh-industry-research structure: three producers (industry_map, industry_track, company_scan) converge into one evidence register (E-chain, E-timeline, E-company-&lt;slug&gt;), pass the industry_report contract gate (delivery contract plus a deterministic adversarial check and optional ctx.jobs notes), and leave through two outlets (ctx.researchReport sealed path or builtin-fallback); a versions.jsonl ledger tape records each write and verifies the hash on read">
+<title>dsh-industry-research: three producers, one contract gate, two deliveries</title>
+<defs>
+<linearGradient id="bg" x1="0" y1="0" x2="0.4" y2="1"><stop offset="0" stop-color="#f9f6fd"/><stop offset="1" stop-color="#e4eaf8"/></linearGradient>
+<filter id="soft" x="-25%" y="-25%" width="150%" height="160%"><feDropShadow dx="0" dy="6" stdDeviation="9" flood-color="#201a40" flood-opacity="0.13"/></filter>
+<pattern id="rules" width="10" height="30" patternUnits="userSpaceOnUse"><path d="M0 29.5H10" stroke="#e7e4f0" stroke-width="1"/></pattern>
+</defs>
+<rect width="1100" height="660" fill="url(#bg)"/>
+<rect width="1100" height="660" fill="url(#rules)" opacity="0.45"/>
+<text x="44.0" y="48.0" fill="#4B67B4" font-size="11" font-family="Cascadia Mono, Consolas, ui-monospace, monospace" letter-spacing="1.4">DSH- INDUSTRY-RESEARCH · STRUCTURE</text>
+<text x="44.0" y="76.0" fill="#171a2b" font-size="21" font-family="Segoe UI, Microsoft YaHei, ui-sans-serif, system-ui, sans-serif" font-weight="700">Three producers · one contract gate · two deliveries</text>
+<text x="44.0" y="98.0" fill="#4d5261" font-size="12" font-family="Segoe UI, Microsoft YaHei, ui-sans-serif, system-ui, sans-serif">research only · public sources · a source and a date on every value</text>
+<text x="1056.0" y="48.0" fill="#8b90a1" font-size="11" font-family="Segoe UI, Microsoft YaHei, ui-sans-serif, system-ui, sans-serif" text-anchor="end">4 tools · 2 skills · 1 gate</text>
+<line x1="712" y1="54" x2="738" y2="54" stroke="#4B67B4" stroke-width="2" stroke-linecap="round"/>
+<text x="746.0" y="58.0" fill="#4d5261" font-size="11" font-family="Segoe UI, Microsoft YaHei, ui-sans-serif, system-ui, sans-serif">main path</text>
+<line x1="712" y1="76" x2="738" y2="76" stroke="#4B67B4" stroke-width="2" stroke-linecap="round" stroke-dasharray="4 4"/>
+<text x="746.0" y="80.0" fill="#4d5261" font-size="11" font-family="Segoe UI, Microsoft YaHei, ui-sans-serif, system-ui, sans-serif">optional seam · runtime lookup</text>
+<rect x="720" y="90" width="9" height="9" rx="2" fill="#4B67B4"/>
+<text x="746.0" y="102.0" fill="#4d5261" font-size="11" font-family="Segoe UI, Microsoft YaHei, ui-sans-serif, system-ui, sans-serif">artifact on disk</text>
+<line x1="44" y1="114" x2="1056" y2="114" stroke="#e7e4f0" stroke-width="1.5" stroke-linecap="round"/>
+<text x="44.0" y="136.0" fill="#4B67B4" font-size="11" font-family="Cascadia Mono, Consolas, ui-monospace, monospace" letter-spacing="1.1">PRODUCERS · artifacts under industryRoot/&lt;industry&gt;/</text>
+<rect x="44" y="148" width="386" height="118" rx="18" fill="#ffffff" stroke="#e3dfee" stroke-width="1.5" filter="url(#soft)"/>
+<rect x="44" y="160" width="4" height="94" rx="2" fill="#4B67B4" opacity="0.85"/>
+<text x="64.0" y="178.0" fill="#171a2b" font-size="15" font-family="Cascadia Mono, Consolas, ui-monospace, monospace" font-weight="700">industry_map</text>
+<rect x="348.0" y="162" width="64.0" height="20" rx="10" fill="#ece9f8" stroke="#4B67B4" stroke-width="1.2" stroke-dasharray="4 3"/>
+<text x="356.0" y="176.0" fill="#4B67B4" font-size="11" font-family="Cascadia Mono, Consolas, ui-monospace, monospace">ctx.web?</text>
+<text x="64.0" y="204.0" fill="#4d5261" font-size="12.5" font-family="Segoe UI, Microsoft YaHei, ui-sans-serif, system-ui, sans-serif">validate tiers, edges and metric slots</text>
+<text x="64.0" y="225.0" fill="#a86a1a" font-size="11" font-family="Segoe UI, Microsoft YaHei, ui-sans-serif, system-ui, sans-serif">value ⇒ sourceRef + asOf · no value = gap</text>
+<rect x="64" y="236" width="76.0" height="22" rx="11" fill="#ece9f8"/>
+<text x="72.0" y="251.0" fill="#4B67B4" font-size="11" font-family="Cascadia Mono, Consolas, ui-monospace, monospace">chain.json</text>
+<rect x="146.0" y="236" width="88.0" height="22" rx="11" fill="#f7f4fc"/>
+<text x="154.0" y="251.0" fill="#4d5261" font-size="11" font-family="Cascadia Mono, Consolas, ui-monospace, monospace">sources.json</text>
+<rect x="240.0" y="236" width="76.0" height="22" rx="11" fill="#f7f4fc"/>
+<text x="248.0" y="251.0" fill="#4d5261" font-size="11" font-family="Cascadia Mono, Consolas, ui-monospace, monospace">chain.svg?</text>
+<line x1="432" y1="207" x2="454" y2="207" stroke="#4B67B4" stroke-width="2" stroke-linecap="round"/>
+<path d="M456 203.28 L462 207 L456 210.72 Z" fill="#4B67B4"/>
+<rect x="44" y="280" width="386" height="118" rx="18" fill="#ffffff" stroke="#e3dfee" stroke-width="1.5" filter="url(#soft)"/>
+<rect x="44" y="292" width="4" height="94" rx="2" fill="#4B67B4" opacity="0.85"/>
+<text x="64.0" y="310.0" fill="#171a2b" font-size="15" font-family="Cascadia Mono, Consolas, ui-monospace, monospace" font-weight="700">industry_track</text>
+<rect x="300.0" y="294" width="112.0" height="20" rx="10" fill="#ece9f8" stroke="#4B67B4" stroke-width="1.2" stroke-dasharray="4 3"/>
+<text x="308.0" y="308.0" fill="#4B67B4" font-size="11" font-family="Cascadia Mono, Consolas, ui-monospace, monospace">ctx.web required</text>
+<text x="64.0" y="336.0" fill="#4d5261" font-size="12.5" font-family="Segoe UI, Microsoft YaHei, ui-sans-serif, system-ui, sans-serif">search, filter by host, snapshot pages</text>
+<text x="64.0" y="357.0" fill="#a86a1a" font-size="11" font-family="Segoe UI, Microsoft YaHei, ui-sans-serif, system-ui, sans-serif">host allow/block · since · offline:true · 6 categories</text>
+<rect x="64" y="368" width="100.0" height="22" rx="11" fill="#ece9f8"/>
+<text x="72.0" y="383.0" fill="#4B67B4" font-size="11" font-family="Cascadia Mono, Consolas, ui-monospace, monospace">timeline.jsonl</text>
+<line x1="432" y1="339" x2="454" y2="339" stroke="#4B67B4" stroke-width="2" stroke-linecap="round"/>
+<path d="M456 335.28 L462 339 L456 342.72 Z" fill="#4B67B4"/>
+<rect x="44" y="412" width="386" height="118" rx="18" fill="#ffffff" stroke="#e3dfee" stroke-width="1.5" filter="url(#soft)"/>
+<rect x="44" y="424" width="4" height="94" rx="2" fill="#4B67B4" opacity="0.85"/>
+<text x="64.0" y="442.0" fill="#171a2b" font-size="15" font-family="Cascadia Mono, Consolas, ui-monospace, monospace" font-weight="700">company_scan</text>
+<rect x="348.0" y="426" width="64.0" height="20" rx="10" fill="#ece9f8" stroke="#4B67B4" stroke-width="1.2" stroke-dasharray="4 3"/>
+<text x="356.0" y="440.0" fill="#4B67B4" font-size="11" font-family="Cascadia Mono, Consolas, ui-monospace, monospace">ctx.web?</text>
+<text x="64.0" y="468.0" fill="#4d5261" font-size="12.5" font-family="Segoe UI, Microsoft YaHei, ui-sans-serif, system-ui, sans-serif">read local files: outline, figures, hash</text>
+<text x="64.0" y="489.0" fill="#a86a1a" font-size="11" font-family="Segoe UI, Microsoft YaHei, ui-sans-serif, system-ui, sans-serif">status+asOf · ticker · metrics source+asOf · batch</text>
+<rect x="64" y="500" width="70.0" height="22" rx="11" fill="#ece9f8"/>
+<text x="72.0" y="515.0" fill="#4B67B4" font-size="11" font-family="Cascadia Mono, Consolas, ui-monospace, monospace">card.json</text>
+<rect x="140.0" y="500" width="58.0" height="22" rx="11" fill="#f7f4fc"/>
+<text x="148.0" y="515.0" fill="#4d5261" font-size="11" font-family="Cascadia Mono, Consolas, ui-monospace, monospace">card.md</text>
+<line x1="432" y1="471" x2="454" y2="471" stroke="#4B67B4" stroke-width="2" stroke-linecap="round"/>
+<path d="M456 467.28 L462 471 L456 474.72 Z" fill="#4B67B4"/>
+<rect x="452" y="148" width="248" height="382" rx="18" fill="#ffffff" stroke="#e3dfee" stroke-width="1.5" filter="url(#soft)"/>
+<text x="470.0" y="166.0" fill="#4B67B4" font-size="11" font-family="Cascadia Mono, Consolas, ui-monospace, monospace" letter-spacing="1.1">EVIDENCE REGISTER</text>
+<text x="682.0" y="166.0" fill="#8b90a1" font-size="11" font-family="Cascadia Mono, Consolas, ui-monospace, monospace" text-anchor="end">assemble()</text>
+<rect x="464" y="171" width="224" height="72" rx="12" fill="#f7f4fc" stroke="#e5e0f1" stroke-width="1.2"/>
+<text x="478.0" y="195.0" fill="#171a2b" font-size="13" font-family="Cascadia Mono, Consolas, ui-monospace, monospace" font-weight="700">E-chain</text>
+<text x="478.0" y="215.0" fill="#4d5261" font-size="11" font-family="Cascadia Mono, Consolas, ui-monospace, monospace">chain.json</text>
+<circle cx="486" cy="230" r="6" fill="#e8f6ee"/>
+<path d="M483.0 230.0 l2.0 2.0 l4.0 -4.3" fill="none" stroke="#1f8a5b" stroke-width="1.6800000000000002" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="498.0" y="234.0" fill="#1f8a5b" font-size="11" font-family="Cascadia Mono, Consolas, ui-monospace, monospace">sha256</text>
+<rect x="464" y="303" width="224" height="72" rx="12" fill="#f7f4fc" stroke="#e5e0f1" stroke-width="1.2"/>
+<text x="478.0" y="327.0" fill="#171a2b" font-size="13" font-family="Cascadia Mono, Consolas, ui-monospace, monospace" font-weight="700">E-timeline</text>
+<text x="478.0" y="347.0" fill="#4d5261" font-size="11" font-family="Cascadia Mono, Consolas, ui-monospace, monospace">timeline.jsonl</text>
+<circle cx="486" cy="362" r="6" fill="#e8f6ee"/>
+<path d="M483.0 362.0 l2.0 2.0 l4.0 -4.3" fill="none" stroke="#1f8a5b" stroke-width="1.6800000000000002" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="498.0" y="366.0" fill="#1f8a5b" font-size="11" font-family="Cascadia Mono, Consolas, ui-monospace, monospace">sha256</text>
+<rect x="464" y="435" width="224" height="72" rx="12" fill="#f7f4fc" stroke="#e5e0f1" stroke-width="1.2"/>
+<text x="478.0" y="459.0" fill="#171a2b" font-size="13" font-family="Cascadia Mono, Consolas, ui-monospace, monospace" font-weight="700">E-company-&lt;slug&gt;</text>
+<text x="478.0" y="479.0" fill="#4d5261" font-size="11" font-family="Cascadia Mono, Consolas, ui-monospace, monospace">card.json</text>
+<circle cx="486" cy="494" r="6" fill="#e8f6ee"/>
+<path d="M483.0 494.0 l2.0 2.0 l4.0 -4.3" fill="none" stroke="#1f8a5b" stroke-width="1.6800000000000002" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="498.0" y="498.0" fill="#1f8a5b" font-size="11" font-family="Cascadia Mono, Consolas, ui-monospace, monospace">sha256</text>
+<line x1="692" y1="207" x2="692" y2="471" stroke="#4B67B4" stroke-width="2" stroke-linecap="round" opacity="0.55"/>
+<circle cx="692" cy="207" r="3.6" fill="#4B67B4"/>
+<line x1="688" y1="207" x2="692" y2="207" stroke="#4B67B4" stroke-width="2" stroke-linecap="round"/>
+<circle cx="692" cy="339" r="3.6" fill="#4B67B4"/>
+<line x1="688" y1="339" x2="692" y2="339" stroke="#4B67B4" stroke-width="2" stroke-linecap="round"/>
+<circle cx="692" cy="471" r="3.6" fill="#4B67B4"/>
+<line x1="688" y1="471" x2="692" y2="471" stroke="#4B67B4" stroke-width="2" stroke-linecap="round"/>
+<line x1="692" y1="253" x2="728" y2="253" stroke="#4B67B4" stroke-width="2" stroke-linecap="round"/>
+<path d="M729 248.66 L736 253 L729 257.34 Z" fill="#4B67B4"/>
+<text x="478.0" y="522.0" fill="#8b90a1" font-size="11" font-family="Cascadia Mono, Consolas, ui-monospace, monospace">auto-draft · claims → evidenceIds</text>
+<rect x="736" y="148" width="320" height="210" rx="18" fill="#ffffff" stroke="#e3dfee" stroke-width="1.5" filter="url(#soft)"/>
+<text x="754.0" y="174.0" fill="#171a2b" font-size="15" font-family="Cascadia Mono, Consolas, ui-monospace, monospace" font-weight="700">industry_report</text>
+<text x="754.0" y="193.0" fill="#4B67B4" font-size="11" font-family="Segoe UI, Microsoft YaHei, ui-sans-serif, system-ui, sans-serif">assemble → contract gate</text>
+<circle cx="756" cy="210" r="6" fill="#e8f6ee"/>
+<path d="M753.0 210.0 l2.0 2.0 l4.0 -4.3" fill="none" stroke="#1f8a5b" stroke-width="1.6800000000000002" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="770.0" y="214.0" fill="#4d5261" font-size="11.5" font-family="Segoe UI, Microsoft YaHei, ui-sans-serif, system-ui, sans-serif">blocks + paragraphs present</text>
+<circle cx="756" cy="232" r="6" fill="#e8f6ee"/>
+<path d="M753.0 232.0 l2.0 2.0 l4.0 -4.3" fill="none" stroke="#1f8a5b" stroke-width="1.6800000000000002" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="770.0" y="236.0" fill="#4d5261" font-size="11.5" font-family="Segoe UI, Microsoft YaHei, ui-sans-serif, system-ui, sans-serif">value ⇒ sourceRef · statusAsOf</text>
+<circle cx="756" cy="254" r="6" fill="#e8f6ee"/>
+<path d="M753.0 254.0 l2.0 2.0 l4.0 -4.3" fill="none" stroke="#1f8a5b" stroke-width="1.6800000000000002" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="770.0" y="258.0" fill="#4d5261" font-size="11.5" font-family="Segoe UI, Microsoft YaHei, ui-sans-serif, system-ui, sans-serif">card metrics source + asOf</text>
+<circle cx="756" cy="276" r="6" fill="#e8f6ee"/>
+<path d="M753.0 276.0 l2.0 2.0 l4.0 -4.3" fill="none" stroke="#1f8a5b" stroke-width="1.6800000000000002" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="770.0" y="280.0" fill="#4d5261" font-size="11.5" font-family="Segoe UI, Microsoft YaHei, ui-sans-serif, system-ui, sans-serif">placeholders 0 · claims → evidence</text>
+<text x="754.0" y="304.0" fill="#4d5261" font-size="11" font-family="Segoe UI, Microsoft YaHei, ui-sans-serif, system-ui, sans-serif">deterministic adversarial check</text>
+<text x="754.0" y="326.0" fill="#4d5261" font-size="11" font-family="Segoe UI, Microsoft YaHei, ui-sans-serif, system-ui, sans-serif">red review + bull/bear notes</text>
+<rect x="970.0" y="314" width="70.0" height="19" rx="9" fill="#ece9f8" stroke="#4B67B4" stroke-width="1.2" stroke-dasharray="4 3"/>
+<text x="978.0" y="327.5" fill="#4B67B4" font-size="11" font-family="Cascadia Mono, Consolas, ui-monospace, monospace">ctx.jobs?</text>
+<text x="754.0" y="348.0" fill="#a86a1a" font-size="11" font-family="Segoe UI, Microsoft YaHei, ui-sans-serif, system-ui, sans-serif">fail loud · never ship a half report</text>
+<rect x="736" y="376" width="158" height="134" rx="16" fill="#ffffff" stroke="#4B67B4" stroke-width="1.8" filter="url(#soft)"/>
+<rect x="898" y="376" width="158" height="134" rx="16" fill="#ffffff" stroke="#e5e0f1" stroke-width="1.5" filter="url(#soft)"/>
+<text x="754.0" y="394.0" fill="#1f8a5b" font-size="11" font-family="Cascadia Mono, Consolas, ui-monospace, monospace" letter-spacing="1.1">SEALED</text>
+<text x="754.0" y="414.0" fill="#171a2b" font-size="13" font-family="Cascadia Mono, Consolas, ui-monospace, monospace" font-weight="700">researchReport</text>
+<text x="754.0" y="436.0" fill="#4d5261" font-size="11" font-family="Cascadia Mono, Consolas, ui-monospace, monospace">ctx.researchReport</text>
+<text x="754.0" y="454.0" fill="#4d5261" font-size="11" font-family="Cascadia Mono, Consolas, ui-monospace, monospace">assemble(evidence,</text>
+<text x="754.0" y="472.0" fill="#4d5261" font-size="11" font-family="Cascadia Mono, Consolas, ui-monospace, monospace">sections, claims)</text>
+<text x="754.0" y="490.0" fill="#4d5261" font-size="11" font-family="Cascadia Mono, Consolas, ui-monospace, monospace">sealHash · verdicts</text>
+<text x="916.0" y="394.0" fill="#a86a1a" font-size="11" font-family="Cascadia Mono, Consolas, ui-monospace, monospace" letter-spacing="1.1">FALLBACK</text>
+<text x="916.0" y="414.0" fill="#171a2b" font-size="13" font-family="Cascadia Mono, Consolas, ui-monospace, monospace" font-weight="700">builtin-fallback</text>
+<text x="916.0" y="436.0" fill="#4d5261" font-size="11" font-family="Cascadia Mono, Consolas, ui-monospace, monospace">reports/&lt;ts&gt;/</text>
+<text x="916.0" y="454.0" fill="#4d5261" font-size="11" font-family="Cascadia Mono, Consolas, ui-monospace, monospace">report.md</text>
+<text x="916.0" y="472.0" fill="#4d5261" font-size="11" font-family="Cascadia Mono, Consolas, ui-monospace, monospace">manifest.json</text>
+<text x="916.0" y="490.0" fill="#4d5261" font-size="11" font-family="Cascadia Mono, Consolas, ui-monospace, monospace">claims unverified</text>
+<path d="M896 358 V366 H815 V369" fill="none" stroke="#4B67B4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M811.28 370 L815 376 L818.72 370 Z" fill="#4B67B4"/>
+<path d="M896 358 V366 H977 V369" fill="none" stroke="#4B67B4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M973.28 370 L977 376 L980.72 370 Z" fill="#4B67B4"/>
+<text x="736.0" y="530.0" fill="#8b90a1" font-size="11" font-family="Segoe UI, Microsoft YaHei, ui-sans-serif, system-ui, sans-serif">research only · not investment advice</text>
+<rect x="44" y="544" width="1012" height="62" rx="14" fill="#f7f4fc" stroke="#e5e0f1" stroke-width="1.5"/>
+<rect x="44" y="552" width="3.5" height="46" rx="2" fill="#4B67B4"/>
+<text x="62.0" y="570.0" fill="#4B67B4" font-size="13" font-family="Cascadia Mono, Consolas, ui-monospace, monospace" font-weight="700">versions.jsonl</text>
+<text x="62.0" y="590.0" fill="#8b90a1" font-size="11" font-family="Cascadia Mono, Consolas, ui-monospace, monospace">artifact version ledger</text>
+<rect x="250" y="554" width="112.0" height="24" rx="12" fill="#ffffff"/>
+<text x="258.0" y="570.0" fill="#4d5261" font-size="11" font-family="Cascadia Mono, Consolas, ui-monospace, monospace">map → chain.json</text>
+<rect x="370.0" y="554" width="112.0" height="24" rx="12" fill="#ffffff"/>
+<text x="378.0" y="570.0" fill="#4d5261" font-size="11" font-family="Cascadia Mono, Consolas, ui-monospace, monospace">scan → card.json</text>
+<rect x="490.0" y="554" width="124.0" height="24" rx="12" fill="#ffffff"/>
+<text x="498.0" y="570.0" fill="#4d5261" font-size="11" font-family="Cascadia Mono, Consolas, ui-monospace, monospace">report → report.md</text>
+<text x="680.0" y="568.0" fill="#4d5261" font-size="11" font-family="Segoe UI, Microsoft YaHei, ui-sans-serif, system-ui, sans-serif">append: path · sha256 · capturedAt · change</text>
+<text x="680.0" y="590.0" fill="#a86a1a" font-size="11" font-family="Segoe UI, Microsoft YaHei, ui-sans-serif, system-ui, sans-serif">read → verify latest hash → mismatch fails loud</text>
+<text x="44.0" y="632.0" fill="#8b90a1" font-size="11" font-family="Segoe UI, Microsoft YaHei, ui-sans-serif, system-ui, sans-serif">optional seams (looked up at run time, never injected): ctx.web · ctx.researchReport · ctx.jobs · offline:true disables the web</text>
+</svg>

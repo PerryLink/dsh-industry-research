@@ -1,8 +1,8 @@
 <div align="center">
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-industry-research-flow-dark.svg">
-  <img src="docs/assets/dsh-industry-research-flow-light.svg" width="100%" alt="dsh-industry-research कार्यप्रवाह: industry_map → industry_track → company_scan → industry_report → reports/&lt;ts&gt;; आर्टिफ़ैक्ट industryRoot/&lt;उद्योग&gt;/ में रहते हैं">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-industry-research-hero-en-dark.webp">
+  <img src="docs/assets/dsh-industry-research-hero-en-light.webp" width="100%" alt="dsh-industry-research हीरो: बाईं ओर प्लगइन नाम, शीर्षक «Industry research», दो मूल्य पंक्तियाँ (हर संख्या स्रोत और तिथि के साथ; हर अंतराल स्पष्ट घोषित), पाइपलाइन उपशीर्षक और meta पंक्तियाँ; दाईं ओर एक शिक्षण-नमूना शोध डोज़ियर — तीन स्तरीय बैजियू श्रृंखला (अपस्ट्रीम सोरघम 10 CNY, स्रोत S1, तिथि 2026-01-01; मिडस्ट्रीम और डाउनस्ट्रीम में स्पष्ट «लंबित» अंतराल), E-chain / E-timeline / E-company-&lt;slug&gt; साक्ष्य रजिस्टर sha256 के साथ, 4/4 डिलीवरी अनुबंध (ब्लॉक पूर्ण / स्रोत और asOf जाँच / placeholders 0 / claims→साक्ष्य), और reports/&lt;YYYYMMDD-HHmmss&gt;/report.md + manifest.json के दो मार्ग — ctx.researchReport सीलिंग इंजन या builtin-fallback; नीचे versions.jsonl लेजर">
 </picture>
 
 # dsh-industry-research
@@ -37,6 +37,11 @@ dsh plugin --profile <name> add dsh-industry-research
 ## यह क्या है
 
 `dsh-industry-research` उद्योग शोध को एक दोहराने योग्य पाइपलाइन में बाँटता है: पहले उद्योग-श्रृंखला का नक्शा बनाएँ, फिर सार्वजनिक स्रोतों से नीति और समाचार ट्रैक करें, फिर कंपनियों को कार्ड में स्कैन करें, और अंत में एक जाँचने योग्य रिपोर्ट तैयार करें। मूल्य वाली हर मीट्रिक के साथ `sourceRef` अनिवार्य है; हर अंतराल एक स्पष्ट स्लॉट है, गढ़ी हुई संख्या नहीं; रिपोर्ट या तो सीलिंग इंजन को जाती है या अंतर्निहित फ़ॉलबैक मार्ग लेती है और यह ईमानदारी से घोषित करती है। केवल शोध-सहायता: कोई ट्रेडिंग नहीं, कोई मूल्य-पूर्वानुमान नहीं, कोई सशुल्क या लॉगिन-वाला स्रोत नहीं।
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-industry-research-flow-v5-dark.svg">
+  <img src="docs/assets/dsh-industry-research-flow-v5-light.svg" width="100%" alt="dsh-industry-research संरचना: तीन उत्पादक एक साथ आते हैं — industry_map (chain.json + sources.json, वैकल्पिक chain.svg), industry_track (timeline.jsonl) और company_scan (card.json + card.md) — एक साक्ष्य रजिस्टर में (E-chain / E-timeline / E-company-&lt;slug&gt;, हर एक sha256 के साथ); industry_report का अनुबंध-द्वार ब्लॉक और पैराग्राफ, स्रोत और asOf आवश्यकताएँ, placeholder अवशेष और claims→evidenceIds जाँचता है, साथ में निर्धारक adversarial जाँच और वैकल्पिक ctx.jobs लाल-टीम समीक्षा व bull/bear नोट्स; दो निकास: ctx.researchReport सीलबंद (sealHash + प्रति-claim निर्णय) या builtin-fallback (reports/&lt;ts&gt;/report.md + manifest.json, claims unverified); versions.jsonl लेजर हर map/scan/report लेखन दर्ज करता है और पढ़ते समय hash जाँचता है, मेल न खाने पर ज़ोर से विफल होता है; बिंदुदार रेखाएँ ctx.web और ctx.jobs जैसी वैकल्पिक रनटाइम क्षमताएँ दर्शाती हैं">
+</picture>
 
 ## तीन चरणों में शुरुआत
 
