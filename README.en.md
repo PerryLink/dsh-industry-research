@@ -309,7 +309,7 @@ The plugin consumes public seams only and takes over no shared resource:
 
 | Dimension | Status |
 |---|---|
-| Harness | DeepSeek Harness `dsh-v0.2.1-alpha.1` (published npm line, verified 2026-09-25); `package.json` declares `engine.dsh` `>=0.2.1-0 <0.3.0 \|\| >=0.2.2-0 <0.3.0`. 0.1.2-rc.1 (adapted 2026-09-02): the session envelope keeps its ignorable field for stored-log read compatibility only — Session.append still cannot stamp it, so audit-gate behavior is unchanged. Verified 2026-09-24 against the `0.1.7-rc.2` published peers (full gate chain; the real profile install smoke runs in the weekly and per-PR `compat.yml` job). |
+| Harness | DeepSeek Harness `dsh-v0.2.2-rc.4` (published npm line, verified 2026-11-18); `package.json` declares `engine.dsh` `>=0.2.1-0 <0.3.0 \|\| >=0.2.2-0 <0.3.0`. 0.1.2-rc.1 (adapted 2026-11-18): the session envelope keeps its ignorable field for stored-log read compatibility only — Session.append still cannot stamp it, so audit-gate behavior is unchanged. Verified 2026-11-18 against the `0.1.7-rc.2` published peers (full gate chain; the real profile install smoke runs in the weekly and per-PR `compat.yml` job). |
 | Node | `^22.19.0 \|\| >=24.9.0`, ESM only (`"type": "module"`). |
 | Peer dependencies | `@deepseek-ai/cordis ^4.0.5-alpha.1`, `@deepseek-ai/schemastery ^3.18.5-alpha.1`, and `@deepseek-ai/dsh-tools`, `@deepseek-ai/dsh-skill`, `@deepseek-ai/dsh-skill-filesystem` (peer range `>=0.1.2-rc.1 <0.2.0 \|\| >=0.1.5-alpha.1 <0.2.0 \|\| >=0.1.6-0 <0.2.0 \|\| >=0.1.7-0 <0.2.0 \|\| >=0.2.0-0 <0.3.0 \|\| >=0.2.1-0 <0.3.0 \|\| >=0.2.2-0 <0.3.0`; all composed by the official `dsh-base` bundle). |
 | Platform | Anywhere DSH runs; the tools are pure host-side TypeScript with no browser half. |

@@ -309,7 +309,7 @@ profile patch 覆盖示例：
 
 | 维度 | 状态 |
 |---|---|
-| Harness | DeepSeek Harness `dsh-v0.2.1-alpha.1`（npm 发布线，2026-09-25 已核验）；`package.json` 的 `engine.dsh` 声明 `>=0.2.1-0 <0.3.0 \|\| >=0.2.2-0 <0.3.0`。0.1.2-rc.1（2026-09-02 已适配）：会话信封保留 ignorable 字段但仅用于存量日志读取兼容——Session.append 仍无法盖章，门控行为不变。2026-09-24 已对照 `0.1.7-rc.2` 已发布 peer 实测（完整门禁链；真实 profile 安装冒烟由每周及每 PR 的 `compat.yml` 执行）。 |
+| Harness | DeepSeek Harness `dsh-v0.2.2-rc.4`（npm 发布线，2026-11-18 已核验）；`package.json` 的 `engine.dsh` 声明 `>=0.2.1-0 <0.3.0 \|\| >=0.2.2-0 <0.3.0`。0.1.2-rc.1（2026-11-18 已适配）：会话信封保留 ignorable 字段但仅用于存量日志读取兼容——Session.append 仍无法盖章，门控行为不变。2026-11-18 已对照 `0.1.7-rc.2` 已发布 peer 实测（完整门禁链；真实 profile 安装冒烟由每周及每 PR 的 `compat.yml` 执行）。 |
 | Node | `^22.19.0 \|\| >=24.9.0`，仅 ESM（`"type": "module"`）。 |
 | Peer 依赖 | `@deepseek-ai/cordis ^4.0.5-alpha.1`、`@deepseek-ai/schemastery ^3.18.5-alpha.1`，以及 `@deepseek-ai/dsh-tools`、`@deepseek-ai/dsh-skill`、`@deepseek-ai/dsh-skill-filesystem`（peer 范围 `>=0.1.2-rc.1 <0.2.0 \|\| >=0.1.5-alpha.1 <0.2.0 \|\| >=0.1.6-0 <0.2.0 \|\| >=0.1.7-0 <0.2.0 \|\| >=0.2.0-0 <0.3.0 \|\| >=0.2.1-0 <0.3.0 \|\| >=0.2.2-0 <0.3.0`，官方 `dsh-base` bundle 均已组合）。 |
 | 平台 | 任何 DSH 可运行处；工具是纯主机端 TypeScript，无浏览器半。 |
