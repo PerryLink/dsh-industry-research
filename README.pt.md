@@ -357,7 +357,7 @@ Tópicos: `dsh`, `dsh-plugin`, `deepseek-harness`, `cordis`, `industry-research`
 
 Este projeto faz parte da família de plugins do DeepSeek Harness mantida pela [PerryLink](https://github.com/PerryLink) (todos Apache-2.0). Se ele for útil, **uma estrela ajuda a próxima pessoa a encontrá-lo** — nada fica bloqueado por isso.
 
-- Design e implementação iniciais pela sessão de desenvolvimento do `dsh-industry-research` (DeepSeek Harness).
+- Design e implementação iniciais pela sessão de desenvolvimento do `dsh-v0.2.2-rc.4`（2026-11-18）；`dsh-industry-research` (DeepSeek Harness).
 - Contribuições externas são bem-vindas: abra uma issue ou um pull request.
 
 <details>

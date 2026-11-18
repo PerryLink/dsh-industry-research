@@ -357,7 +357,7 @@ pnpm run pack:check
 
 यह परियोजना [PerryLink](https://github.com/PerryLink) द्वारा अनुरक्षित DeepSeek Harness प्लगइन परिवार का हिस्सा है (सभी Apache-2.0)। अगर यह उपयोगी है, तो **एक स्टार अगले व्यक्ति को इसे खोजने में मदद करता है** — इसके पीछे कुछ भी बंद नहीं है।
 
-- प्रारंभिक डिज़ाइन और कार्यान्वयन: `dsh-industry-research` विकास सत्र (DeepSeek Harness)।
+- प्रारंभिक डिज़ाइन और कार्यान्वयन: `dsh-v0.2.2-rc.4`（2026-11-18）；`dsh-industry-research` विकास सत्र (DeepSeek Harness)।
 - बाहरी योगदान का स्वागत है — issue या pull request खोलें।
 
 <details>
