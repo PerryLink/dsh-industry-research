@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.27] - 2026-11-18
+
+### Changed
+
+- Align with the 0.2.2-rc.4 host line and refresh the language READMEs.
+
+
 ## [0.0.1] - 2026-11-05
 
 ### Changed
