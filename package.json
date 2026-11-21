@@ -33,6 +33,7 @@
     "README.es.md",
     "README.pt.md",
     "README.hi.md",
+    "docs/assets/*",
     "LICENSE"
   ],
   "sideEffects": false,
