@@ -43,6 +43,11 @@ O `dsh-industry-research` divide a pesquisa setorial em um pipeline reproduzíve
   <img src="docs/assets/dsh-industry-research-flow-v5-light.svg" width="100%" alt="Estrutura do dsh-industry-research: três produtores convergem — industry_map (chain.json + sources.json, chain.svg opcional), industry_track (timeline.jsonl) e company_scan (card.json + card.md) — num registro de evidência (E-chain / E-timeline / E-company-&lt;slug&gt;, cada um com sha256); o portão de contrato do industry_report verifica blocos e parágrafos, requisitos de fonte e asOf, resíduos de placeholder e claims→evidenceIds, além de uma checagem adversarial determinística e, opcionalmente, revisão vermelha e notas bull/bear via ctx.jobs; duas saídas: ctx.researchReport selado (sealHash + veredictos por claim) ou builtin-fallback (reports/&lt;ts&gt;/report.md + manifest.json, claims unverified); a fita versions.jsonl registra cada gravação de map/scan/report e verifica o hash na leitura, falhando alto se não coincidir; linhas tracejadas marcam capacidades opcionais como ctx.web e ctx.jobs">
 </picture>
 
+![dsh-industry-research: execução real de terminal](docs/assets/dsh-industry-research-demo.gif)
+
+*Repetição animada de uma execução real registrada neste repositório.*
+
+
 ## Instalação em três passos
 
 1. **Instalar** (escolha um canal; ambos montam a linha do bundle na pilha `dsh.profile.bundles` do perfil e passam a valer após reiniciar):

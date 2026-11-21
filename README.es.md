@@ -43,6 +43,11 @@ dsh plugin --profile <name> add dsh-industry-research
   <img src="docs/assets/dsh-industry-research-flow-v5-light.svg" width="100%" alt="Estructura de dsh-industry-research: tres productores convergen — industry_map (chain.json + sources.json, chain.svg opcional), industry_track (timeline.jsonl) y company_scan (card.json + card.md) — en un registro de evidencia (E-chain / E-timeline / E-company-&lt;slug&gt;, cada uno con sha256); la compuerta de contrato de industry_report comprueba bloques y párrafos, requisitos de fuente y asOf, residuos de placeholder y claims→evidenceIds, además de una revisión adversarial determinista y, opcionalmente, revisión roja y notas bull/bear vía ctx.jobs; dos salidas: ctx.researchReport sellado (sealHash + veredictos por claim) o builtin-fallback (reports/&lt;ts&gt;/report.md + manifest.json, claims unverified); la cinta versions.jsonl registra cada escritura de map/scan/report y verifica el hash al leer, fallando en voz alta si no coincide; las líneas discontinuas marcan capacidades opcionales como ctx.web y ctx.jobs">
 </picture>
 
+![dsh-industry-research: ejecución real de terminal](docs/assets/dsh-industry-research-demo.gif)
+
+*Repetición animada de una ejecución real registrada en este repositorio.*
+
+
 ## Instalación en tres pasos
 
 1. **Instalar** (elige una vía; ambas montan la fila del bundle en la pila `dsh.profile.bundles` del perfil y surten efecto al reiniciar):

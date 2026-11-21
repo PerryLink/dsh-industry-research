@@ -43,6 +43,11 @@ dsh plugin --profile <name> add dsh-industry-research
   <img src="docs/assets/dsh-industry-research-flow-v5-light.svg" width="100%" alt="dsh-industry-research संरचना: तीन उत्पादक एक साथ आते हैं — industry_map (chain.json + sources.json, वैकल्पिक chain.svg), industry_track (timeline.jsonl) और company_scan (card.json + card.md) — एक साक्ष्य रजिस्टर में (E-chain / E-timeline / E-company-&lt;slug&gt;, हर एक sha256 के साथ); industry_report का अनुबंध-द्वार ब्लॉक और पैराग्राफ, स्रोत और asOf आवश्यकताएँ, placeholder अवशेष और claims→evidenceIds जाँचता है, साथ में निर्धारक adversarial जाँच और वैकल्पिक ctx.jobs लाल-टीम समीक्षा व bull/bear नोट्स; दो निकास: ctx.researchReport सीलबंद (sealHash + प्रति-claim निर्णय) या builtin-fallback (reports/&lt;ts&gt;/report.md + manifest.json, claims unverified); versions.jsonl लेजर हर map/scan/report लेखन दर्ज करता है और पढ़ते समय hash जाँचता है, मेल न खाने पर ज़ोर से विफल होता है; बिंदुदार रेखाएँ ctx.web और ctx.jobs जैसी वैकल्पिक रनटाइम क्षमताएँ दर्शाती हैं">
 </picture>
 
+![dsh-industry-research का असली टर्मिनल रन](docs/assets/dsh-industry-research-demo.gif)
+
+*इस रिपॉज़िटरी में दर्ज असली रन का एनिमेटेड रीप्ले।*
+
+
 ## तीन चरणों में शुरुआत
 
 1. **इंस्टॉल** (कोई एक चैनल चुनें; दोनों प्रोफ़ाइल के `dsh.profile.bundles` स्टैक में bundle पंक्ति डालते हैं और पुनःआरंभ पर लागू होते हैं):

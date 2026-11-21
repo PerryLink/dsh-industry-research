@@ -36,6 +36,10 @@ dsh plugin --profile <name> add dsh-industry-research
 
 ## 它是什么
 
+![dsh-industry-research 真实终端运行](docs/assets/dsh-industry-research-demo.gif)
+
+*本仓库一次真实运行的动图回放。*
+
 `dsh-industry-research` 把行业研究拆成一条可回放的流水线：先建产业链结构图，再跟踪公开源政策与要闻，然后扫描公司出速览卡，最后组装成可核查报告。每个带值的指标必须带 `sourceRef`，每个缺口是显式槽位而不是编造的数字；报告要么交给封存引擎，要么走内置降级路径并如实标注。它只做研究支持：不接交易、不预测价格、不使用付费或需登录的数据源。
 
 <picture>

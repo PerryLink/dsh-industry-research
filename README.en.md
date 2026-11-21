@@ -119,6 +119,10 @@ Assembles evidence (`E-chain`, `E-timeline`, `E-company-<slug>`), verifies the r
 
 ### Examples
 
+![dsh-industry-research: real terminal run](docs/assets/dsh-industry-research-demo.gif)
+
+*Animated replay of a real run recorded in this repository.*
+
 These are the plugin's real entry points; install once, then call one.
 
 **Detailed example** — command `industry_map`, input:
