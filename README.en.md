@@ -7,6 +7,8 @@
 
 # dsh-industry-research
 
+Current version `0.3.29`.
+
 **Turn industry research into a checkable evidence chain — every number carries a source and a date, every gap is declared.**
 
 An industry and company research domain pack for DeepSeek Harness: four workspace-bound tools plus two methodology skills, public sources only, research support only.
